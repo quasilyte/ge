@@ -1,5 +1,7 @@
 package collision
 
+import "github.com/quasilyte/ge/gemath"
+
 type Engine struct {
 	bodies []*Body
 
@@ -8,6 +10,23 @@ type Engine struct {
 
 func (e *Engine) AddBody(b *Body) {
 	e.bodies = append(e.bodies, b)
+}
+
+func (e *Engine) HasCollisionsAt(b *Body, pos gemath.Vec) bool {
+	b1 := *b
+	b1.Pos = pos
+	for _, b2 := range e.bodies {
+		if b == b2 || b2.IsDisposed() {
+			continue
+		}
+		if b1.LayerMask&b2.LayerMask == 0 {
+			continue
+		}
+		if !Intersection(&b1, b2).IsEmpty() {
+			return true
+		}
+	}
+	return false
 }
 
 func (e *Engine) Calculate() {
@@ -26,6 +45,9 @@ func (e *Engine) Calculate() {
 			b2 := e.bodies[j]
 			// Even if these two bodies collide, they won't notice it.
 			if b1.CollisionHandler == nil && b2.CollisionHandler == nil {
+				continue
+			}
+			if b1.LayerMask&b2.LayerMask == 0 {
 				continue
 			}
 			area := Intersection(b1, b2)
