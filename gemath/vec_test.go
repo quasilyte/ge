@@ -17,7 +17,63 @@ func TestVecAPI(t *testing.T) {
 
 	assertTrue(Vec{}.EqualApprox(Vec{}))
 	assertTrue(Vec{}.IsZero())
-	assertTrue(Vec{X: 1}.NegResult() == Vec{X: -1})
+	assertTrue(Vec{}.Len() == 0)
+	assertTrue(Vec{X: 1}.Neg() == Vec{X: -1})
+
+	// A special case.
+	assertTrue(Vec{}.Normalized() == Vec{})
+}
+
+func TestVecNormalized(t *testing.T) {
+	tests := []struct {
+		v    Vec
+		want Vec
+	}{
+		{Vec{1, 0}, Vec{1, 0}},
+		{Vec{-1, 0}, Vec{-1, 0}},
+		{Vec{0, 1}, Vec{0, 1}},
+		{Vec{0, -1}, Vec{0, -1}},
+		{Vec{3, 0}, Vec{1, 0}},
+		{Vec{0, 3}, Vec{0, 1}},
+		{Vec{1, 1}, Vec{0.70710678118654, 0.70710678118654}},
+		{Vec{10, 13}, Vec{0.6097107608, 0.7926239891}},
+	}
+
+	for _, test := range tests {
+		have := test.v.Normalized()
+		if !have.EqualApprox(test.want) {
+			t.Fatalf("Normalized(%s):\nhave: %v\nwant: %v", test.v, have, test.want)
+		}
+		have2 := test.v.Divf(test.v.Len())
+		if !have.EqualApprox(have2) {
+			t.Fatalf("div+len of %s:\nhave: %v\nwant: %v", test.v, have, test.want)
+		}
+		if !have.IsNormalized() {
+			t.Fatalf("IsNormalized(Normalized(%s)) returned false", test.v)
+		}
+	}
+}
+
+func TestVecLen(t *testing.T) {
+	tests := []struct {
+		v    Vec
+		want float64
+	}{
+		{Vec{}, 0},
+		{Vec{1, 0}, 1},
+		{Vec{0, 1}, 1},
+		{Vec{1, 1}, 1.414213562373},
+		{Vec{2, 1}, 2.236067977499},
+		{Vec{-1, 0}, 1},
+		{Vec{0, -1}, 1},
+	}
+
+	for _, test := range tests {
+		have := test.v.Len()
+		if !EqualApprox(have, test.want) {
+			t.Fatalf("Len(%s):\nhave: %v\nwant: %v", test.v, have, test.want)
+		}
+	}
 }
 
 func TestVecEqualApprox(t *testing.T) {
@@ -64,17 +120,13 @@ func TestVecAdd(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		origTestArg := test.a
-		have := test.a.AddResult(test.b)
+		have := test.a.Add(test.b)
 		if !have.EqualApprox(test.want) {
 			t.Fatalf("Add(%s, %s):\nhave: %s\nwant: %s", test.a, test.b, have, test.want)
 		}
-		have2 := test.b.AddResult(test.a)
+		have2 := test.b.Add(test.a)
 		if !have2.EqualApprox(test.want) {
 			t.Fatalf("Add(%s, %s):\nhave: %s\nwant: %s", test.b, test.a, have2, test.want)
-		}
-		if test.a != origTestArg {
-			t.Fatalf("operation modified the receiver")
 		}
 	}
 }
@@ -92,13 +144,9 @@ func TestVecNeg(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		origTestArg := test.arg
-		have := test.arg.NegResult()
+		have := test.arg.Neg()
 		if !have.EqualApprox(test.want) {
 			t.Fatalf("Neg(%s):\nhave: %s\nwant: %s", test.arg, have, test.want)
-		}
-		if test.arg != origTestArg {
-			t.Fatalf("operation modified the receiver")
 		}
 	}
 }
