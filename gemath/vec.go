@@ -51,6 +51,10 @@ func (v Vec) DistanceTo(v2 Vec) float64 {
 	return math.Sqrt((v.X-v2.X)*(v.X-v2.X) + (v.Y-v2.Y)*(v.Y-v2.Y))
 }
 
+func (v Vec) DistanceSquaredTo(v2 Vec) float64 {
+	return ((v.X - v2.X) * (v.X - v2.X)) + ((v.Y - v2.Y) * (v.Y - v2.Y))
+}
+
 // Dot returns a dot-product of the two vectors.
 func (v Vec) Dot(v2 Vec) float64 {
 	return (v.X * v2.X) + (v.Y * v2.Y)
@@ -70,16 +74,31 @@ func (v Vec) LenSquared() float64 {
 	return v.X*v.X + v.Y*v.Y
 }
 
+func (v Vec) Rotated(angle Rad) Vec {
+	sine := angle.Sin()
+	cosi := angle.Cos()
+	return Vec{
+		X: v.X*cosi - v.Y*sine,
+		Y: v.X*sine + v.Y*cosi,
+	}
+}
+
 func (v Vec) Angle() Rad {
 	return Rad(math.Atan2(v.Y, v.X))
 }
 
-func (v Vec) AngleTo(pos Vec) Rad {
+// AngleToPoint returns the angle between the line connecting the two points
+// and the X axis, in radians.
+func (v Vec) AngleToPoint(pos Vec) Rad {
 	return v.Sub(pos).Angle()
 }
 
+func (v Vec) DirectionTo(v2 Vec) Vec {
+	return v.Sub(v2).Normalized()
+}
+
 func (v Vec) VecTowards(length float64, pos Vec) Vec {
-	angle := pos.AngleTo(v)
+	angle := pos.AngleToPoint(v)
 	result := Vec{X: angle.Cos(), Y: angle.Sin()}
 	return result.Mulf(length)
 }
