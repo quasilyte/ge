@@ -26,3 +26,7 @@ func (g *brickGroup) Update(delta float64) {
 	}
 	g.slide += delta
 }
+
+func (g *brickGroup) Reset() {
+	g.bricks = g.bricks[:0]
+}

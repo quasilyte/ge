@@ -53,6 +53,8 @@ type Scene struct {
 	addedObjects    []SceneObject
 	tmpObjectsQueue []SceneObject
 
+	delayedFuncs []delayedFunc
+
 	collisionEngine physics.CollisionEngine
 
 	graphics []SceneGraphics
@@ -99,6 +101,13 @@ func (scene *Scene) AddObject(o SceneObject) {
 	scene.addedObjects = append(scene.addedObjects, o)
 }
 
+func (scene *Scene) DelayedCall(seconds float64, fn func()) {
+	scene.delayedFuncs = append(scene.delayedFuncs, delayedFunc{
+		delay:  seconds,
+		action: fn,
+	})
+}
+
 func (s *Scene) GetCollisions(b *physics.Body) []physics.Collision {
 	return s.collisionEngine.GetCollisions(b, physics.CollisionConfig{})
 }
@@ -131,6 +140,19 @@ func (scene *Scene) addQueuedObjects() {
 }
 
 func (scene *Scene) update(delta float64) {
+	if len(scene.delayedFuncs) != 0 {
+		funcs := scene.delayedFuncs[:0]
+		for _, fn := range scene.delayedFuncs {
+			fn.delay -= delta
+			if fn.delay <= 0 {
+				fn.action()
+			} else {
+				funcs = append(funcs, fn)
+			}
+		}
+		scene.delayedFuncs = funcs
+	}
+
 	scene.collisionEngine.CalculateFrame()
 
 	scene.controller.Update(delta)
@@ -146,4 +168,9 @@ func (scene *Scene) update(delta float64) {
 	scene.objects = liveObjects
 
 	scene.addQueuedObjects()
+}
+
+type delayedFunc struct {
+	delay  float64
+	action func()
 }

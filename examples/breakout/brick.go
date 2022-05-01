@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
 )
 
@@ -18,18 +19,26 @@ type brick struct {
 	hp     float64
 
 	shapeHeight float64
+
+	EventDestroyed gesignal.Event[gesignal.Void]
 }
 
-func newBrick(scale float64, rotation gemath.Rad) *brick {
+func newBrick(scale float64, rotation gemath.Rad, pos gemath.Vec) *brick {
 	b := &brick{hp: 4, scale: scale, shapeHeight: 32}
 	b.body.InitRotatedRect(b, brickDefaultWidth*scale, 32*scale)
 	b.body.Rotation = rotation
+	b.body.Pos = pos
 	return b
 }
 
-func newCircleBrick(scale float64) *brick {
-	b := &brick{hp: 3, scale: scale, shapeHeight: brickDefaultWidth}
+func newCircleBrick(scale float64, pos gemath.Vec) *brick {
+	b := &brick{
+		hp:          1,
+		scale:       scale,
+		shapeHeight: brickDefaultWidth,
+	}
 	b.body.InitCircle(b, 32*scale)
+	b.body.Pos = pos
 	return b
 }
 
@@ -103,5 +112,6 @@ func (b *brick) Destroy() {
 		}
 	}
 
+	b.EventDestroyed.Emit(gesignal.Void{})
 	b.Dispose()
 }

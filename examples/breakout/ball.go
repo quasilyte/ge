@@ -5,6 +5,7 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
 )
 
@@ -13,6 +14,8 @@ type ball struct {
 	body     physics.Body
 	sprite   *ge.Sprite
 	velocity gemath.Vec
+
+	EventDestroyed gesignal.Event[gesignal.Void]
 }
 
 func newBall() *ball {
@@ -40,6 +43,7 @@ func (b *ball) Update(delta float64) {
 	b.handleMovement(delta)
 
 	if !b.scene.Context().WindowRect().Contains(b.body.Pos) {
+		b.EventDestroyed.Emit(gesignal.Void{})
 		b.Dispose()
 	}
 }

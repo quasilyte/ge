@@ -103,6 +103,9 @@ func (sys *AudioSystem) ContinueMusic(id ID) {
 
 func (sys *AudioSystem) PlayMusic(id ID) {
 	resource := sys.getOGGResource(id)
+	if sys.currentMusic != nil && resource.player == sys.currentMusic.player {
+		return
+	}
 	sys.currentMusic = resource
 	resource.player.SetVolume(resource.volume)
 	resource.player.Rewind()
