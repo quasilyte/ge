@@ -43,10 +43,17 @@ func main() {
 		return f
 	}
 
-	ctx.Input.Keymap.Set(ActionLeft, ebiten.KeyA)
-	ctx.Input.Keymap.Set(ActionRight, ebiten.KeyD)
-	ctx.Input.Keymap.Set(ActionFire, ebiten.KeySpace)
+	// Bind controls.
+	keyBindings := map[ge.KeymapAction]ebiten.Key{
+		ActionLeft:  ebiten.KeyA,
+		ActionRight: ebiten.KeyD,
+		ActionFire:  ebiten.KeySpace,
+	}
+	for id, key := range keyBindings {
+		ctx.Input.Keymap.Set(id, key)
+	}
 
+	// Associate audio resources.
 	audioResources := map[resource.ID]resource.Audio{
 		AudioBrickHit:       {Path: "brick_hit.wav", Volume: -0.3},
 		AudioBrickDestroyed: {Path: "brick_destroyed.wav", Volume: -0.1},

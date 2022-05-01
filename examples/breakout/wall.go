@@ -18,7 +18,6 @@ func newWall(width, height float64, rotation gemath.Rad) *wall {
 }
 
 func (w *wall) Init(scene *ge.Scene) {
-	// scene.AddGraphics(&gedebug.BodyAura{Body: &w.body})
 	scene.AddBody(&w.body)
 }
 

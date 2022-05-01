@@ -12,12 +12,11 @@ type brickShard struct {
 }
 
 func newBrickShard(pos gemath.Vec) *brickShard {
-	shard := &brickShard{pos: pos}
-	return shard
+	return &brickShard{pos: pos}
 }
 
 func (shard *brickShard) Init(scene *ge.Scene) {
-	angle := scene.Context().Rand.Rad()
+	angle := scene.Rand().Rad()
 	shard.velocity = gemath.RadToVec(angle).Mulf(100)
 	shard.sprite = scene.LoadSprite("brick_shard.png")
 	shard.sprite.Pos = &shard.pos
@@ -26,6 +25,10 @@ func (shard *brickShard) Init(scene *ge.Scene) {
 
 func (shard *brickShard) IsDisposed() bool { return shard.sprite.IsDisposed() }
 
+func (shard *brickShard) Dispose() {
+	shard.sprite.Dispose()
+}
+
 func (shard *brickShard) Update(delta float64) {
 	shard.pos = shard.pos.Add(shard.velocity.Mulf(delta))
 
@@ -33,8 +36,4 @@ func (shard *brickShard) Update(delta float64) {
 	if shard.sprite.ColorModulation.A < 0.2 {
 		shard.Dispose()
 	}
-}
-
-func (shard *brickShard) Dispose() {
-	shard.sprite.Dispose()
 }

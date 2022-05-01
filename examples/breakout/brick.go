@@ -11,7 +11,7 @@ const brickShardWidth float64 = 8
 const brickShardHeight float64 = 8
 
 type brick struct {
-	ctx    *ge.Context
+	scene  *ge.Scene
 	body   physics.Body
 	sprite *ge.Sprite
 	scale  float64
@@ -34,7 +34,7 @@ func newCircleBrick(scale float64) *brick {
 }
 
 func (b *brick) Init(scene *ge.Scene) {
-	b.ctx = scene.Context()
+	b.scene = scene
 	if b.body.IsCircle() {
 		b.sprite = scene.LoadSprite("brick_circle.png")
 	} else {
@@ -45,19 +45,26 @@ func (b *brick) Init(scene *ge.Scene) {
 	b.sprite.Pos = &b.body.Pos
 	b.sprite.Scaling = b.scale
 	scene.AddGraphics(b.sprite)
-	// scene.AddGraphics(&gedebug.BodyAura{Body: &b.body})
 	scene.AddBody(&b.body)
 }
 
-func (b *brick) Hit() bool {
+func (b *brick) Hit(hitPos gemath.Vec) bool {
 	b.hp--
 	b.sprite.Offset.X += brickDefaultWidth
+
 	if b.hp <= 0 {
-		b.ctx.Audio.PlaySound(AudioBrickDestroyed)
+		b.scene.Audio().PlaySound(AudioBrickDestroyed)
 		b.Destroy()
 		return true
 	}
-	b.ctx.Audio.PlaySound(AudioBrickHit)
+
+	for i := 0; i < 3; i++ {
+		shardPos := hitPos.Add(gemath.Vec{X: float64(i*8) - 8})
+		shard := newBrickShard(shardPos)
+		b.scene.AddObject(shard)
+	}
+
+	b.scene.Audio().PlaySound(AudioBrickHit)
 	return false
 }
 
@@ -92,7 +99,7 @@ func (b *brick) Destroy() {
 			diff := unrotatedPos.Sub(center)
 			rotatedPos := diff.Rotated(b.body.Rotation).Add(center)
 			shard := newBrickShard(rotatedPos)
-			b.ctx.CurrentScene.AddObject(shard)
+			b.scene.AddObject(shard)
 		}
 	}
 

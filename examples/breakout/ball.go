@@ -37,18 +37,25 @@ func (b *ball) Dispose() {
 }
 
 func (b *ball) Update(delta float64) {
-	bounced := false
+	b.handleMovement(delta)
+
+	if !b.scene.Context().WindowRect().Contains(b.body.Pos) {
+		b.Dispose()
+	}
+}
+
+func (b *ball) handleMovement(delta float64) {
 	if collision := b.scene.GetMovementCollision(&b.body, b.velocity); collision != nil {
+		bounced := false
 		extraRotation := float64(0)
 		switch o := collision.Body.Object.(type) {
 		case *brick:
-			bounced = !o.Hit()
-			for i := 0; i < 3; i++ {
-				shardPos := b.body.Pos.Add(gemath.Vec{X: float64(i*8) - 8})
-				shard := newBrickShard(shardPos)
-				b.scene.AddObject(shard)
-			}
+			// If brick is destroyed, we'll go through it without a bounce.
+			bounced = !o.Hit(b.body.Pos)
 		case *platform:
+			// Since platform can rotate, it can result in a tricky corner cases
+			// where default reflection calculations can fail.
+			// We'll try to fix these situations here by adding an extra rotation.
 			platformRotation := o.body.Rotation
 			if platformRotation < 0 {
 				platformRotation += math.Pi
@@ -63,23 +70,20 @@ func (b *ball) Update(delta float64) {
 			}
 			bounced = true
 		default:
+			// Collided with wall, etc.
 			bounced = true
 		}
 		if bounced {
 			b.body.Pos = b.body.Pos.Add(collision.Normal.Mulf(collision.Depth + 6))
-			b.velocity = b.calculateReflectedVec(collision.Normal.Rotated(gemath.Rad(extraRotation)))
+			b.velocity = b.reflect(collision.Normal.Rotated(gemath.Rad(extraRotation)))
+			return
 		}
 	}
-	if !bounced {
-		b.body.Pos = b.body.Pos.Add(b.velocity.Mulf(delta))
-	}
 
-	if !b.scene.Context().WindowRect().Contains(b.body.Pos) {
-		b.Dispose()
-	}
+	b.body.Pos = b.body.Pos.Add(b.velocity.Mulf(delta))
 }
 
-func (b *ball) calculateReflectedVec(n gemath.Vec) gemath.Vec {
+func (b *ball) reflect(n gemath.Vec) gemath.Vec {
 	v := b.velocity
 	return v.Sub(n.Mulf(2 * v.Dot(n)))
 }

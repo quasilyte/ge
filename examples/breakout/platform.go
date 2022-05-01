@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/physics"
@@ -58,13 +57,11 @@ func (p *platform) Update(delta float64) {
 	if p.ball != nil && p.ball.IsDisposed() {
 		p.ball = nil
 	}
-	canFire := p.ball == nil
-	if canFire && p.scene.Input().ActionIsPressed(ActionFire) {
-		x, y := ebiten.CursorPosition()
+	if p.ball == nil && p.scene.Input().ActionIsPressed(ActionFire) {
 		b := newBall()
-		b.velocity = p.body.Pos.VecTowards(350, gemath.Vec{X: float64(x), Y: float64(y)})
+		p.ball = b
+		b.velocity = gemath.Vec{X: 0, Y: -350}
 		b.body.Pos = gemath.Vec{X: p.body.Pos.X, Y: p.body.Pos.Y - 40}
 		p.scene.AddObject(b)
-		p.ball = b
 	}
 }

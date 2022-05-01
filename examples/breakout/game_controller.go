@@ -6,8 +6,6 @@ import (
 )
 
 type gameController struct {
-	ctx *ge.Context
-
 	rotatingBricks     brickGroup
 	slidingLeftBricks  brickGroup
 	slidingRightBricks brickGroup
@@ -70,7 +68,7 @@ func (c *gameController) initLevel(scene *ge.Scene) {
 }
 
 func (c *gameController) Init(scene *ge.Scene) {
-	c.ctx = scene.Context()
+	ctx := scene.Context()
 
 	preloadImages := []string{
 		"background.png",
@@ -80,18 +78,18 @@ func (c *gameController) Init(scene *ge.Scene) {
 		"platform.png",
 	}
 	for _, p := range preloadImages {
-		c.ctx.Loader.PreloadImage(p)
+		ctx.Loader.PreloadImage(p)
 	}
 	preloadAudio := []string{
 		"brick_destroyed.wav",
 		"brick_hit.wav",
 	}
 	for _, p := range preloadAudio {
-		c.ctx.Loader.PreloadWAV(p)
+		ctx.Loader.PreloadWAV(p)
 	}
-	c.ctx.Loader.PreloadOGG("music.ogg")
+	ctx.Loader.PreloadOGG("music.ogg")
 
-	c.ctx.Audio.PlayMusic(AudioMusic)
+	ctx.Audio.PlayMusic(AudioMusic)
 
 	{
 		bg := scene.LoadSprite("background.png")

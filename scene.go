@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/ge/resource"
 )
 
 type SceneController interface {
@@ -72,6 +73,14 @@ func (s *Scene) Context() *Context {
 
 func (s *Scene) Input() *Input {
 	return &s.context.Input
+}
+
+func (s *Scene) Audio() *resource.AudioSystem {
+	return &s.context.Audio
+}
+
+func (s *Scene) Rand() *gemath.Rand {
+	return &s.context.Rand
 }
 
 func (s *Scene) LoadSprite(path string) *Sprite {
