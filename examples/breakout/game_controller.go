@@ -91,10 +91,10 @@ func (c *gameController) Init(scene *ge.Scene) {
 	}
 	c.ctx.Loader.PreloadOGG("music.ogg")
 
-	// c.ctx.Audio.PlayMusic(AudioMusic)
+	c.ctx.Audio.PlayMusic(AudioMusic)
 
 	{
-		bg := c.ctx.LoadSprite("background.png")
+		bg := scene.LoadSprite("background.png")
 		bg.Pos = ge.NewVec(800/2, 640/2)
 		scene.AddGraphics(bg)
 	}

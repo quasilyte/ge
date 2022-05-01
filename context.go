@@ -51,10 +51,6 @@ func (ctx *Context) NewScene(name string, controller SceneController) *Scene {
 	return scene
 }
 
-func (ctx *Context) LoadSprite(path string) *Sprite {
-	return NewSprite(ctx.Loader.LoadImage(path))
-}
-
 func (ctx *Context) Draw(screen *ebiten.Image) {
 	ctx.CurrentScene.graphics = ctx.Renderer.Draw(screen, ctx.CurrentScene.graphics)
 }

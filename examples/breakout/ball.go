@@ -9,7 +9,7 @@ import (
 )
 
 type ball struct {
-	ctx      *ge.Context
+	scene    *ge.Scene
 	body     physics.Body
 	sprite   *ge.Sprite
 	velocity gemath.Vec
@@ -22,8 +22,8 @@ func newBall() *ball {
 }
 
 func (b *ball) Init(scene *ge.Scene) {
-	b.ctx = scene.Context()
-	b.sprite = b.ctx.LoadSprite("ball.png")
+	b.scene = scene
+	b.sprite = scene.LoadSprite("ball.png")
 	b.sprite.Pos = &b.body.Pos
 	scene.AddGraphics(b.sprite)
 	scene.AddBody(&b.body)
@@ -38,7 +38,7 @@ func (b *ball) Dispose() {
 
 func (b *ball) Update(delta float64) {
 	bounced := false
-	if collision := b.ctx.CurrentScene.GetMovementCollision(&b.body, b.velocity); collision != nil {
+	if collision := b.scene.GetMovementCollision(&b.body, b.velocity); collision != nil {
 		extraRotation := float64(0)
 		switch o := collision.Body.Object.(type) {
 		case *brick:
@@ -46,7 +46,7 @@ func (b *ball) Update(delta float64) {
 			for i := 0; i < 3; i++ {
 				shardPos := b.body.Pos.Add(gemath.Vec{X: float64(i*8) - 8})
 				shard := newBrickShard(shardPos)
-				b.ctx.CurrentScene.AddObject(shard)
+				b.scene.AddObject(shard)
 			}
 		case *platform:
 			platformRotation := o.body.Rotation
@@ -74,7 +74,7 @@ func (b *ball) Update(delta float64) {
 		b.body.Pos = b.body.Pos.Add(b.velocity.Mulf(delta))
 	}
 
-	if !b.ctx.WindowRect().Contains(b.body.Pos) {
+	if !b.scene.Context().WindowRect().Contains(b.body.Pos) {
 		b.Dispose()
 	}
 }

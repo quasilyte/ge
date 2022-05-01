@@ -70,6 +70,14 @@ func (s *Scene) Context() *Context {
 	return s.context
 }
 
+func (s *Scene) Input() *Input {
+	return &s.context.Input
+}
+
+func (s *Scene) LoadSprite(path string) *Sprite {
+	return NewSprite(s.context.Loader.LoadImage(path))
+}
+
 func (s *Scene) AddBody(b *physics.Body) {
 	s.collisionEngine.AddBody(b)
 }
