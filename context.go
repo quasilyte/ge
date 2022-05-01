@@ -2,17 +2,16 @@ package ge
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/audio"
 	"github.com/quasilyte/ge/gemath"
-	"github.com/quasilyte/ge/loader"
+	"github.com/quasilyte/ge/resource"
 )
 
 type Context struct {
-	Loader   *loader.Cache
+	Loader   *resource.Loader
 	Renderer *Renderer
 
 	Input Input
-	Audio audio.System
+	Audio resource.AudioSystem
 
 	Rand gemath.Rand
 
@@ -29,7 +28,7 @@ func NewContext() *Context {
 	ctx := &Context{
 		WindowTitle: "GE Game",
 	}
-	ctx.Loader = loader.NewCache()
+	ctx.Loader = resource.NewLoader(&ctx.Audio, &ctx.Audio)
 	ctx.Renderer = NewRenderer()
 	ctx.Rand.SetSeed(0)
 	ctx.Input.init()
@@ -37,7 +36,6 @@ func NewContext() *Context {
 	ctx.OnCriticalError = func(err error) {
 		panic(err)
 	}
-	ctx.Loader.WAVDecoder = &ctx.Audio
 	return ctx
 }
 
@@ -54,7 +52,7 @@ func (ctx *Context) NewScene(name string, controller SceneController) *Scene {
 }
 
 func (ctx *Context) LoadSprite(path string) *Sprite {
-	return NewSprite(ctx.Loader.GetImage(path))
+	return NewSprite(ctx.Loader.LoadImage(path))
 }
 
 func (ctx *Context) Draw(screen *ebiten.Image) {

@@ -2,7 +2,8 @@ package ge
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/collision"
+	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/physics"
 )
 
 type SceneController interface {
@@ -51,7 +52,7 @@ type Scene struct {
 	addedObjects    []SceneObject
 	tmpObjectsQueue []SceneObject
 
-	collisionEngine collision.Engine
+	collisionEngine physics.CollisionEngine
 
 	graphics []SceneGraphics
 }
@@ -69,7 +70,7 @@ func (s *Scene) Context() *Context {
 	return s.context
 }
 
-func (s *Scene) AddBody(b *collision.Body) {
+func (s *Scene) AddBody(b *physics.Body) {
 	s.collisionEngine.AddBody(b)
 }
 
@@ -79,6 +80,21 @@ func (s *Scene) AddGraphics(g SceneGraphics) {
 
 func (scene *Scene) AddObject(o SceneObject) {
 	scene.addedObjects = append(scene.addedObjects, o)
+}
+
+func (s *Scene) GetCollisions(b *physics.Body) []physics.Collision {
+	return s.collisionEngine.GetCollisions(b, physics.CollisionConfig{})
+}
+
+func (s *Scene) GetMovementCollision(b *physics.Body, velocity gemath.Vec) *physics.Collision {
+	collisions := s.collisionEngine.GetCollisions(b, physics.CollisionConfig{
+		Velocity: velocity,
+		Limit:    1,
+	})
+	if len(collisions) == 1 {
+		return &collisions[0]
+	}
+	return nil
 }
 
 func (scene *Scene) addQueuedObjects() {
@@ -98,6 +114,8 @@ func (scene *Scene) addQueuedObjects() {
 }
 
 func (scene *Scene) update(delta float64) {
+	scene.collisionEngine.CalculateFrame()
+
 	scene.controller.Update(delta)
 
 	liveObjects := scene.objects[:0]
@@ -111,6 +129,4 @@ func (scene *Scene) update(delta float64) {
 	scene.objects = liveObjects
 
 	scene.addQueuedObjects()
-
-	scene.collisionEngine.Calculate()
 }
