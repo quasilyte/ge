@@ -84,7 +84,11 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	}
 	drawOptions.GeoM.Translate(origin.X, origin.Y)
 
-	drawOptions.GeoM.Translate(s.Pos.X-origin.X, s.Pos.Y-origin.Y)
+	if s.Pos != nil {
+		drawOptions.GeoM.Translate(s.Pos.X-origin.X, s.Pos.Y-origin.Y)
+	} else {
+		drawOptions.GeoM.Translate(0, 0)
+	}
 
 	if s.ColorModulation != defaultColorModulation {
 		r := float64(s.ColorModulation.R)

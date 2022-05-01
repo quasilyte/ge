@@ -43,7 +43,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 
 	{
 		bg := scene.LoadSprite(ImageBackground)
-		bg.Pos = ge.NewVec(800/2, 640/2)
+		bg.Centered = false
 		scene.AddGraphics(bg)
 	}
 
