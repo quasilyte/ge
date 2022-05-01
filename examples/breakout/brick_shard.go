@@ -18,7 +18,7 @@ func newBrickShard(pos gemath.Vec) *brickShard {
 func (shard *brickShard) Init(scene *ge.Scene) {
 	angle := scene.Rand().Rad()
 	shard.velocity = gemath.RadToVec(angle).Mulf(100)
-	shard.sprite = scene.LoadSprite("brick_shard.png")
+	shard.sprite = scene.LoadSprite(ImageBrickShard)
 	shard.sprite.Pos = &shard.pos
 	scene.AddGraphics(shard.sprite)
 }

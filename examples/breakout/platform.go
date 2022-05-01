@@ -21,7 +21,7 @@ func newPlatform() *platform {
 
 func (p *platform) Init(scene *ge.Scene) {
 	p.scene = scene
-	p.sprite = p.scene.LoadSprite("platform.png")
+	p.sprite = p.scene.LoadSprite(ImagePlatform)
 	p.sprite.Pos = &p.body.Pos
 	p.sprite.Rotation = &p.body.Rotation
 	scene.AddGraphics(p.sprite)

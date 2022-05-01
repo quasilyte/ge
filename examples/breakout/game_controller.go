@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/resource"
 )
 
 type gameController struct {
@@ -70,29 +71,30 @@ func (c *gameController) initLevel(scene *ge.Scene) {
 func (c *gameController) Init(scene *ge.Scene) {
 	ctx := scene.Context()
 
-	preloadImages := []string{
-		"background.png",
-		"brick_purple.png",
-		"brick_circle.png",
-		"ball.png",
-		"platform.png",
+	preloadImages := []resource.ID{
+		ImageBackground,
+		ImageBrickCircle,
+		ImageBrickRect,
+		ImageBrickShard,
+		ImageBall,
+		ImagePlatform,
 	}
 	for _, p := range preloadImages {
 		ctx.Loader.PreloadImage(p)
 	}
-	preloadAudio := []string{
-		"brick_destroyed.wav",
-		"brick_hit.wav",
+	preloadAudio := []resource.ID{
+		AudioBrickDestroyed,
+		AudioBrickHit,
+		AudioMusic,
 	}
 	for _, p := range preloadAudio {
-		ctx.Loader.PreloadWAV(p)
+		ctx.Loader.PreloadAudio(p)
 	}
-	ctx.Loader.PreloadOGG("music.ogg")
 
 	ctx.Audio.PlayMusic(AudioMusic)
 
 	{
-		bg := scene.LoadSprite("background.png")
+		bg := scene.LoadSprite(ImageBackground)
 		bg.Pos = ge.NewVec(800/2, 640/2)
 		scene.AddGraphics(bg)
 	}

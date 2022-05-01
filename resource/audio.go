@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -29,8 +28,6 @@ func (r *AudioRegistry) Set(id ID, info Audio) {
 }
 
 type AudioSystem struct {
-	Registry AudioRegistry
-
 	loader *Loader
 
 	currentMusic *audioResource
@@ -47,7 +44,6 @@ type audioResource struct {
 func (sys *AudioSystem) Init(l *Loader) {
 	sys.loader = l
 	sys.audioContext = audio.NewContext(32000)
-	sys.Registry.mapping = make(map[ID]Audio)
 	sys.resources = make(map[ID]*audioResource)
 }
 
@@ -64,11 +60,8 @@ func (sys *AudioSystem) getOGGResource(id ID) *audioResource {
 	if ok {
 		return resource
 	}
-	oggInfo, ok := sys.Registry.mapping[id]
-	if !ok {
-		panic(fmt.Sprintf("unregistered ogg with id=%d", id))
-	}
-	stream := sys.loader.LoadOGG(oggInfo.Path)
+	stream := sys.loader.LoadOGG(id)
+	oggInfo := sys.loader.GetAudioInfo(id)
 	loopedStream := audio.NewInfiniteLoop(stream, stream.Length())
 	player, err := audio.NewPlayer(sys.audioContext, loopedStream)
 	if err != nil {
@@ -119,11 +112,8 @@ func (sys *AudioSystem) PlayMusic(id ID) {
 func (sys *AudioSystem) PlaySound(id ID) {
 	resource, ok := sys.resources[id]
 	if !ok {
-		wavInfo, ok := sys.Registry.mapping[id]
-		if !ok {
-			panic(fmt.Sprintf("unregistered wav with id=%d", id))
-		}
-		stream := sys.loader.LoadWAV(wavInfo.Path)
+		stream := sys.loader.LoadWAV(id)
+		wavInfo := sys.loader.GetAudioInfo(id)
 		player, err := audio.NewPlayer(sys.audioContext, stream)
 		if err != nil {
 			panic(err.Error())

@@ -36,9 +36,9 @@ func newCircleBrick(scale float64) *brick {
 func (b *brick) Init(scene *ge.Scene) {
 	b.scene = scene
 	if b.body.IsCircle() {
-		b.sprite = scene.LoadSprite("brick_circle.png")
+		b.sprite = scene.LoadSprite(ImageBrickCircle)
 	} else {
-		b.sprite = scene.LoadSprite("brick_purple.png")
+		b.sprite = scene.LoadSprite(ImageBrickRect)
 		b.sprite.Rotation = &b.body.Rotation
 	}
 	b.sprite.Width = brickDefaultWidth

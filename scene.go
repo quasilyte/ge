@@ -83,8 +83,8 @@ func (s *Scene) Rand() *gemath.Rand {
 	return &s.context.Rand
 }
 
-func (s *Scene) LoadSprite(path string) *Sprite {
-	return NewSprite(s.context.Loader.LoadImage(path))
+func (s *Scene) LoadSprite(id resource.ID) *Sprite {
+	return NewSprite(s.context.Loader.LoadImage(id))
 }
 
 func (s *Scene) AddBody(b *physics.Body) {

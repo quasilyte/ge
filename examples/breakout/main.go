@@ -23,6 +23,15 @@ const (
 )
 
 const (
+	ImageBackground resource.ID = iota
+	ImageBall
+	ImageBrickCircle
+	ImageBrickRect
+	ImageBrickShard
+	ImagePlatform
+)
+
+const (
 	AudioBrickHit resource.ID = iota
 	AudioBrickDestroyed
 	AudioMusic
@@ -60,7 +69,20 @@ func main() {
 		AudioMusic:          {Path: "music.ogg"},
 	}
 	for id, res := range audioResources {
-		ctx.Audio.Registry.Set(id, res)
+		ctx.Loader.AudioRegistry.Set(id, res)
+	}
+
+	// Associate image resources.
+	imageResources := map[resource.ID]resource.Image{
+		ImageBackground:  {Path: "background.png"},
+		ImageBall:        {Path: "ball.png"},
+		ImageBrickCircle: {Path: "brick_circle.png"},
+		ImageBrickRect:   {Path: "brick_rect.png"},
+		ImageBrickShard:  {Path: "brick_shard.png"},
+		ImagePlatform:    {Path: "platform.png"},
+	}
+	for id, res := range imageResources {
+		ctx.Loader.ImageRegistry.Set(id, res)
 	}
 
 	ctx.CurrentScene = ctx.NewScene("game", newGameController())
