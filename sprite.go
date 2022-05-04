@@ -14,11 +14,14 @@ type Sprite struct {
 
 	Rotation *gemath.Rad
 
-	Scaling float64
+	Scale float64
 
-	ColorModulation ColorModulation
+	ColorScale ColorScale
+
+	Hue gemath.Rad
 
 	Centered bool
+	Origin   gemath.Vec
 
 	Offset gemath.Vec
 	Width  float64
@@ -27,24 +30,24 @@ type Sprite struct {
 	disposed bool
 }
 
-type ColorModulation struct {
+type ColorScale struct {
 	R float32
 	G float32
 	B float32
 	A float32
 }
 
-var defaultColorModulation = ColorModulation{1, 1, 1, 1}
+var defaultColorScale = ColorScale{1, 1, 1, 1}
 
 func NewSprite(img *ebiten.Image) *Sprite {
 	w, h := img.Size()
 	sprite := &Sprite{
-		image:           img,
-		Width:           float64(w),
-		Height:          float64(h),
-		Centered:        true,
-		Scaling:         1,
-		ColorModulation: defaultColorModulation,
+		image:      img,
+		Width:      float64(w),
+		Height:     float64(h),
+		Centered:   true,
+		Scale:      1,
+		ColorScale: defaultColorScale,
 	}
 	return sprite
 }
@@ -74,28 +77,30 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	if s.Centered {
 		origin = gemath.Vec{X: s.Width / 2, Y: s.Height / 2}
 	}
+	origin = origin.Sub(s.Origin)
 
 	drawOptions.GeoM.Translate(-origin.X, -origin.Y)
 	if s.Rotation != nil {
 		drawOptions.GeoM.Rotate(float64(*s.Rotation))
 	}
-	if s.Scaling != 1 {
-		drawOptions.GeoM.Scale(s.Scaling, s.Scaling)
+	if s.Scale != 1 {
+		drawOptions.GeoM.Scale(s.Scale, s.Scale)
 	}
 	drawOptions.GeoM.Translate(origin.X, origin.Y)
 
 	if s.Pos != nil {
 		drawOptions.GeoM.Translate(s.Pos.X-origin.X, s.Pos.Y-origin.Y)
-	} else {
-		drawOptions.GeoM.Translate(0, 0)
 	}
 
-	if s.ColorModulation != defaultColorModulation {
-		r := float64(s.ColorModulation.R)
-		g := float64(s.ColorModulation.G)
-		b := float64(s.ColorModulation.B)
-		a := float64(s.ColorModulation.A)
+	if s.ColorScale != defaultColorScale {
+		r := float64(s.ColorScale.R)
+		g := float64(s.ColorScale.G)
+		b := float64(s.ColorScale.B)
+		a := float64(s.ColorScale.A)
 		drawOptions.ColorM.Scale(r, g, b, a)
+	}
+	if s.Hue != 0 {
+		drawOptions.ColorM.RotateHue(float64(s.Hue))
 	}
 
 	subImage := s.image.SubImage(image.Rectangle{
