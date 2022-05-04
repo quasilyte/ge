@@ -1,8 +1,6 @@
 package ge
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/quasilyte/ge/gemath"
@@ -47,7 +45,6 @@ func (l *Label) SetColor(r, g, b, a uint8) {
 		B: float32(b) / 255,
 		A: float32(a) / 255,
 	}
-	fmt.Println(l.ColorScale)
 }
 
 func (l *Label) Draw(screen *ebiten.Image) {

@@ -151,7 +151,7 @@ func (l *Loader) LoadFont(id ID) font.Face {
 		}
 		face, err := opentype.NewFace(tt, &opentype.FaceOptions{
 			Size:    float64(fontInfo.Size),
-			DPI:     72,
+			DPI:     96,
 			Hinting: font.HintingFull,
 		})
 		if err != nil {
