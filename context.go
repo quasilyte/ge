@@ -3,6 +3,7 @@ package ge
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/resource"
 )
 
@@ -10,7 +11,7 @@ type Context struct {
 	Loader   *resource.Loader
 	Renderer *Renderer
 
-	Input Input
+	Input input.System
 	Audio resource.AudioSystem
 
 	Rand gemath.Rand
@@ -31,8 +32,8 @@ func NewContext() *Context {
 	ctx.Loader = resource.NewLoader(&ctx.Audio, &ctx.Audio)
 	ctx.Renderer = NewRenderer()
 	ctx.Rand.SetSeed(0)
-	ctx.Input.init()
 	ctx.Audio.Init(ctx.Loader)
+	ctx.Input.Init()
 	ctx.OnCriticalError = func(err error) {
 		panic(err)
 	}

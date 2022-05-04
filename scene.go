@@ -73,10 +73,6 @@ func (s *Scene) Context() *Context {
 	return s.context
 }
 
-func (s *Scene) Input() *Input {
-	return &s.context.Input
-}
-
 func (s *Scene) Audio() *resource.AudioSystem {
 	return &s.context.Audio
 }
@@ -85,8 +81,12 @@ func (s *Scene) Rand() *gemath.Rand {
 	return &s.context.Rand
 }
 
-func (s *Scene) LoadSprite(id resource.ID) *Sprite {
-	return NewSprite(s.context.Loader.LoadImage(id))
+func (s *Scene) NewSprite(imageID resource.ID) *Sprite {
+	return NewSprite(s.context.Loader.LoadImage(imageID))
+}
+
+func (s *Scene) NewLabel(fontID resource.ID) *Label {
+	return NewLabel(s.context.Loader.LoadFont(fontID))
 }
 
 func (s *Scene) AddBody(b *physics.Body) {
