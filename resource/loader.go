@@ -9,6 +9,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 )
 
 // Loader is used to load and cache game resources like images and audio files.
@@ -19,6 +21,7 @@ type Loader struct {
 
 	ImageRegistry ImageRegistry
 	AudioRegistry AudioRegistry
+	FontRegistry  FontRegistry
 
 	wavDecoder wavDecoder
 	oggDecoder oggDecoder
@@ -26,6 +29,7 @@ type Loader struct {
 	images map[ID]*ebiten.Image
 	wavs   map[ID]*wav.Stream
 	oggs   map[ID]*vorbis.Stream
+	fonts  map[ID]font.Face
 }
 
 type wavDecoder interface {
@@ -41,11 +45,13 @@ func NewLoader(wd wavDecoder, od oggDecoder) *Loader {
 		images:     make(map[ID]*ebiten.Image),
 		wavs:       make(map[ID]*wav.Stream),
 		oggs:       make(map[ID]*vorbis.Stream),
+		fonts:      make(map[ID]font.Face),
 		wavDecoder: wd,
 		oggDecoder: od,
 	}
 	l.AudioRegistry.mapping = make(map[ID]Audio)
 	l.ImageRegistry.mapping = make(map[ID]Image)
+	l.FontRegistry.mapping = make(map[ID]Font)
 	return l
 }
 
@@ -68,6 +74,10 @@ func (l *Loader) PreloadWAV(id ID) {
 
 func (l *Loader) PreloadOGG(id ID) {
 	l.LoadOGG(id)
+}
+
+func (l *Loader) PreloadFont(id ID) {
+	l.LoadFont(id)
 }
 
 func (l *Loader) LoadWAV(id ID) *wav.Stream {
@@ -116,6 +126,40 @@ func (l *Loader) LoadOGG(id ID) *vorbis.Stream {
 		l.oggs[id] = stream
 	}
 	return stream
+}
+
+func (l *Loader) LoadFont(id ID) font.Face {
+	ff, ok := l.fonts[id]
+	if !ok {
+		fontInfo, ok := l.FontRegistry.mapping[id]
+		if !ok {
+			panic(fmt.Sprintf("unregistered font with id=%d", id))
+		}
+		r := l.OpenAssetFunc(fontInfo.Path)
+		defer func() {
+			if err := r.Close(); err != nil {
+				panic(fmt.Sprintf("closing %q font reader: %v", fontInfo.Path, err))
+			}
+		}()
+		fontData, err := io.ReadAll(r)
+		if err != nil {
+			panic(fmt.Sprintf("reading %q data: %v", fontInfo.Path, err))
+		}
+		tt, err := opentype.Parse(fontData)
+		if err != nil {
+			panic(fmt.Sprintf("parsing %q font: %v", fontInfo.Path, err))
+		}
+		face, err := opentype.NewFace(tt, &opentype.FaceOptions{
+			Size:    float64(fontInfo.Size),
+			DPI:     72,
+			Hinting: font.HintingFull,
+		})
+		if err != nil {
+			panic(fmt.Sprintf("creating a font face for %q: %v", fontInfo.Path, err))
+		}
+		l.fonts[id] = face
+	}
+	return ff
 }
 
 func (l *Loader) LoadImage(id ID) *ebiten.Image {
