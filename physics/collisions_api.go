@@ -115,6 +115,8 @@ func (b *Body) Dispose() { b.disposed = true }
 
 func (b *Body) InitCircle(o interface{}, radius float64) {
 	*b = Body{
+		Pos:       b.Pos,
+		Rotation:  b.Rotation,
 		Object:    o,
 		LayerMask: 1,
 		kind:      bodyCircle,
@@ -124,6 +126,8 @@ func (b *Body) InitCircle(o interface{}, radius float64) {
 
 func (b *Body) InitRotatedRect(o interface{}, width, height float64) {
 	*b = Body{
+		Pos:       b.Pos,
+		Rotation:  b.Rotation,
 		Object:    o,
 		LayerMask: 1,
 		kind:      bodyRotatedRect,
