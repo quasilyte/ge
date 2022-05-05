@@ -6,10 +6,12 @@ type Font struct {
 	Size int
 }
 
+type FontID int
+
 type FontRegistry struct {
-	mapping map[ID]Font
+	mapping map[FontID]Font
 }
 
-func (r *FontRegistry) Set(id ID, info Font) {
+func (r *FontRegistry) Set(id FontID, info Font) {
 	r.mapping[id] = info
 }

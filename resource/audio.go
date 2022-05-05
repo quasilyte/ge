@@ -19,11 +19,13 @@ type Audio struct {
 	Volume float64
 }
 
+type AudioID int
+
 type AudioRegistry struct {
-	mapping map[ID]Audio
+	mapping map[AudioID]Audio
 }
 
-func (r *AudioRegistry) Set(id ID, info Audio) {
+func (r *AudioRegistry) Set(id AudioID, info Audio) {
 	r.mapping[id] = info
 }
 
@@ -33,7 +35,7 @@ type AudioSystem struct {
 	currentMusic *audioResource
 
 	audioContext *audio.Context
-	resources    map[ID]*audioResource
+	resources    map[AudioID]*audioResource
 }
 
 type audioResource struct {
@@ -44,7 +46,7 @@ type audioResource struct {
 func (sys *AudioSystem) Init(l *Loader) {
 	sys.loader = l
 	sys.audioContext = audio.NewContext(32000)
-	sys.resources = make(map[ID]*audioResource)
+	sys.resources = make(map[AudioID]*audioResource)
 }
 
 func (sys *AudioSystem) DecodeWAV(r io.Reader) (*wav.Stream, error) {
@@ -55,7 +57,7 @@ func (sys *AudioSystem) DecodeOGG(r io.Reader) (*vorbis.Stream, error) {
 	return vorbis.Decode(sys.audioContext, r)
 }
 
-func (sys *AudioSystem) getOGGResource(id ID) *audioResource {
+func (sys *AudioSystem) getOGGResource(id AudioID) *audioResource {
 	resource, ok := sys.resources[id]
 	if ok {
 		return resource
@@ -91,7 +93,7 @@ func (sys *AudioSystem) ContinueCurrentMusic() {
 	sys.currentMusic.player.Play()
 }
 
-func (sys *AudioSystem) ContinueMusic(id ID) {
+func (sys *AudioSystem) ContinueMusic(id AudioID) {
 	resource := sys.getOGGResource(id)
 	if resource.player.IsPlaying() {
 		return
@@ -101,7 +103,7 @@ func (sys *AudioSystem) ContinueMusic(id ID) {
 	resource.player.Play()
 }
 
-func (sys *AudioSystem) PlayMusic(id ID) {
+func (sys *AudioSystem) PlayMusic(id AudioID) {
 	resource := sys.getOGGResource(id)
 	if sys.currentMusic != nil && resource.player == sys.currentMusic.player {
 		return
@@ -112,7 +114,7 @@ func (sys *AudioSystem) PlayMusic(id ID) {
 	resource.player.Play()
 }
 
-func (sys *AudioSystem) PlaySound(id ID) {
+func (sys *AudioSystem) PlaySound(id AudioID) {
 	resource, ok := sys.resources[id]
 	if !ok {
 		stream := sys.loader.LoadWAV(id)

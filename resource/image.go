@@ -4,10 +4,12 @@ type Image struct {
 	Path string
 }
 
+type ImageID int
+
 type ImageRegistry struct {
-	mapping map[ID]Image
+	mapping map[ImageID]Image
 }
 
-func (r *ImageRegistry) Set(id ID, info Image) {
+func (r *ImageRegistry) Set(id ImageID, info Image) {
 	r.mapping[id] = info
 }

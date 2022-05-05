@@ -81,11 +81,17 @@ func (s *Scene) Rand() *gemath.Rand {
 	return &s.context.Rand
 }
 
-func (s *Scene) NewSprite(imageID resource.ID) *Sprite {
-	return NewSprite(s.context.Loader.LoadImage(imageID))
+func (s *Scene) LoadImage(imageID resource.ImageID) *ebiten.Image {
+	return s.context.Loader.LoadImage(imageID)
 }
 
-func (s *Scene) NewLabel(fontID resource.ID) *Label {
+func (s *Scene) NewSprite(imageID resource.ImageID) *Sprite {
+	sprite := NewSprite()
+	sprite.SetImage(s.LoadImage(imageID))
+	return sprite
+}
+
+func (s *Scene) NewLabel(fontID resource.FontID) *Label {
 	return NewLabel(s.context.Loader.LoadFont(fontID))
 }
 

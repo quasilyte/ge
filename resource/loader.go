@@ -26,10 +26,10 @@ type Loader struct {
 	wavDecoder wavDecoder
 	oggDecoder oggDecoder
 
-	images map[ID]*ebiten.Image
-	wavs   map[ID]*wav.Stream
-	oggs   map[ID]*vorbis.Stream
-	fonts  map[ID]font.Face
+	images map[ImageID]*ebiten.Image
+	wavs   map[AudioID]*wav.Stream
+	oggs   map[AudioID]*vorbis.Stream
+	fonts  map[FontID]font.Face
 }
 
 type wavDecoder interface {
@@ -42,24 +42,24 @@ type oggDecoder interface {
 
 func NewLoader(wd wavDecoder, od oggDecoder) *Loader {
 	l := &Loader{
-		images:     make(map[ID]*ebiten.Image),
-		wavs:       make(map[ID]*wav.Stream),
-		oggs:       make(map[ID]*vorbis.Stream),
-		fonts:      make(map[ID]font.Face),
+		images:     make(map[ImageID]*ebiten.Image),
+		wavs:       make(map[AudioID]*wav.Stream),
+		oggs:       make(map[AudioID]*vorbis.Stream),
+		fonts:      make(map[FontID]font.Face),
 		wavDecoder: wd,
 		oggDecoder: od,
 	}
-	l.AudioRegistry.mapping = make(map[ID]Audio)
-	l.ImageRegistry.mapping = make(map[ID]Image)
-	l.FontRegistry.mapping = make(map[ID]Font)
+	l.AudioRegistry.mapping = make(map[AudioID]Audio)
+	l.ImageRegistry.mapping = make(map[ImageID]Image)
+	l.FontRegistry.mapping = make(map[FontID]Font)
 	return l
 }
 
-func (l *Loader) PreloadImage(id ID) {
+func (l *Loader) PreloadImage(id ImageID) {
 	l.LoadImage(id)
 }
 
-func (l *Loader) PreloadAudio(id ID) {
+func (l *Loader) PreloadAudio(id AudioID) {
 	audioInfo := l.GetAudioInfo(id)
 	if strings.HasSuffix(audioInfo.Path, ".ogg") {
 		l.LoadOGG(id)
@@ -68,19 +68,19 @@ func (l *Loader) PreloadAudio(id ID) {
 	}
 }
 
-func (l *Loader) PreloadWAV(id ID) {
+func (l *Loader) PreloadWAV(id AudioID) {
 	l.LoadWAV(id)
 }
 
-func (l *Loader) PreloadOGG(id ID) {
+func (l *Loader) PreloadOGG(id AudioID) {
 	l.LoadOGG(id)
 }
 
-func (l *Loader) PreloadFont(id ID) {
+func (l *Loader) PreloadFont(id FontID) {
 	l.LoadFont(id)
 }
 
-func (l *Loader) LoadWAV(id ID) *wav.Stream {
+func (l *Loader) LoadWAV(id AudioID) *wav.Stream {
 	stream, ok := l.wavs[id]
 	if !ok {
 		wavInfo := l.GetAudioInfo(id)
@@ -100,7 +100,7 @@ func (l *Loader) LoadWAV(id ID) *wav.Stream {
 	return stream
 }
 
-func (l *Loader) GetAudioInfo(id ID) Audio {
+func (l *Loader) GetAudioInfo(id AudioID) Audio {
 	info, ok := l.AudioRegistry.mapping[id]
 	if !ok {
 		panic(fmt.Sprintf("unregistered audio with id=%d", id))
@@ -108,7 +108,7 @@ func (l *Loader) GetAudioInfo(id ID) Audio {
 	return info
 }
 
-func (l *Loader) LoadOGG(id ID) *vorbis.Stream {
+func (l *Loader) LoadOGG(id AudioID) *vorbis.Stream {
 	stream, ok := l.oggs[id]
 	if !ok {
 		oggInfo := l.GetAudioInfo(id)
@@ -128,7 +128,7 @@ func (l *Loader) LoadOGG(id ID) *vorbis.Stream {
 	return stream
 }
 
-func (l *Loader) LoadFont(id ID) font.Face {
+func (l *Loader) LoadFont(id FontID) font.Face {
 	ff, ok := l.fonts[id]
 	if !ok {
 		fontInfo, ok := l.FontRegistry.mapping[id]
@@ -162,7 +162,7 @@ func (l *Loader) LoadFont(id ID) font.Face {
 	return ff
 }
 
-func (l *Loader) LoadImage(id ID) *ebiten.Image {
+func (l *Loader) LoadImage(id ImageID) *ebiten.Image {
 	img, ok := l.images[id]
 	if !ok {
 		imageInfo, ok := l.ImageRegistry.mapping[id]
