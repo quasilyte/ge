@@ -20,6 +20,7 @@ type Sprite struct {
 
 	Hue gemath.Rad
 
+	Visible  bool
 	Centered bool
 	Origin   gemath.Vec
 
@@ -39,17 +40,20 @@ type ColorScale struct {
 
 var defaultColorScale = ColorScale{1, 1, 1, 1}
 
-func NewSprite(img *ebiten.Image) *Sprite {
-	w, h := img.Size()
-	sprite := &Sprite{
-		image:      img,
-		Width:      float64(w),
-		Height:     float64(h),
+func NewSprite() *Sprite {
+	return &Sprite{
+		Visible:    true,
 		Centered:   true,
 		Scale:      1,
 		ColorScale: defaultColorScale,
 	}
-	return sprite
+}
+
+func (s *Sprite) SetImage(img *ebiten.Image) {
+	w, h := img.Size()
+	s.image = img
+	s.Width = float64(w)
+	s.Height = float64(h)
 }
 
 func (s *Sprite) ImageWidth() float64 {
@@ -71,6 +75,10 @@ func (s *Sprite) Dispose() {
 }
 
 func (s *Sprite) Draw(screen *ebiten.Image) {
+	if !s.Visible {
+		return
+	}
+
 	var drawOptions ebiten.DrawImageOptions
 
 	var origin gemath.Vec
