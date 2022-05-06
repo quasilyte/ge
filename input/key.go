@@ -17,6 +17,9 @@ var (
 	KeyS Key = Key{code: int(ebiten.KeyS)}
 	KeyD Key = Key{code: int(ebiten.KeyD)}
 
+	KeyEscape Key = Key{code: int(ebiten.KeyEscape)}
+	KeyEnter  Key = Key{code: int(ebiten.KeyEnter)}
+
 	KeySpace Key = Key{code: int(ebiten.KeySpace)}
 )
 
