@@ -7,6 +7,22 @@ import (
 	"golang.org/x/image/font"
 )
 
+type AlignHorizontal int
+
+const (
+	AlignLeft AlignHorizontal = iota
+	AlignCenterHorizontal
+	AlignRight
+)
+
+type AlignVertical int
+
+const (
+	AlignTop AlignVertical = iota
+	AlignCenter
+	AlignBottom
+)
+
 type Label struct {
 	Text string
 
@@ -16,7 +32,9 @@ type Label struct {
 
 	Origin gemath.Vec
 
-	Centered bool
+	Visible bool
+	HAlign  AlignHorizontal
+	VAlign  AlignVertical
 
 	face font.Face
 }
@@ -25,7 +43,9 @@ func NewLabel(ff font.Face) *Label {
 	label := &Label{
 		face:       ff,
 		ColorScale: defaultColorScale,
-		Centered:   true,
+		HAlign:     AlignLeft,
+		VAlign:     AlignTop,
+		Visible:    true,
 	}
 	return label
 }
@@ -48,16 +68,25 @@ func (l *Label) SetColor(r, g, b, a uint8) {
 }
 
 func (l *Label) Draw(screen *ebiten.Image) {
+	if !l.Visible {
+		return
+	}
+
 	var drawOptions ebiten.DrawImageOptions
 
 	var origin gemath.Vec
+
 	bounds := text.BoundString(l.face, l.Text)
-	boundsHeight := float64(bounds.Dy())
-	if l.Centered {
-		boundsWidth := float64(bounds.Dx())
-		origin = gemath.Vec{X: boundsWidth / 2, Y: boundsHeight / 2}
-	} else {
-		origin = gemath.Vec{Y: boundsHeight}
+	boundsWidth := float64(bounds.Dx())
+	switch l.VAlign {
+	case AlignTop:
+		origin.Y = float64(l.face.Metrics().CapHeight.Round())
+	}
+	switch l.HAlign {
+	case AlignLeft:
+		// Do nothing.
+	case AlignCenterHorizontal:
+		origin.X = boundsWidth / 2
 	}
 	origin = origin.Sub(l.Origin)
 
