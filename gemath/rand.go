@@ -23,7 +23,7 @@ func (r *Rand) IntRange(min, max int) int {
 }
 
 func (r *Rand) FloatRange(min, max float64) float64 {
-	return min + r.rng.Float64()*(max-min+1)
+	return min + r.rng.Float64()*(max-min)
 }
 
 func (r *Rand) Rad() Rad {
