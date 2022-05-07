@@ -196,7 +196,7 @@ func (b Body) String() string {
 
 type RectVertices [4]gemath.Vec
 
-func (v *RectVertices) UL() gemath.Vec { return (*v)[0] }
-func (v *RectVertices) UR() gemath.Vec { return (*v)[1] }
-func (v *RectVertices) LR() gemath.Vec { return (*v)[2] }
-func (v *RectVertices) LL() gemath.Vec { return (*v)[3] }
+func (v *RectVertices) UR() gemath.Vec { return (*v)[0] }
+func (v *RectVertices) LR() gemath.Vec { return (*v)[1] }
+func (v *RectVertices) LL() gemath.Vec { return (*v)[2] }
+func (v *RectVertices) UL() gemath.Vec { return (*v)[3] }

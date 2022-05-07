@@ -7,6 +7,27 @@ import (
 	"github.com/quasilyte/ge/gemath"
 )
 
+func BenchmarkRotatedRectsCollision(b *testing.B) {
+	var e CollisionEngine
+	e.collisionPool = make([]Collision, 0, 2)
+	var body1 Body
+	body1.InitRotatedRect(nil, 50, 20)
+	body1.Rotation = 0.3
+	var body2 Body
+	body2.InitRotatedRect(nil, 40, 30)
+	body2.Pos = gemath.Vec{X: 4, Y: 10}
+	e.AddBody(&body1)
+	e.AddBody(&body2)
+	e.CalculateFrame()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		e.GetCollisions(&body1, CollisionConfig{
+			Velocity: gemath.Vec{X: 3, Y: 3},
+		})
+	}
+}
+
 func TestCircleCircleCollision(t *testing.T) {
 	type testCircle struct {
 		pos gemath.Vec

@@ -10,10 +10,17 @@ import (
 
 type BodyAura struct {
 	Body *physics.Body
+
+	Color color.RGBA
 }
 
+var zeroColor color.RGBA
+
 func (a *BodyAura) Draw(screen *ebiten.Image) {
-	c := color.RGBA{G: 100, B: 200, A: 100}
+	c := a.Color
+	if c == zeroColor {
+		c = color.RGBA{G: 100, B: 200, A: 100}
+	}
 
 	// if a.Body.IsRect() {
 	// 	rect := a.Body.BoundsRect()

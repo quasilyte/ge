@@ -1,6 +1,7 @@
 package physics
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/quasilyte/ge/gemath"
@@ -57,21 +58,36 @@ func (resolver *collisionResolver) findCollisions(b, translated *Body, layerMask
 	return resolver.collisions
 }
 
+func (resolver *collisionResolver) inverseNormal(c Collision, ok bool) (Collision, bool) {
+	if ok {
+		c.Normal = c.Normal.Neg()
+		return c, true
+	}
+	return c, false
+}
+
 func (resolver *collisionResolver) checkCollision(b1, b2 *Body) (Collision, bool) {
 	switch b1.kind {
 	case bodyCircle:
 		switch b2.kind {
 		case bodyCircle:
-			return resolver.checkCircleCircleCollision(b1, b2)
+			return resolver.checkCirclesCollision(b1, b2)
 		case bodyRotatedRect:
 			return resolver.checkCircleRotatedRectCollision(b1, b2)
 		}
+	case bodyRotatedRect:
+		switch b2.kind {
+		case bodyCircle:
+			return resolver.inverseNormal(resolver.checkCircleRotatedRectCollision(b2, b1))
+		case bodyRotatedRect:
+			return resolver.checkRotatedRectsCollision(b1, b2)
+		}
 	}
 
-	panic("unexpected body kinds combination")
+	panic(fmt.Sprintf("unexpected body kinds combination: %s and %s", b1, b2))
 }
 
-func (resolver *collisionResolver) checkCircleCircleCollision(b1, b2 *Body) (Collision, bool) {
+func (resolver *collisionResolver) checkCirclesCollision(b1, b2 *Body) (Collision, bool) {
 	var result Collision
 	if !b1.BoundsRect().Overlaps(b2.BoundsRect()) {
 		return result, false
@@ -137,7 +153,7 @@ func (resolver *collisionResolver) checkCircleRotatedRectCollision(circle, rr *B
 
 	if xside+yside == 0 {
 		if resolver.needCollisionNormal() {
-			result.Normal = resolver.config.Velocity.Neg().Normalized()
+			result.Normal = resolver.config.Velocity.Normalized().Neg()
 			result.Depth = circle.CircleRadius() - distance
 		}
 		return result, true
@@ -149,6 +165,90 @@ func (resolver *collisionResolver) checkCircleRotatedRectCollision(circle, rr *B
 	}
 
 	return result, true
+}
+
+func (resolver *collisionResolver) getAxisOverlap(poly1, poly2 []gemath.Vec) (gemath.Vec, float64) {
+	var minAxis gemath.Vec
+	minOverlap := math.MaxFloat64
+	for i := 0; i < len(poly1); i++ {
+		axis := getAxisNormal(poly1, i)
+		p1 := getPolyProjection(axis, poly1)
+		p2 := getPolyProjection(axis, poly2)
+		if !p1.HasOverlap(p2) {
+			return gemath.Vec{}, 0
+		}
+		overlap := p1.max - p2.min
+		if overlap < minOverlap {
+			minOverlap = overlap
+			minAxis = axis
+		}
+	}
+	return minAxis, minOverlap
+}
+
+func (resolver *collisionResolver) checkRotatedRectsCollision(b1, b2 *Body) (Collision, bool) {
+	var result Collision
+	if !b1.BoundsRect().Overlaps(b2.BoundsRect()) {
+		return result, false
+	}
+
+	a := unpackRotatedRect(b1)
+	b := unpackRotatedRect(b2)
+
+	axisAB, overlapAB := resolver.getAxisOverlap(a[:], b[:])
+	if overlapAB == 0 {
+		return result, false
+	}
+	axisBA, overlapBA := resolver.getAxisOverlap(b[:], a[:])
+	if overlapBA == 0 {
+		return result, false
+	}
+
+	if resolver.needCollisionNormal() {
+		if overlapAB < overlapBA {
+			result.Depth = overlapAB
+			result.Normal = axisAB.Neg()
+		} else {
+			result.Depth = overlapBA
+			result.Normal = axisBA
+		}
+	}
+
+	return result, true
+}
+
+func getAxisNormal(poly []gemath.Vec, i int) gemath.Vec {
+	pt1 := poly[i]
+	pt2 := poly[0]
+	if i+1 < len(poly) {
+		pt2 = poly[i+1]
+	}
+	axis := gemath.Vec{X: pt2.X - pt1.X, Y: pt2.Y - pt1.Y}
+	normal := gemath.Vec{X: -axis.Y, Y: axis.X}.Normalized()
+	return normal
+}
+
+func getPolyProjection(axis gemath.Vec, poly []gemath.Vec) projection {
+	if len(poly) == 0 {
+		return projection{}
+	}
+	pmin := axis.Dot(poly[0])
+	pmax := pmin
+	for i := 1; i < len(poly); i++ {
+		dot := axis.Dot(poly[i])
+		pmin = fastMin(pmin, dot)
+		pmax = fastMax(pmax, dot)
+	}
+	return projection{min: pmin, max: pmax}
+}
+
+type projection struct {
+	min float64
+	max float64
+}
+
+func (p *projection) HasOverlap(other projection) bool {
+	return other.min <= p.max && other.max >= p.min
 }
 
 var rectRotationDelta = [3][3]gemath.Rad{
@@ -167,6 +267,16 @@ var rectRotationDelta = [3][3]gemath.Rad{
 	},
 }
 
+func unpackRect(b *Body) RectVertices {
+	w2 := b.RotatedRectWidth() / 2
+	h2 := b.RotatedRectHeight() / 2
+	lr := gemath.Vec{X: b.Pos.X + w2, Y: b.Pos.Y + h2}
+	ur := gemath.Vec{X: b.Pos.X + w2, Y: b.Pos.Y - h2}
+	ul := gemath.Vec{X: b.Pos.X - w2, Y: b.Pos.Y - h2}
+	ll := gemath.Vec{X: b.Pos.X - w2, Y: b.Pos.Y + h2}
+	return RectVertices{ur, lr, ll, ul}
+}
+
 func unpackRotatedRect(b *Body) RectVertices {
 	cosA := b.Rotation.Cos()
 	sinA := b.Rotation.Sin()
@@ -182,7 +292,7 @@ func unpackRotatedRect(b *Body) RectVertices {
 	lr := gemath.Vec{X: cx + w2cos - h2sin, Y: cy + w2sin + h2cos}
 	ul := gemath.Vec{X: cx - w2cos + h2sin, Y: cy - w2sin - h2cos}
 	ur := gemath.Vec{X: cx + w2cos + h2sin, Y: cy + w2sin - h2cos}
-	return RectVertices{ul, ur, lr, ll}
+	return RectVertices{ur, lr, ll, ul}
 }
 
 const (
@@ -194,13 +304,16 @@ const (
 	ysideLower = 2
 )
 
-type rotatedRect struct {
-	ul gemath.Vec // upper-left
-	ur gemath.Vec // upper-right
-	ll gemath.Vec // lower-left
-	lr gemath.Vec // lower-right
+func fastMin(x, y float64) float64 {
+	if x > y {
+		return y
+	}
+	return x
 }
 
-func getAxis(pt1, pt2 gemath.Vec) gemath.Vec {
-	return gemath.Vec{X: pt1.X - pt2.X, Y: pt1.Y - pt2.Y}
+func fastMax(x, y float64) float64 {
+	if x > y {
+		return x
+	}
+	return y
 }
