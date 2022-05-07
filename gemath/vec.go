@@ -71,7 +71,7 @@ func (v Vec) Len() float64 {
 // so prefer it if you need to compare vectors
 // or need the squared distance for some formula.
 func (v Vec) LenSquared() float64 {
-	return v.X*v.X + v.Y*v.Y
+	return v.Dot(v)
 }
 
 func (v Vec) Rotated(angle Rad) Vec {
@@ -163,7 +163,7 @@ func (v Vec) Sub(other Vec) Vec {
 func (v Vec) Normalized() Vec {
 	l := v.LenSquared()
 	if l != 0 {
-		return v.Divf(math.Sqrt(l))
+		return v.Mulf(1 / math.Sqrt(l))
 	}
 	return v
 }

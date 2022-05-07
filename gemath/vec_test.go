@@ -25,6 +25,32 @@ func TestVecAPI(t *testing.T) {
 	assertTrue(Vec{}.Normalized() == Vec{})
 }
 
+//go:noinline
+func benchmarkNormalized(vectors []Vec) float64 {
+	v := float64(0)
+	for i := 0; i < len(vectors)-1; i++ {
+		v += vectors[i].Normalized().X + vectors[i+1].Normalized().Y
+	}
+	return v
+}
+
+func BenchmarkVecNormalized(b *testing.B) {
+	vectors := []Vec{
+		{-1, 0},
+		{0.5, 5},
+		{10, 13},
+		{-5.3, -294},
+		{1, 1},
+		{0, 3},
+		{-3, 1},
+		{0, 0},
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkNormalized(vectors)
+	}
+}
+
 func TestVecNormalized(t *testing.T) {
 	tests := []struct {
 		v    Vec
