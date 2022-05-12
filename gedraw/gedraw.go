@@ -1,29 +1,20 @@
 package gedraw
 
 import (
-	"image"
 	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/internal/primitives"
 )
-
-var (
-	emptyImage = ebiten.NewImage(3, 3)
-)
-
-func init() {
-	emptyImage.Fill(color.White)
-}
 
 func DrawPath(dst *ebiten.Image, points []gemath.Vec, c color.RGBA) {
 	if len(points) == 0 {
 		return
 	}
 
-	src := emptyImage.SubImage(image.Rect(1, 1, 2, 2)).(*ebiten.Image)
 	var drawOptions ebiten.DrawTrianglesOptions
 
 	var p vector.Path
@@ -36,11 +27,10 @@ func DrawPath(dst *ebiten.Image, points []gemath.Vec, c color.RGBA) {
 	var indices []uint16
 	vertices, indices = p.AppendVerticesAndIndicesForFilling(vertices, indices)
 	assignColors(vertices, c)
-	dst.DrawTriangles(vertices, indices, src, &drawOptions)
+	dst.DrawTriangles(vertices, indices, primitives.WhitePixel, &drawOptions)
 }
 
 func DrawCircle(dst *ebiten.Image, pos gemath.Vec, radius float64, c color.RGBA) {
-	src := emptyImage.SubImage(image.Rect(1, 1, 2, 2)).(*ebiten.Image)
 	var drawOptions ebiten.DrawTrianglesOptions
 
 	var p vector.Path
@@ -49,7 +39,7 @@ func DrawCircle(dst *ebiten.Image, pos gemath.Vec, radius float64, c color.RGBA)
 	var indices []uint16
 	vertices, indices = p.AppendVerticesAndIndicesForFilling(vertices, indices)
 	assignColors(vertices, c)
-	dst.DrawTriangles(vertices, indices, src, &drawOptions)
+	dst.DrawTriangles(vertices, indices, primitives.WhitePixel, &drawOptions)
 }
 
 func assignColors(vertices []ebiten.Vertex, c color.RGBA) {
