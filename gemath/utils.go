@@ -8,16 +8,23 @@ func EqualApprox(a, b float64) bool {
 	return math.Abs(a-b) <= Epsilon
 }
 
-func ClampMin(v, min float64) float64 {
+func ClampMin[T int | float64](v, min T) T {
 	if v < min {
 		return min
 	}
 	return v
 }
 
-func ClampMax(v, max float64) float64 {
+func ClampMax[T int | float64](v, max T) T {
 	if v > max {
 		return max
 	}
 	return v
+}
+
+func Percentage[T int | float64](value, max T) T {
+	if max == 0 && value == 0 {
+		return 0
+	}
+	return T(100 * (float64(value) / float64(max)))
 }
