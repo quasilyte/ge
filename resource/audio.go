@@ -47,6 +47,13 @@ func (sys *AudioSystem) Init(l *Loader) {
 	sys.loader = l
 	sys.audioContext = audio.NewContext(32000)
 	sys.resources = make(map[AudioID]*audioResource)
+
+	// Audio player factory has lazy initialization that may lead
+	// to a ~0.2s delay before the first sound can be played.
+	// To avoid that delay, we force that factory to initialize
+	// right now, before the game is started.
+	dummy := sys.audioContext.NewPlayerFromBytes(nil)
+	dummy.Rewind()
 }
 
 func (sys *AudioSystem) DecodeWAV(r io.Reader) (*wav.Stream, error) {
@@ -65,7 +72,7 @@ func (sys *AudioSystem) getOGGResource(id AudioID) *audioResource {
 	stream := sys.loader.LoadOGG(id)
 	oggInfo := sys.loader.GetAudioInfo(id)
 	loopedStream := audio.NewInfiniteLoop(stream, stream.Length())
-	player, err := audio.NewPlayer(sys.audioContext, loopedStream)
+	player, err := sys.audioContext.NewPlayer(loopedStream)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -119,7 +126,7 @@ func (sys *AudioSystem) PlaySound(id AudioID) {
 	if !ok {
 		stream := sys.loader.LoadWAV(id)
 		wavInfo := sys.loader.GetAudioInfo(id)
-		player, err := audio.NewPlayer(sys.audioContext, stream)
+		player, err := sys.audioContext.NewPlayer(stream)
 		if err != nil {
 			panic(err.Error())
 		}
