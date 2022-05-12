@@ -6,6 +6,9 @@ import (
 
 // Rad represents a radian value.
 // It's not capped in [0, 2*Pi] range.
+//
+// In terms of the orientations, Pi rotation points the object down (South).
+// Zero radians point towards the right side (East).
 type Rad float64
 
 func DegToRad(deg float64) Rad {
@@ -36,6 +39,9 @@ func (r Rad) EqualApprox(other Rad) bool {
 
 // AngleDelta returns an angle delta between two radian values.
 // The sign is preserved.
+//
+// It doesn't need the angles to be normalized,
+// r=0 and r=2*Pi are considered to have no delta.
 func (r Rad) AngleDelta(r2 Rad) Rad {
 	angle1 := math.Mod(float64(r-r2), 2*math.Pi)
 	angle2 := math.Mod(float64(r2-r), 2*math.Pi)
@@ -43,6 +49,28 @@ func (r Rad) AngleDelta(r2 Rad) Rad {
 		return Rad(-angle1)
 	}
 	return Rad(angle2)
+}
+
+func (r Rad) LerpAngle(toAngle Rad, weight float64) Rad {
+	difference := math.Mod(float64(toAngle)-float64(r), 2*math.Pi)
+	dist := math.Mod(2.0*difference, 2*math.Pi) - difference
+	return Rad(float64(r) + dist*weight)
+}
+
+func (r Rad) RotatedTowards(toAngle, amount Rad) Rad {
+	difference := math.Mod(float64(toAngle)-float64(r), 2*math.Pi)
+	dist := math.Mod(2.0*difference, 2*math.Pi) - difference
+	if EqualApprox(dist, 0) {
+		return toAngle
+	}
+	lerpa1 := Rad(float64(r) + dist)
+	if min := r - amount; lerpa1 < min {
+		return min
+	}
+	if max := r + amount; lerpa1 > max {
+		return max
+	}
+	return lerpa1
 }
 
 func (r Rad) Cos() float64 {

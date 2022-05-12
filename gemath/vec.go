@@ -87,10 +87,9 @@ func (v Vec) Angle() Rad {
 	return Rad(math.Atan2(v.Y, v.X))
 }
 
-// AngleToPoint returns the angle between the line connecting the two points
-// and the X axis, in radians.
+// AngleToPoint returns the angle from v towards the given point.
 func (v Vec) AngleToPoint(pos Vec) Rad {
-	return v.Sub(pos).Angle()
+	return pos.Sub(v).Angle()
 }
 
 func (v Vec) DirectionTo(v2 Vec) Vec {
@@ -98,7 +97,7 @@ func (v Vec) DirectionTo(v2 Vec) Vec {
 }
 
 func (v Vec) VecTowards(length float64, pos Vec) Vec {
-	angle := pos.AngleToPoint(v)
+	angle := v.AngleToPoint(pos)
 	result := Vec{X: angle.Cos(), Y: angle.Sin()}
 	return result.Mulf(length)
 }

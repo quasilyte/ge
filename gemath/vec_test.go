@@ -88,19 +88,19 @@ func TestVecAngleTo(t *testing.T) {
 		want Rad
 	}{
 		{Vec{0, 0}, Vec{0, 0}, 0},
-		{Vec{1, 1}, Vec{0, 0}, math.Pi / 4},
-		{Vec{0, 0}, Vec{1, 1}, -3 * math.Pi / 4},
-		{Vec{-1, 1}, Vec{1, -1}, 3 * math.Pi / 4},
-		{Vec{10, 10}, Vec{6, 6}, 0.7853981633974483},
-		{Vec{10, 10}, Vec{5, 5}, 0.7853981633974483},
-		{Vec{10, 10}, Vec{3, 3}, 0.7853981633974483},
-		{Vec{31, 4.5}, Vec{6.2, 57.4}, -1.1324113360962174},
-		{Vec{-140.20, -44.14}, Vec{-4.6, -4.1}, -2.8544715228097237},
+		{Vec{1, 1}, Vec{0, 0}, -3 * math.Pi / 4},
+		{Vec{0, 0}, Vec{1, 1}, math.Pi / 4},
+		{Vec{-1, 1}, Vec{1, -1}, -0.7853981633974483},
+		{Vec{10, 10}, Vec{6, 6}, -2.356194490192345},
+		{Vec{10, 10}, Vec{5, 5}, -2.356194490192345},
+		{Vec{10, 10}, Vec{3, 3}, -2.356194490192345},
+		{Vec{31, 4.5}, Vec{6.2, 57.4}, 2.0091813174935758},
+		{Vec{-140.20, -44.14}, Vec{-4.6, -4.1}, 0.28712113078006946},
 	}
 	for _, test := range tests {
 		have := test.a.AngleToPoint(test.b)
 		if !EqualApprox(float64(have), float64(test.want)) {
-			t.Fatalf("AngleTo(%s, %s):\nhave: %v\nwant: %v", test.a, test.b, have, test.want)
+			t.Fatalf("AngleToPoint(%s, %s):\nhave: %v\nwant: %v", test.a, test.b, have, test.want)
 		}
 	}
 }

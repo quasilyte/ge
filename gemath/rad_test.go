@@ -55,12 +55,12 @@ func TestRadAngleDelta(t *testing.T) {
 	}{
 		{0, 0, 0},
 		{1, 1, 0},
-		{0.2, -0.2, -0.4},
 		{-0.2, 0.2, 0.4},
 		{0.4, 0.2, -0.2},
 		{-0.5, -0.2, 0.3},
 		{0.4, 0, -0.4},
 		{math.Pi, 0, -math.Pi},
+		{-math.Pi, 0, math.Pi},
 		{2 * math.Pi, 0, 0},
 		{4 * math.Pi, 0, 0},
 		{6 * math.Pi, 0, 0},
