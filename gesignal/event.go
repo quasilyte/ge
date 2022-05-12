@@ -18,6 +18,15 @@ func (e *Event[T]) Connect(d disposable, slot func(arg T)) {
 	})
 }
 
+func (e *Event[T]) Disconnect(d disposable) {
+	for i, h := range e.handlers {
+		if h.d == d {
+			e.handlers[i].d = theRemovedListener
+			break
+		}
+	}
+}
+
 func (e *Event[T]) Emit(arg T) {
 	live := e.handlers[:0]
 	for _, h := range e.handlers {
@@ -33,3 +42,9 @@ func (e *Event[T]) Emit(arg T) {
 type disposable interface {
 	IsDisposed() bool
 }
+
+type removedListener struct{}
+
+func (r *removedListener) IsDisposed() bool { return true }
+
+var theRemovedListener = &removedListener{}
