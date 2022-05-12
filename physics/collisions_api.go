@@ -16,9 +16,7 @@ type CollisionEngine struct {
 }
 
 type CollisionConfig struct {
-	// If not nil, Pos overrides the body pos and collisions
-	// will be calculated from this provided position.
-	Pos *gemath.Vec
+	Offset gemath.Vec
 
 	// If velocity magnitude is not 0, collisions are calculated
 	// in the dynamics of the movement.
@@ -57,10 +55,10 @@ func (e *CollisionEngine) AddBody(b *Body) {
 // A config can affect the rules of this collision computation.
 func (e *CollisionEngine) GetCollisions(b *Body, config CollisionConfig) []Collision {
 	translated := b
-	if config.Pos != nil {
+	if !config.Offset.IsZero() {
 		translated := &e.translatedBody
 		*translated = *b
-		translated.Pos = *config.Pos
+		translated.Pos = translated.Pos.Add(config.Offset)
 	}
 	layerMask := b.LayerMask
 	if config.LayerMask != 0 {
