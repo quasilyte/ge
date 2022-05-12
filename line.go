@@ -39,15 +39,6 @@ func (l *Line) Dispose() {
 	l.disposed = true
 }
 
-func (l *Line) SetColor(r, g, b, a uint8) {
-	l.ColorScale = ColorScale{
-		R: float32(r) / 255,
-		G: float32(g) / 255,
-		B: float32(b) / 255,
-		A: float32(a) / 255,
-	}
-}
-
 func (l *Line) Draw(screen *ebiten.Image) {
 	if !l.Visible {
 		return

@@ -38,6 +38,13 @@ type ColorScale struct {
 	A float32
 }
 
+func (c *ColorScale) SetRGBA(r, g, b, a uint8) {
+	c.R = float32(r) / 255
+	c.G = float32(g) / 255
+	c.B = float32(b) / 255
+	c.A = float32(a) / 255
+}
+
 var defaultColorScale = ColorScale{1, 1, 1, 1}
 
 func NewSprite() *Sprite {

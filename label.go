@@ -58,15 +58,6 @@ func (l *Label) Dispose() {
 	l.face = nil
 }
 
-func (l *Label) SetColor(r, g, b, a uint8) {
-	l.ColorScale = ColorScale{
-		R: float32(r) / 255,
-		G: float32(g) / 255,
-		B: float32(b) / 255,
-		A: float32(a) / 255,
-	}
-}
-
 func (l *Label) Draw(screen *ebiten.Image) {
 	if !l.Visible {
 		return
@@ -81,6 +72,8 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	switch l.VAlign {
 	case AlignTop:
 		origin.Y = float64(l.face.Metrics().CapHeight.Round())
+	case AlignCenter:
+		origin.Y = float64(l.face.Metrics().CapHeight.Round() / 2)
 	}
 	switch l.HAlign {
 	case AlignLeft:
