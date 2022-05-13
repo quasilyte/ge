@@ -14,8 +14,8 @@ type Animation struct {
 func NewAnimation(s *Sprite) *Animation {
 	return &Animation{
 		sprite:          s,
-		frameWidth:      s.Width,
-		numFrames:       int(s.ImageWidth() / s.Width),
+		frameWidth:      s.FrameWidth,
+		numFrames:       int(s.ImageWidth() / s.FrameWidth),
 		SecondsPerFrame: 0.05,
 	}
 }
@@ -40,10 +40,10 @@ func (a *Animation) Tick(delta float64) bool {
 		a.frame++
 		if a.frame > a.numFrames {
 			a.frame = 0
-			a.sprite.Offset.X = 0
+			a.sprite.FrameOffset.X = 0
 			finished = true
 		} else {
-			a.sprite.Offset.X += a.frameWidth
+			a.sprite.FrameOffset.X += a.frameWidth
 		}
 	}
 	return finished

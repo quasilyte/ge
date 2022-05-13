@@ -10,8 +10,7 @@ import (
 type Sprite struct {
 	image *ebiten.Image
 
-	Pos *gemath.Vec
-
+	Pos      *gemath.Vec
 	Rotation *gemath.Rad
 
 	Scale float64
@@ -24,9 +23,9 @@ type Sprite struct {
 	Centered bool
 	Origin   gemath.Vec
 
-	Offset gemath.Vec
-	Width  float64
-	Height float64
+	FrameOffset gemath.Vec
+	FrameWidth  float64
+	FrameHeight float64
 
 	disposed bool
 }
@@ -59,8 +58,8 @@ func NewSprite() *Sprite {
 func (s *Sprite) SetImage(img *ebiten.Image) {
 	w, h := img.Size()
 	s.image = img
-	s.Width = float64(w)
-	s.Height = float64(h)
+	s.FrameWidth = float64(w)
+	s.FrameHeight = float64(h)
 }
 
 func (s *Sprite) ImageWidth() float64 {
@@ -90,7 +89,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 
 	var origin gemath.Vec
 	if s.Centered {
-		origin = gemath.Vec{X: s.Width / 2, Y: s.Height / 2}
+		origin = gemath.Vec{X: s.FrameWidth / 2, Y: s.FrameHeight / 2}
 	}
 	origin = origin.Sub(s.Origin)
 
@@ -120,12 +119,12 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 
 	subImage := s.image.SubImage(image.Rectangle{
 		Min: image.Point{
-			X: int(s.Offset.X),
-			Y: int(s.Offset.Y),
+			X: int(s.FrameOffset.X),
+			Y: int(s.FrameOffset.Y),
 		},
 		Max: image.Point{
-			X: int(s.Offset.X + s.Width),
-			Y: int(s.Offset.Y + s.Height),
+			X: int(s.FrameOffset.X + s.FrameWidth),
+			Y: int(s.FrameOffset.Y + s.FrameHeight),
 		},
 	}).(*ebiten.Image)
 	screen.DrawImage(subImage, &drawOptions)
