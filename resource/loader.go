@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"math"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -156,6 +158,10 @@ func (l *Loader) LoadFont(id FontID) font.Face {
 		})
 		if err != nil {
 			panic(fmt.Sprintf("creating a font face for %q: %v", fontInfo.Path, err))
+		}
+		if fontInfo.LineSpacing != 0 && fontInfo.LineSpacing != 1 {
+			h := float64(face.Metrics().Height.Round()) * fontInfo.LineSpacing
+			face = text.FaceWithLineHeight(face, math.Round(h))
 		}
 		l.fonts[id] = face
 	}

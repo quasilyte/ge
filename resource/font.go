@@ -4,6 +4,8 @@ type Font struct {
 	Path string
 
 	Size int
+
+	LineSpacing float64
 }
 
 type FontID int
