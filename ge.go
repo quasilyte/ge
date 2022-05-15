@@ -9,7 +9,9 @@ func RunGame(ctx *Context) error {
 		panic("running game without a scene: Context.CurrentScene is nil")
 	}
 	g := &gameRunner{ctx: ctx}
-	ebiten.SetFullscreen(true)
+	if ctx.FullScreen {
+		ebiten.SetFullscreen(true)
+	}
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
 	return ebiten.RunGame(g)
