@@ -8,6 +8,10 @@ type Rect struct {
 func (r Rect) Width() float64  { return r.Max.X - r.Min.X }
 func (r Rect) Height() float64 { return r.Max.Y - r.Min.Y }
 
+func (r Rect) Center() Vec {
+	return Vec{X: r.Max.X / 2, Y: r.Max.Y / 2}
+}
+
 func (r Rect) X1() float64 { return r.Min.X }
 func (r Rect) Y1() float64 { return r.Min.Y }
 
