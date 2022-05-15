@@ -28,9 +28,7 @@ type Label struct {
 
 	ColorScale ColorScale
 
-	Pos *gemath.Vec
-
-	Origin gemath.Vec
+	Pos Pos
 
 	Visible bool
 	HAlign  AlignHorizontal
@@ -81,10 +79,10 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	case AlignCenterHorizontal:
 		origin.X = boundsWidth / 2
 	}
-	origin = origin.Sub(l.Origin)
+	origin = origin.Sub(l.Pos.Offset)
 
-	if l.Pos != nil {
-		drawOptions.GeoM.Translate(l.Pos.X-origin.X, l.Pos.Y-origin.Y)
+	if l.Pos.Base != nil {
+		drawOptions.GeoM.Translate(l.Pos.Base.X-origin.X, l.Pos.Base.Y-origin.Y)
 	} else {
 		drawOptions.GeoM.Translate(origin.X, origin.Y)
 	}

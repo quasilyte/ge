@@ -10,7 +10,7 @@ import (
 type Sprite struct {
 	image *ebiten.Image
 
-	Pos      *gemath.Vec
+	Pos      Pos
 	Rotation *gemath.Rad
 
 	Scale float64
@@ -21,7 +21,6 @@ type Sprite struct {
 
 	Visible  bool
 	Centered bool
-	Origin   gemath.Vec
 
 	FrameOffset gemath.Vec
 	FrameWidth  float64
@@ -62,6 +61,22 @@ func (s *Sprite) SetImage(img *ebiten.Image) {
 	s.FrameHeight = float64(h)
 }
 
+func (s *Sprite) SetRepeatedImage(img *ebiten.Image, width, height float64) {
+	w, h := img.Size()
+	repeated := ebiten.NewImage(int(width), int(height))
+	var op ebiten.DrawImageOptions
+	for y := float64(0); y < height; y += float64(h) {
+		for x := float64(0); x < width; x += float64(w) {
+			op.GeoM.Reset()
+			op.GeoM.Translate(x, y)
+			repeated.DrawImage(img, &op)
+		}
+	}
+	s.image = repeated
+	s.FrameWidth = width
+	s.FrameHeight = height
+}
+
 func (s *Sprite) ImageWidth() float64 {
 	w, _ := s.image.Size()
 	return float64(w)
@@ -91,7 +106,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	if s.Centered {
 		origin = gemath.Vec{X: s.FrameWidth / 2, Y: s.FrameHeight / 2}
 	}
-	origin = origin.Sub(s.Origin)
+	origin = origin.Sub(s.Pos.Offset)
 
 	drawOptions.GeoM.Translate(-origin.X, -origin.Y)
 	if s.Rotation != nil {
@@ -102,8 +117,10 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	}
 	drawOptions.GeoM.Translate(origin.X, origin.Y)
 
-	if s.Pos != nil {
-		drawOptions.GeoM.Translate(s.Pos.X-origin.X, s.Pos.Y-origin.Y)
+	if s.Pos.Base != nil {
+		drawOptions.GeoM.Translate(s.Pos.Base.X-origin.X, s.Pos.Base.Y-origin.Y)
+	} else if !origin.IsZero() {
+		drawOptions.GeoM.Translate(0-origin.X, 0-origin.Y)
 	}
 
 	if s.ColorScale != defaultColorScale {
