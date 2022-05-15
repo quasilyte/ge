@@ -101,24 +101,27 @@ func (sys *AudioSystem) ContinueCurrentMusic() {
 }
 
 func (sys *AudioSystem) ContinueMusic(id AudioID) {
-	resource := sys.getOGGResource(id)
-	if resource.player.IsPlaying() {
+	sys.continueMusic(sys.getOGGResource(id))
+}
+
+func (sys *AudioSystem) continueMusic(res *audioResource) {
+	if res.player.IsPlaying() {
 		return
 	}
-	sys.currentMusic = resource
-	resource.player.SetVolume(resource.volume)
-	resource.player.Play()
+	sys.currentMusic = res
+	res.player.SetVolume(res.volume)
+	res.player.Play()
 }
 
 func (sys *AudioSystem) PlayMusic(id AudioID) {
-	resource := sys.getOGGResource(id)
-	if sys.currentMusic != nil && resource.player == sys.currentMusic.player {
+	res := sys.getOGGResource(id)
+	if sys.currentMusic != nil && res.player == sys.currentMusic.player && res.player.IsPlaying() {
 		return
 	}
-	sys.currentMusic = resource
-	resource.player.SetVolume(resource.volume)
-	resource.player.Rewind()
-	resource.player.Play()
+	sys.currentMusic = res
+	res.player.SetVolume(res.volume)
+	res.player.Rewind()
+	res.player.Play()
 }
 
 func (sys *AudioSystem) PlaySound(id AudioID) {
