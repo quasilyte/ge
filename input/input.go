@@ -50,7 +50,7 @@ func (h *Handler) ActionIsJustPressed(action Action) bool {
 		return false
 	}
 	if key.isGamepad {
-		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), ebiten.GamepadButton(key.code))
+		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(ebiten.GamepadButton(key.code)))
 	}
 	return inpututil.IsKeyJustPressed(ebiten.Key(key.code))
 }
@@ -104,6 +104,9 @@ type gamepadInfo struct {
 
 func microntToXbox(b ebiten.GamepadButton) ebiten.GamepadButton {
 	switch b {
+	case ebiten.GamepadButton7:
+		return ebiten.GamepadButton9
+
 	case ebiten.GamepadButton11:
 		return ebiten.GamepadButton12
 	case ebiten.GamepadButton12:

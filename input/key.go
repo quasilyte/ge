@@ -16,6 +16,8 @@ var (
 	KeyW Key = Key{code: int(ebiten.KeyW)}
 	KeyS Key = Key{code: int(ebiten.KeyS)}
 	KeyD Key = Key{code: int(ebiten.KeyD)}
+	KeyE Key = Key{code: int(ebiten.KeyE)}
+	KeyQ Key = Key{code: int(ebiten.KeyQ)}
 
 	KeyEscape Key = Key{code: int(ebiten.KeyEscape)}
 	KeyEnter  Key = Key{code: int(ebiten.KeyEnter)}
@@ -25,6 +27,8 @@ var (
 
 // Gamepad keys.
 var (
+	KeyGamepadStart Key = Key{code: int(ebiten.GamepadButton7), isGamepad: true}
+
 	KeyGamepadUp    Key = Key{code: int(ebiten.GamepadButton11), isGamepad: true}
 	KeyGamepadRight Key = Key{code: int(ebiten.GamepadButton12), isGamepad: true}
 	KeyGamepadDown  Key = Key{code: int(ebiten.GamepadButton13), isGamepad: true}
