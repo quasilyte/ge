@@ -8,6 +8,16 @@ func EqualApprox(a, b float64) bool {
 	return math.Abs(a-b) <= Epsilon
 }
 
+func Clamp[T numeric](v, min, max T) T {
+	if v < min {
+		return min
+	}
+	if v > max {
+		return max
+	}
+	return v
+}
+
 func ClampMin[T numeric](v, min T) T {
 	if v < min {
 		return min
