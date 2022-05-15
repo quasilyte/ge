@@ -44,45 +44,25 @@ type SceneGraphics interface {
 }
 
 type Scene struct {
-	context *Context
+	root *RootScene
 
-	Name string
-
-	controller      SceneController
-	objects         []SceneObject
-	addedObjects    []SceneObject
-	tmpObjectsQueue []SceneObject
-
-	delayedFuncs []delayedFunc
-
-	collisionEngine physics.CollisionEngine
-
-	graphics []SceneGraphics
-}
-
-func newScene() *Scene {
-	return &Scene{
-		objects:         make([]SceneObject, 0, 32),
-		addedObjects:    make([]SceneObject, 0, 8),
-		tmpObjectsQueue: make([]SceneObject, 0, 8),
-		graphics:        make([]SceneGraphics, 0, 24),
-	}
+	zindex uint8
 }
 
 func (s *Scene) Context() *Context {
-	return s.context
+	return s.root.context
 }
 
 func (s *Scene) Audio() *resource.AudioSystem {
-	return &s.context.Audio
+	return &s.root.context.Audio
 }
 
 func (s *Scene) Rand() *gemath.Rand {
-	return &s.context.Rand
+	return &s.root.context.Rand
 }
 
 func (s *Scene) LoadImage(imageID resource.ImageID) *ebiten.Image {
-	return s.context.Loader.LoadImage(imageID)
+	return s.root.context.Loader.LoadImage(imageID)
 }
 
 func (s *Scene) NewSprite(imageID resource.ImageID) *Sprite {
@@ -91,35 +71,61 @@ func (s *Scene) NewSprite(imageID resource.ImageID) *Sprite {
 	return sprite
 }
 
+func (s *Scene) NewRepeatedSprite(imageID resource.ImageID, width, height float64) *Sprite {
+	sprite := NewSprite()
+	sprite.SetRepeatedImage(s.LoadImage(imageID), width, height)
+	return sprite
+}
+
 func (s *Scene) NewLabel(fontID resource.FontID) *Label {
-	return NewLabel(s.context.Loader.LoadFont(fontID))
+	return NewLabel(s.root.context.Loader.LoadFont(fontID))
 }
 
 func (s *Scene) AddBody(b *physics.Body) {
-	s.collisionEngine.AddBody(b)
+	s.root.collisionEngine.AddBody(b)
 }
 
 func (s *Scene) AddGraphics(g SceneGraphics) {
-	s.graphics = append(s.graphics, g)
+	s.root.graphics[s.zindex] = append(s.root.graphics[s.zindex], g)
 }
 
 func (scene *Scene) AddObject(o SceneObject) {
-	scene.addedObjects = append(scene.addedObjects, o)
+	scene.root.addObject(o, uint(scene.zindex))
+}
+
+func (scene *Scene) AddObjectAbove(o SceneObject, zindex uint8) {
+	scene.root.addObject(o, uint(scene.zindex+zindex))
+}
+
+func (scene *Scene) AddObjectBelow(o SceneObject, zindex uint8) {
+	z := int(scene.zindex) - int(zindex)
+	if z < 0 {
+		panic("z index underflow")
+	}
+	scene.root.addObject(o, uint(z))
 }
 
 func (scene *Scene) DelayedCall(seconds float64, fn func()) {
-	scene.delayedFuncs = append(scene.delayedFuncs, delayedFunc{
+	scene.root.delayedFuncs = append(scene.root.delayedFuncs, delayedFunc{
 		delay:  seconds,
 		action: fn,
 	})
 }
 
 func (s *Scene) GetCollisions(b *physics.Body) []physics.Collision {
-	return s.collisionEngine.GetCollisions(b, physics.CollisionConfig{})
+	return s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{})
+}
+
+func (s *Scene) HasCollisionsAt(b *physics.Body, offset gemath.Vec) bool {
+	collisions := s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{
+		Offset: offset,
+		Limit:  1,
+	})
+	return len(collisions) != 0
 }
 
 func (s *Scene) GetMovementCollision(b *physics.Body, velocity gemath.Vec) *physics.Collision {
-	collisions := s.collisionEngine.GetCollisions(b, physics.CollisionConfig{
+	collisions := s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{
 		Velocity: velocity,
 		Limit:    1,
 	})
@@ -129,54 +135,7 @@ func (s *Scene) GetMovementCollision(b *physics.Body, velocity gemath.Vec) *phys
 	return nil
 }
 
-func (scene *Scene) addQueuedObjects() {
-	// New objects could be added while we add already queued objects.
-	// We'll add them in waves, until all objects are in place.
-	for len(scene.addedObjects) != 0 {
-		scene.tmpObjectsQueue = scene.tmpObjectsQueue[:0]
-		for _, o := range scene.addedObjects {
-			scene.tmpObjectsQueue = append(scene.tmpObjectsQueue, o)
-		}
-		scene.addedObjects = scene.addedObjects[:0]
-		for _, o := range scene.tmpObjectsQueue {
-			o.Init(scene)
-			scene.objects = append(scene.objects, o)
-		}
-	}
-}
-
-func (scene *Scene) update(delta float64) {
-	if len(scene.delayedFuncs) != 0 {
-		funcs := scene.delayedFuncs[:0]
-		for _, fn := range scene.delayedFuncs {
-			fn.delay -= delta
-			if fn.delay <= 0 {
-				fn.action()
-			} else {
-				funcs = append(funcs, fn)
-			}
-		}
-		scene.delayedFuncs = funcs
-	}
-
-	scene.collisionEngine.CalculateFrame()
-
-	scene.controller.Update(delta)
-
-	liveObjects := scene.objects[:0]
-	for _, o := range scene.objects {
-		if o.IsDisposed() {
-			continue
-		}
-		o.Update(delta)
-		liveObjects = append(liveObjects, o)
-	}
-	scene.objects = liveObjects
-
-	scene.addQueuedObjects()
-}
-
-type delayedFunc struct {
-	delay  float64
-	action func()
+func (s *Scene) CursorPos() gemath.Vec {
+	x, y := ebiten.CursorPosition()
+	return gemath.Vec{X: float64(x), Y: float64(y)}
 }

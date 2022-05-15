@@ -16,10 +16,11 @@ type Context struct {
 
 	Rand gemath.Rand
 
-	CurrentScene *Scene
+	CurrentScene *RootScene
 
 	OnCriticalError func(err error)
 
+	FullScreen   bool
 	WindowTitle  string
 	WindowWidth  float64
 	WindowHeight float64
@@ -40,20 +41,25 @@ func NewContext() *Context {
 	return ctx
 }
 
-func (ctx *Context) NewScene(name string, controller SceneController) *Scene {
-	scene := newScene()
-	scene.Name = name
-	scene.context = ctx
+func (ctx *Context) ChangeScene(name string, controller SceneController) {
+	ctx.CurrentScene = ctx.NewRootScene(name, controller)
+}
 
-	scene.controller = controller
-	controller.Init(scene)
-	scene.addQueuedObjects()
+func (ctx *Context) NewRootScene(name string, controller SceneController) *RootScene {
+	rootScene := newRootScene()
+	rootScene.Name = name
+	rootScene.context = ctx
+	rootScene.controller = controller
 
-	return scene
+	scene0 := &rootScene.subSceneArray[0]
+
+	controller.Init(scene0)
+
+	return rootScene
 }
 
 func (ctx *Context) Draw(screen *ebiten.Image) {
-	ctx.CurrentScene.graphics = ctx.Renderer.Draw(screen, ctx.CurrentScene.graphics)
+	ctx.Renderer.Draw(screen, &ctx.CurrentScene.graphics)
 }
 
 func (ctx *Context) WindowRect() gemath.Rect {
