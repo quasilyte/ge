@@ -28,15 +28,17 @@ func (e *Event[T]) Disconnect(d disposable) {
 }
 
 func (e *Event[T]) Emit(arg T) {
-	live := e.handlers[:0]
+	// This method is slightly faster than the self-append alternative.
+	length := 0
 	for _, h := range e.handlers {
 		if h.d != nil && h.d.IsDisposed() {
 			continue
 		}
 		h.f(arg)
-		live = append(live, h)
+		e.handlers[length] = h
+		length++
 	}
-	e.handlers = live
+	e.handlers = e.handlers[:length]
 }
 
 type disposable interface {
