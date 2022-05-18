@@ -1,5 +1,9 @@
 package xslices
 
+func Contains[T comparable](slice []T, x T) bool {
+	return Index(slice, x) != -1
+}
+
 func Index[T comparable](slice []T, x T) int {
 	for i, elem := range slice {
 		if x == elem {
