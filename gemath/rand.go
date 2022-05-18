@@ -14,6 +14,10 @@ func (r *Rand) SetSeed(seed int64) {
 	r.rng = rand.New(src)
 }
 
+func (r *Rand) Offset(min, max float64) Vec {
+	return Vec{X: r.FloatRange(min, max), Y: r.FloatRange(min, max)}
+}
+
 func (r *Rand) Chance(probability float64) bool {
 	return r.rng.Float64() <= probability
 }
