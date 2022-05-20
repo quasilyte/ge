@@ -51,7 +51,7 @@ func (ctx *Context) NewRootScene(name string, controller SceneController) *RootS
 	rootScene.context = ctx
 	rootScene.controller = controller
 
-	scene0 := &rootScene.subSceneArray[0]
+	scene0 := &rootScene.subSceneArray[1]
 
 	controller.Init(scene0)
 
