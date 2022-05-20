@@ -1,6 +1,8 @@
 package ge
 
 import (
+	"time"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -8,7 +10,10 @@ func RunGame(ctx *Context) error {
 	if ctx.CurrentScene == nil {
 		panic("running game without a scene: Context.CurrentScene is nil")
 	}
-	g := &gameRunner{ctx: ctx}
+	g := &gameRunner{
+		ctx:      ctx,
+		prevTime: time.Now(),
+	}
 	if ctx.FullScreen {
 		ebiten.SetFullscreen(true)
 	}
@@ -18,12 +23,17 @@ func RunGame(ctx *Context) error {
 }
 
 type gameRunner struct {
-	ctx *Context
+	ctx      *Context
+	prevTime time.Time
 }
 
 func (g *gameRunner) Update() error {
+	now := time.Now()
+	timeDelta := now.Sub(g.prevTime).Seconds()
+	g.prevTime = now
+
 	g.ctx.Input.Update()
-	g.ctx.CurrentScene.update(1.0 / 60.0)
+	g.ctx.CurrentScene.update(timeDelta)
 	return nil
 }
 
