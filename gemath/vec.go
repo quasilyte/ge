@@ -96,10 +96,19 @@ func (v Vec) DirectionTo(v2 Vec) Vec {
 	return v.Sub(v2).Normalized()
 }
 
-func (v Vec) VecTowards(length float64, pos Vec) Vec {
+func (v Vec) VecTowards(pos Vec, length float64) Vec {
 	angle := v.AngleToPoint(pos)
 	result := Vec{X: angle.Cos(), Y: angle.Sin()}
 	return result.Mulf(length)
+}
+
+func (v Vec) MoveTowards(pos Vec, length float64) Vec {
+	direction := pos.Sub(v) // Not normalized
+	dist := direction.Len()
+	if dist <= length || dist < Epsilon {
+		return pos
+	}
+	return v.Add(direction.Divf(dist).Mulf(length))
 }
 
 func (v Vec) EqualApprox(other Vec) bool {
