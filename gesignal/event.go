@@ -55,6 +55,10 @@ func (e *Event[T]) Emit(arg T) {
 	e.handlers = e.handlers[:length]
 }
 
+func (e *Event[T]) IsEmpty() bool {
+	return len(e.handlers) == 0
+}
+
 type eventHandler[T any] struct {
 	c connection
 	f func(T)
