@@ -29,8 +29,8 @@ func newRootScene() *RootScene {
 		objects:      make([]SceneObject, 0, 32),
 		addedObjects: make([]SceneObject, 0, 8),
 		graphics: [zindexMax][]SceneGraphics{
-			make([]SceneGraphics, 0, 24),
 			make([]SceneGraphics, 0, 16),
+			make([]SceneGraphics, 0, 24),
 			make([]SceneGraphics, 0, 8),
 		},
 	}

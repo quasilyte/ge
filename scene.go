@@ -61,7 +61,7 @@ func (s *Scene) Rand() *gemath.Rand {
 	return &s.root.context.Rand
 }
 
-func (s *Scene) LoadImage(imageID resource.ImageID) *ebiten.Image {
+func (s *Scene) LoadImage(imageID resource.ImageID) resource.Image {
 	return s.root.context.Loader.LoadImage(imageID)
 }
 
@@ -87,6 +87,14 @@ func (s *Scene) AddBody(b *physics.Body) {
 
 func (s *Scene) AddGraphics(g SceneGraphics) {
 	s.root.graphics[s.zindex] = append(s.root.graphics[s.zindex], g)
+}
+
+func (s *Scene) AddGraphicsBelow(g SceneGraphics, zindex uint8) {
+	z := int(s.zindex) - int(zindex)
+	if z < 0 {
+		panic("z index underflow")
+	}
+	s.root.graphics[z] = append(s.root.graphics[z], g)
 }
 
 func (scene *Scene) AddObject(o SceneObject) {
@@ -133,9 +141,4 @@ func (s *Scene) GetMovementCollision(b *physics.Body, velocity gemath.Vec) *phys
 		return &collisions[0]
 	}
 	return nil
-}
-
-func (s *Scene) CursorPos() gemath.Vec {
-	x, y := ebiten.CursorPosition()
-	return gemath.Vec{X: float64(x), Y: float64(y)}
 }

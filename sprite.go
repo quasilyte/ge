@@ -2,9 +2,11 @@ package ge
 
 import (
 	"image"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/resource"
 )
 
 type Sprite struct {
@@ -19,8 +21,10 @@ type Sprite struct {
 
 	Hue gemath.Rad
 
-	Visible  bool
-	Centered bool
+	FlipHorizontal bool
+	FlipVertical   bool
+	Visible        bool
+	Centered       bool
 
 	FrameOffset gemath.Vec
 	FrameWidth  float64
@@ -36,6 +40,10 @@ type ColorScale struct {
 	A float32
 }
 
+func (c *ColorScale) SetColor(rgba color.RGBA) {
+	c.SetRGBA(rgba.R, rgba.G, rgba.B, rgba.A)
+}
+
 func (c *ColorScale) SetRGBA(r, g, b, a uint8) {
 	c.R = float32(r) / 255
 	c.G = float32(g) / 255
@@ -44,6 +52,7 @@ func (c *ColorScale) SetRGBA(r, g, b, a uint8) {
 }
 
 var defaultColorScale = ColorScale{1, 1, 1, 1}
+var transparentColor = ColorScale{0, 0, 0, 0}
 
 func NewSprite() *Sprite {
 	return &Sprite{
@@ -54,27 +63,39 @@ func NewSprite() *Sprite {
 	}
 }
 
-func (s *Sprite) SetImage(img *ebiten.Image) {
-	w, h := img.Size()
-	s.image = img
-	s.FrameWidth = float64(w)
-	s.FrameHeight = float64(h)
+func (s *Sprite) SetImage(img resource.Image) {
+	w, h := img.Data.Size()
+	s.image = img.Data
+	s.FrameWidth = img.DefaultFrameWidth
+	if s.FrameWidth == 0 {
+		s.FrameWidth = float64(w)
+	}
+	s.FrameHeight = img.DefaultFrameHeight
+	if s.FrameHeight == 0 {
+		s.FrameHeight = float64(h)
+	}
 }
 
-func (s *Sprite) SetRepeatedImage(img *ebiten.Image, width, height float64) {
-	w, h := img.Size()
+func (s *Sprite) SetRepeatedImage(img resource.Image, width, height float64) {
+	w, h := img.Data.Size()
 	repeated := ebiten.NewImage(int(width), int(height))
 	var op ebiten.DrawImageOptions
 	for y := float64(0); y < height; y += float64(h) {
 		for x := float64(0); x < width; x += float64(w) {
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, y)
-			repeated.DrawImage(img, &op)
+			repeated.DrawImage(img.Data, &op)
 		}
 	}
 	s.image = repeated
-	s.FrameWidth = width
-	s.FrameHeight = height
+	s.FrameWidth = img.DefaultFrameWidth
+	if s.FrameWidth == 0 {
+		s.FrameWidth = width
+	}
+	s.FrameHeight = img.DefaultFrameHeight
+	if s.FrameHeight == 0 {
+		s.FrameHeight = height
+	}
 }
 
 func (s *Sprite) ImageWidth() float64 {
@@ -116,6 +137,15 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 		drawOptions.GeoM.Scale(s.Scale, s.Scale)
 	}
 	drawOptions.GeoM.Translate(origin.X, origin.Y)
+
+	if s.FlipHorizontal {
+		drawOptions.GeoM.Scale(-1, 1)
+		drawOptions.GeoM.Translate(s.FrameWidth, 0)
+	}
+	if s.FlipVertical {
+		drawOptions.GeoM.Scale(1, -1)
+		drawOptions.GeoM.Translate(0, s.FrameHeight)
+	}
 
 	if s.Pos.Base != nil {
 		drawOptions.GeoM.Translate(s.Pos.Base.X-origin.X, s.Pos.Base.Y-origin.Y)

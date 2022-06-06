@@ -24,14 +24,16 @@ type Loader struct {
 	ImageRegistry ImageRegistry
 	AudioRegistry AudioRegistry
 	FontRegistry  FontRegistry
+	RawRegistry   RawRegistry
 
 	wavDecoder wavDecoder
 	oggDecoder oggDecoder
 
-	images map[ImageID]*ebiten.Image
+	images map[ImageID]Image
 	wavs   map[AudioID]*wav.Stream
 	oggs   map[AudioID]*vorbis.Stream
 	fonts  map[FontID]font.Face
+	raws   map[RawID][]byte
 }
 
 type wavDecoder interface {
@@ -44,16 +46,18 @@ type oggDecoder interface {
 
 func NewLoader(wd wavDecoder, od oggDecoder) *Loader {
 	l := &Loader{
-		images:     make(map[ImageID]*ebiten.Image),
+		images:     make(map[ImageID]Image),
 		wavs:       make(map[AudioID]*wav.Stream),
 		oggs:       make(map[AudioID]*vorbis.Stream),
 		fonts:      make(map[FontID]font.Face),
+		raws:       make(map[RawID][]byte),
 		wavDecoder: wd,
 		oggDecoder: od,
 	}
 	l.AudioRegistry.mapping = make(map[AudioID]Audio)
-	l.ImageRegistry.mapping = make(map[ImageID]Image)
+	l.ImageRegistry.mapping = make(map[ImageID]ImageInfo)
 	l.FontRegistry.mapping = make(map[FontID]Font)
+	l.RawRegistry.mapping = make(map[RawID]Raw)
 	return l
 }
 
@@ -80,6 +84,10 @@ func (l *Loader) PreloadOGG(id AudioID) {
 
 func (l *Loader) PreloadFont(id FontID) {
 	l.LoadFont(id)
+}
+
+func (l *Loader) PreloadRaw(id RawID) {
+	l.LoadRaw(id)
 }
 
 func (l *Loader) LoadWAV(id AudioID) *wav.Stream {
@@ -168,7 +176,7 @@ func (l *Loader) LoadFont(id FontID) font.Face {
 	return ff
 }
 
-func (l *Loader) LoadImage(id ImageID) *ebiten.Image {
+func (l *Loader) LoadImage(id ImageID) Image {
 	img, ok := l.images[id]
 	if !ok {
 		imageInfo, ok := l.ImageRegistry.mapping[id]
@@ -185,8 +193,36 @@ func (l *Loader) LoadImage(id ImageID) *ebiten.Image {
 		if err != nil {
 			panic(fmt.Sprintf("decode %q image: %v", imageInfo.Path, err))
 		}
-		img = ebiten.NewImageFromImage(rawImage)
+		data := ebiten.NewImageFromImage(rawImage)
+		img = Image{
+			Data:               data,
+			DefaultFrameWidth:  imageInfo.FrameWidth,
+			DefaultFrameHeight: imageInfo.FrameHeight,
+		}
 		l.images[id] = img
 	}
 	return img
+}
+
+func (l *Loader) LoadRaw(id RawID) []byte {
+	data, ok := l.raws[id]
+	if !ok {
+		rawInfo, ok := l.RawRegistry.mapping[id]
+		if !ok {
+			panic(fmt.Sprintf("unregistered raw with id=%d", id))
+		}
+		r := l.OpenAssetFunc(rawInfo.Path)
+		defer func() {
+			if err := r.Close(); err != nil {
+				panic(fmt.Sprintf("closing %q raw reader: %v", rawInfo.Path, err))
+			}
+		}()
+		var err error
+		data, err = io.ReadAll(r)
+		if err != nil {
+			panic(fmt.Sprintf("read %q raw: %v", rawInfo.Path, err))
+		}
+		l.raws[id] = data
+	}
+	return data
 }
