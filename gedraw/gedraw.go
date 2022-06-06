@@ -10,6 +10,14 @@ import (
 	"github.com/quasilyte/ge/internal/primitives"
 )
 
+func DrawRect(dst *ebiten.Image, rect gemath.Rect, c color.RGBA) {
+	var drawOptions ebiten.DrawImageOptions
+	drawOptions.GeoM.Scale(rect.Width(), rect.Height())
+	drawOptions.GeoM.Translate(rect.Min.X, rect.Min.Y)
+	drawOptions.ColorM.ScaleWithColor(c)
+	dst.DrawImage(primitives.WhitePixel, &drawOptions)
+}
+
 func DrawPath(dst *ebiten.Image, points []gemath.Vec, c color.RGBA) {
 	if len(points) == 0 {
 		return
@@ -30,16 +38,20 @@ func DrawPath(dst *ebiten.Image, points []gemath.Vec, c color.RGBA) {
 	dst.DrawTriangles(vertices, indices, primitives.WhitePixel, &drawOptions)
 }
 
-func DrawCircle(dst *ebiten.Image, pos gemath.Vec, radius float64, c color.RGBA) {
+func DrawArc(dst *ebiten.Image, pos gemath.Vec, radius float64, startAngle, endAngle gemath.Rad, c color.RGBA) {
 	var drawOptions ebiten.DrawTrianglesOptions
 
 	var p vector.Path
-	p.Arc(float32(pos.X), float32(pos.Y), float32(radius), 0, 2*math.Pi, vector.Clockwise)
+	p.Arc(float32(pos.X), float32(pos.Y), float32(radius), float32(startAngle), float32(endAngle), vector.Clockwise)
 	var vertices []ebiten.Vertex
 	var indices []uint16
 	vertices, indices = p.AppendVerticesAndIndicesForFilling(vertices, indices)
 	assignColors(vertices, c)
 	dst.DrawTriangles(vertices, indices, primitives.WhitePixel, &drawOptions)
+}
+
+func DrawCircle(dst *ebiten.Image, pos gemath.Vec, radius float64, c color.RGBA) {
+	DrawArc(dst, pos, radius, 0, 2*math.Pi, c)
 }
 
 func assignColors(vertices []ebiten.Vertex, c color.RGBA) {
