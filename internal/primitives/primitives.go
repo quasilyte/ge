@@ -16,6 +16,7 @@ func init() {
 	emptyImage.Fill(color.White)
 }
 
+// TODO: move to gedraw?
 func DrawLine(dst *ebiten.Image, x1, y1, x2, y2 float64, clr color.Color) {
 	length := math.Hypot(x2-x1, y2-y1)
 
