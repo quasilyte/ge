@@ -43,26 +43,29 @@ func (l *Line) Draw(screen *ebiten.Image) {
 	if !l.Visible {
 		return
 	}
+	drawLine(screen, *l.BeginPos, *l.EndPos, l.Width, l.ColorScale)
+}
 
-	x1 := l.BeginPos.X
-	y1 := l.BeginPos.Y
-	x2 := l.EndPos.X
-	y2 := l.EndPos.Y
+func drawLine(dst *ebiten.Image, pos1, pos2 gemath.Vec, width float64, c ColorScale) {
+	x1 := pos1.X
+	y1 := pos1.Y
+	x2 := pos2.X
+	y2 := pos2.Y
 
 	length := math.Hypot(x2-x1, y2-y1)
 
 	var drawOptions ebiten.DrawImageOptions
-	drawOptions.GeoM.Scale(length, l.Width)
+	drawOptions.GeoM.Scale(length, width)
 	drawOptions.GeoM.Rotate(math.Atan2(y2-y1, x2-x1))
 	drawOptions.GeoM.Translate(x1, y1)
 
-	if l.ColorScale != defaultColorScale {
-		r := float64(l.ColorScale.R)
-		g := float64(l.ColorScale.G)
-		b := float64(l.ColorScale.B)
-		a := float64(l.ColorScale.A)
+	if c != defaultColorScale {
+		r := float64(c.R)
+		g := float64(c.G)
+		b := float64(c.B)
+		a := float64(c.A)
 		drawOptions.ColorM.Scale(r, g, b, a)
 	}
 
-	screen.DrawImage(primitives.WhitePixel, &drawOptions)
+	dst.DrawImage(primitives.WhitePixel, &drawOptions)
 }
