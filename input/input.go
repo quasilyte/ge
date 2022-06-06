@@ -5,11 +5,14 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/quasilyte/ge/gemath"
 )
 
 type System struct {
 	gamepadIDs  []ebiten.GamepadID
 	gamepadInfo []gamepadInfo
+
+	cursorPos gemath.Vec
 }
 
 func (sys *System) Init() {
@@ -28,6 +31,11 @@ func (sys *System) Update() {
 			}
 		}
 	}
+
+	{
+		x, y := ebiten.CursorPosition()
+		sys.cursorPos = gemath.Vec{X: float64(x), Y: float64(y)}
+	}
 }
 
 func (sys *System) NewHandler(playerID int, keymap Keymap) *Handler {
@@ -44,15 +52,40 @@ type Handler struct {
 	sys    *System
 }
 
+type EventInfo struct {
+	Pos gemath.Vec
+}
+
+func (h *Handler) CursorPos() gemath.Vec {
+	return h.sys.cursorPos
+}
+
+func (h *Handler) EventInfo(action Action) EventInfo {
+	var info EventInfo
+	key, ok := h.keymap.mapping[action]
+	if !ok {
+		return info
+	}
+	switch key.kind {
+	case keyMouse:
+		info.Pos = h.sys.cursorPos
+	}
+	return info
+}
+
 func (h *Handler) ActionIsJustPressed(action Action) bool {
 	key, ok := h.keymap.mapping[action]
 	if !ok {
 		return false
 	}
-	if key.isGamepad {
+	switch key.kind {
+	case keyGamepad:
 		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(ebiten.GamepadButton(key.code)))
+	case keyMouse:
+		return inpututil.IsMouseButtonJustPressed(ebiten.MouseButton(key.code))
+	default:
+		return inpututil.IsKeyJustPressed(ebiten.Key(key.code))
 	}
-	return inpututil.IsKeyJustPressed(ebiten.Key(key.code))
 }
 
 func (h *Handler) ActionIsPressed(action Action) bool {
@@ -60,10 +93,14 @@ func (h *Handler) ActionIsPressed(action Action) bool {
 	if !ok {
 		return false
 	}
-	if key.isGamepad {
+	switch key.kind {
+	case keyGamepad:
 		return ebiten.IsGamepadButtonPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(ebiten.GamepadButton(key.code)))
+	case keyMouse:
+		return ebiten.IsMouseButtonPressed(ebiten.MouseButton(key.code))
+	default:
+		return ebiten.IsKeyPressed(ebiten.Key(key.code))
 	}
-	return ebiten.IsKeyPressed(ebiten.Key(key.code))
 }
 
 func (h *Handler) mappedGamepadKey(b ebiten.GamepadButton) ebiten.GamepadButton {

@@ -2,10 +2,25 @@ package input
 
 import "github.com/hajimehoshi/ebiten/v2"
 
+type keyKind uint8
+
+const (
+	keyKeyboard keyKind = iota
+	keyGamepad
+	keyMouse
+)
+
 type Key struct {
-	code      int
-	isGamepad bool
+	code int
+	kind keyKind
 }
+
+// Mouse keys.
+var (
+	KeyMouseLeft   = Key{code: int(ebiten.MouseButtonLeft), kind: keyMouse}
+	KeyMouseRight  = Key{code: int(ebiten.MouseButtonRight), kind: keyMouse}
+	KeyMouseMiddle = Key{code: int(ebiten.MouseButtonMiddle), kind: keyMouse}
+)
 
 // Keyboard keys.
 var (
@@ -17,6 +32,7 @@ var (
 	KeyS Key = Key{code: int(ebiten.KeyS)}
 	KeyD Key = Key{code: int(ebiten.KeyD)}
 	KeyE Key = Key{code: int(ebiten.KeyE)}
+	KeyR Key = Key{code: int(ebiten.KeyR)}
 	KeyQ Key = Key{code: int(ebiten.KeyQ)}
 
 	KeyEscape Key = Key{code: int(ebiten.KeyEscape)}
@@ -27,18 +43,18 @@ var (
 
 // Gamepad keys.
 var (
-	KeyGamepadStart Key = Key{code: int(ebiten.GamepadButton7), isGamepad: true}
+	KeyGamepadStart Key = Key{code: int(ebiten.GamepadButton7), kind: keyGamepad}
 
-	KeyGamepadUp    Key = Key{code: int(ebiten.GamepadButton11), isGamepad: true}
-	KeyGamepadRight Key = Key{code: int(ebiten.GamepadButton12), isGamepad: true}
-	KeyGamepadDown  Key = Key{code: int(ebiten.GamepadButton13), isGamepad: true}
-	KeyGamepadLeft  Key = Key{code: int(ebiten.GamepadButton14), isGamepad: true}
+	KeyGamepadUp    Key = Key{code: int(ebiten.GamepadButton11), kind: keyGamepad}
+	KeyGamepadRight Key = Key{code: int(ebiten.GamepadButton12), kind: keyGamepad}
+	KeyGamepadDown  Key = Key{code: int(ebiten.GamepadButton13), kind: keyGamepad}
+	KeyGamepadLeft  Key = Key{code: int(ebiten.GamepadButton14), kind: keyGamepad}
 
-	KeyGamepadA Key = Key{code: int(ebiten.GamepadButton0), isGamepad: true}
-	KeyGamepadB Key = Key{code: int(ebiten.GamepadButton1), isGamepad: true}
-	KeyGamepadX Key = Key{code: int(ebiten.GamepadButton2), isGamepad: true}
-	KeyGamepadY Key = Key{code: int(ebiten.GamepadButton3), isGamepad: true}
+	KeyGamepadA Key = Key{code: int(ebiten.GamepadButton0), kind: keyGamepad}
+	KeyGamepadB Key = Key{code: int(ebiten.GamepadButton1), kind: keyGamepad}
+	KeyGamepadX Key = Key{code: int(ebiten.GamepadButton2), kind: keyGamepad}
+	KeyGamepadY Key = Key{code: int(ebiten.GamepadButton3), kind: keyGamepad}
 
-	KeyGamepadL1 Key = Key{code: int(ebiten.GamepadButton4), isGamepad: true}
-	KeyGamepadR1 Key = Key{code: int(ebiten.GamepadButton5), isGamepad: true}
+	KeyGamepadL1 Key = Key{code: int(ebiten.GamepadButton4), kind: keyGamepad}
+	KeyGamepadR1 Key = Key{code: int(ebiten.GamepadButton5), kind: keyGamepad}
 )
