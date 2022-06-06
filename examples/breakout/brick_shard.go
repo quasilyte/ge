@@ -18,8 +18,8 @@ func newBrickShard(pos gemath.Vec) *brickShard {
 func (shard *brickShard) Init(scene *ge.Scene) {
 	angle := scene.Rand().Rad()
 	shard.velocity = gemath.RadToVec(angle).Mulf(100)
-	shard.sprite = scene.LoadSprite(ImageBrickShard)
-	shard.sprite.Pos = &shard.pos
+	shard.sprite = scene.NewSprite(ImageBrickShard)
+	shard.sprite.Pos.Base = &shard.pos
 	scene.AddGraphics(shard.sprite)
 }
 
@@ -32,8 +32,8 @@ func (shard *brickShard) Dispose() {
 func (shard *brickShard) Update(delta float64) {
 	shard.pos = shard.pos.Add(shard.velocity.Mulf(delta))
 
-	shard.sprite.ColorModulation.A -= float32(delta)
-	if shard.sprite.ColorModulation.A < 0.2 {
+	shard.sprite.ColorScale.A -= float32(delta)
+	if shard.sprite.ColorScale.A < 0.2 {
 		shard.Dispose()
 	}
 }

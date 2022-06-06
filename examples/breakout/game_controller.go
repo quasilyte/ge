@@ -4,11 +4,13 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
+	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/resource"
 )
 
 type gameController struct {
 	scene              *ge.Scene
+	input              *input.Handler
 	platform           *platform
 	lifeSpheres        []*ge.Sprite
 	rotatingBricks     brickGroup
@@ -18,8 +20,8 @@ type gameController struct {
 	wave               int
 }
 
-func newGameController() *gameController {
-	return &gameController{wave: 1}
+func newGameController(playerInput *input.Handler) *gameController {
+	return &gameController{wave: 1, input: playerInput}
 }
 
 func (c *gameController) Init(scene *ge.Scene) {
@@ -27,7 +29,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 
 	c.scene = scene
 
-	preloadImages := []resource.ID{
+	preloadImages := []resource.ImageID{
 		ImageBackground,
 		ImageBrickCircle,
 		ImageBrickRect,
@@ -38,7 +40,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 	for _, p := range preloadImages {
 		ctx.Loader.PreloadImage(p)
 	}
-	preloadAudio := []resource.ID{
+	preloadAudio := []resource.AudioID{
 		AudioBrickDestroyed,
 		AudioBrickHit,
 		AudioMusic,
@@ -50,21 +52,21 @@ func (c *gameController) Init(scene *ge.Scene) {
 	ctx.Audio.PlayMusic(AudioMusic)
 
 	{
-		bg := scene.LoadSprite(ImageBackground)
+		bg := scene.NewSprite(ImageBackground)
 		bg.Centered = false
 		scene.AddGraphics(bg)
 	}
 
 	// Deploy the initial objects of the scene.
-	c.platform = newPlatform()
+	c.platform = newPlatform(c.input)
 	c.platform.EventBallLost.Connect(nil, c.onBallLost)
 	c.platform.body.Pos = gemath.Vec{X: 400, Y: 600}
 	scene.AddObject(c.platform)
 
 	for i := 0; i < c.platform.numLives; i++ {
 		pos := gemath.Vec{X: 32, Y: float64(i*32) + 64}
-		lifeSphere := scene.LoadSprite(ImageBall)
-		lifeSphere.Pos = &pos
+		lifeSphere := scene.NewSprite(ImageBall)
+		lifeSphere.Pos.Base = &pos
 		c.lifeSpheres = append(c.lifeSpheres, lifeSphere)
 		scene.AddGraphics(lifeSphere)
 	}
@@ -109,7 +111,7 @@ func (c *gameController) onBallLost(gesignal.Void) {
 		c.platform.Dispose()
 		c.scene.DelayedCall(2, func() {
 			ctx := c.scene.Context()
-			ctx.CurrentScene = ctx.NewScene("game", newGameController())
+			ctx.CurrentScene = ctx.NewRootScene("game", newGameController(c.input))
 		})
 	}
 }

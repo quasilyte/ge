@@ -26,8 +26,8 @@ func newBall() *ball {
 
 func (b *ball) Init(scene *ge.Scene) {
 	b.scene = scene
-	b.sprite = scene.LoadSprite(ImageBall)
-	b.sprite.Pos = &b.body.Pos
+	b.sprite = scene.NewSprite(ImageBall)
+	b.sprite.Pos.Base = &b.body.Pos
 	scene.AddGraphics(b.sprite)
 	scene.AddBody(&b.body)
 }

@@ -3,11 +3,10 @@ package main
 import (
 	"embed"
 	"io"
-	"path/filepath"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/resource"
 
 	_ "image/png"
@@ -17,13 +16,13 @@ import (
 var gameAssets embed.FS
 
 const (
-	ActionLeft ge.KeymapAction = iota
+	ActionLeft input.Action = iota
 	ActionRight
 	ActionFire
 )
 
 const (
-	ImageBackground resource.ID = iota
+	ImageBackground resource.ImageID = iota
 	ImageBall
 	ImageBrickCircle
 	ImageBrickRect
@@ -32,7 +31,7 @@ const (
 )
 
 const (
-	AudioBrickHit resource.ID = iota
+	AudioBrickHit resource.AudioID = iota
 	AudioBrickDestroyed
 	AudioMusic
 )
@@ -45,7 +44,7 @@ func main() {
 	ctx.WindowHeight = 640
 
 	ctx.Loader.OpenAssetFunc = func(path string) io.ReadCloser {
-		f, err := gameAssets.Open(filepath.Join("assets", path))
+		f, err := gameAssets.Open("assets/" + path)
 		if err != nil {
 			ctx.OnCriticalError(err)
 		}
@@ -53,17 +52,13 @@ func main() {
 	}
 
 	// Bind controls.
-	keyBindings := map[ge.KeymapAction]ebiten.Key{
-		ActionLeft:  ebiten.KeyA,
-		ActionRight: ebiten.KeyD,
-		ActionFire:  ebiten.KeySpace,
-	}
-	for id, key := range keyBindings {
-		ctx.Input.Keymap.Set(id, key)
-	}
+	var keymap input.Keymap
+	keymap.Set(ActionLeft, input.KeyA)
+	keymap.Set(ActionRight, input.KeyD)
+	keymap.Set(ActionFire, input.KeySpace)
 
 	// Associate audio resources.
-	audioResources := map[resource.ID]resource.Audio{
+	audioResources := map[resource.AudioID]resource.Audio{
 		AudioBrickHit:       {Path: "brick_hit.wav", Volume: -0.3},
 		AudioBrickDestroyed: {Path: "brick_destroyed.wav", Volume: -0.1},
 		AudioMusic:          {Path: "music.ogg"},
@@ -73,7 +68,7 @@ func main() {
 	}
 
 	// Associate image resources.
-	imageResources := map[resource.ID]resource.Image{
+	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageBackground:  {Path: "background.png"},
 		ImageBall:        {Path: "ball.png"},
 		ImageBrickCircle: {Path: "brick_circle.png"},
@@ -85,7 +80,7 @@ func main() {
 		ctx.Loader.ImageRegistry.Set(id, res)
 	}
 
-	ctx.CurrentScene = ctx.NewScene("game", newGameController())
+	ctx.CurrentScene = ctx.NewRootScene("game", newGameController(ctx.Input.NewHandler(0, keymap)))
 
 	if err := ge.RunGame(ctx); err != nil {
 		panic(err)

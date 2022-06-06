@@ -33,7 +33,7 @@ func newBrick(scale float64, rotation gemath.Rad, pos gemath.Vec) *brick {
 
 func newCircleBrick(scale float64, pos gemath.Vec) *brick {
 	b := &brick{
-		hp:          1,
+		hp:          3,
 		scale:       scale,
 		shapeHeight: brickDefaultWidth,
 	}
@@ -45,21 +45,21 @@ func newCircleBrick(scale float64, pos gemath.Vec) *brick {
 func (b *brick) Init(scene *ge.Scene) {
 	b.scene = scene
 	if b.body.IsCircle() {
-		b.sprite = scene.LoadSprite(ImageBrickCircle)
+		b.sprite = scene.NewSprite(ImageBrickCircle)
 	} else {
-		b.sprite = scene.LoadSprite(ImageBrickRect)
+		b.sprite = scene.NewSprite(ImageBrickRect)
 		b.sprite.Rotation = &b.body.Rotation
 	}
-	b.sprite.Width = brickDefaultWidth
-	b.sprite.Pos = &b.body.Pos
-	b.sprite.Scaling = b.scale
+	b.sprite.FrameWidth = brickDefaultWidth
+	b.sprite.Pos.Base = &b.body.Pos
+	b.sprite.Scale = b.scale
 	scene.AddGraphics(b.sprite)
 	scene.AddBody(&b.body)
 }
 
 func (b *brick) Hit(hitPos gemath.Vec) bool {
 	b.hp--
-	b.sprite.Offset.X += brickDefaultWidth
+	b.sprite.FrameOffset.X += brickDefaultWidth
 
 	if b.hp <= 0 {
 		b.scene.Audio().PlaySound(AudioBrickDestroyed)
