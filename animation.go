@@ -1,23 +1,65 @@
 package ge
 
-type Animation struct {
-	sprite *Sprite
+import (
+	"math"
 
-	SecondsPerFrame float64
+	"github.com/quasilyte/ge/gesignal"
+)
+
+// TODO: change animation speed to FPS instead of seconds per frame.
+
+type Animation struct {
+	sprite     *Sprite
+	frameWidth float64
+
+	numFrames int
+	offsetY   float64
+
+	animationSpan float64
+	deltaPerFrame float64
+
+	repeated bool
 
 	frame       int
-	numFrames   int
 	frameTicker float64
-	frameWidth  float64
+
+	EventFrameChanged gesignal.Event[int]
 }
 
-func NewAnimation(s *Sprite) *Animation {
-	return &Animation{
-		sprite:          s,
-		frameWidth:      s.FrameWidth,
-		numFrames:       int(s.ImageWidth() / s.FrameWidth),
-		SecondsPerFrame: 0.05,
+func NewRepeatedAnimation(s *Sprite, numFrames int) *Animation {
+	a := NewAnimation(s, numFrames)
+	a.repeated = true
+	return a
+}
+
+func NewAnimation(s *Sprite, numFrames int) *Animation {
+	a := &Animation{}
+	a.SetSprite(s, numFrames)
+	a.SetSecondsPerFrame(0.05)
+	return a
+}
+
+func (a *Animation) SetSprite(s *Sprite, numFrames int) {
+	if numFrames < 0 {
+		numFrames = int(s.ImageWidth() / s.FrameWidth)
 	}
+	a.sprite = s
+	a.frameWidth = s.FrameWidth
+	a.numFrames = numFrames
+}
+
+func (a *Animation) SetOffsetY(offset float64) {
+	a.offsetY = offset
+}
+
+func (a *Animation) SetAnimationSpan(value float64) {
+	a.animationSpan = value
+	a.deltaPerFrame = value / float64(a.numFrames)
+}
+
+func (a *Animation) SetSecondsPerFrame(seconds float64) {
+	a.animationSpan = seconds * float64(a.numFrames)
+	a.deltaPerFrame = seconds
 }
 
 func (a *Animation) Sprite() *Sprite {
@@ -28,23 +70,54 @@ func (a *Animation) IsDisposed() bool {
 	return a.sprite.IsDisposed()
 }
 
-func (a *Animation) Dispose() {
-	a.sprite.Dispose()
+func (a *Animation) Rewind() {
+	a.frameTicker = 0
+	a.frame = 0
+}
+
+func (a *Animation) RewindTo(value float64) {
+	a.frameTicker = 0
+	a.frame = -1
+	a.Tick(value)
 }
 
 func (a *Animation) Tick(delta float64) bool {
-	finished := false
-	a.frameTicker += delta
-	if a.frameTicker > a.SecondsPerFrame {
-		a.frameTicker = a.frameTicker - a.SecondsPerFrame
-		a.frame++
-		if a.frame > a.numFrames {
-			a.frame = 0
-			a.sprite.FrameOffset.X = 0
-			finished = true
-		} else {
-			a.sprite.FrameOffset.X += a.frameWidth
+	if !a.repeated {
+		if a.frameTicker >= a.animationSpan {
+			return true
 		}
 	}
+
+	a.sprite.FrameOffset.Y = a.offsetY
+
+	finished := false
+	a.frameTicker += delta
+	var frame int
+	if a.frameTicker >= a.animationSpan {
+		finished = true
+		if a.repeated {
+			rem := math.Mod(a.frameTicker, a.animationSpan)
+			a.frameTicker = rem
+			frame = int(a.frameTicker / a.deltaPerFrame)
+		} else {
+			a.frameTicker = a.animationSpan
+			frame = a.numFrames - 1
+		}
+	} else {
+		frame = int(a.frameTicker / a.deltaPerFrame)
+	}
+
+	framesDelta := frame - a.frame
+	a.frame = frame
+	if framesDelta != 0 {
+		// A small optimization: don't call Emit if there are no listeners.
+		// This is more useful for repeated animations as they're less likely to have
+		// any frame event listeners.
+		if !a.EventFrameChanged.IsEmpty() {
+			a.EventFrameChanged.Emit(framesDelta)
+		}
+		a.sprite.FrameOffset.X = a.frameWidth * float64(frame)
+	}
+
 	return finished
 }
