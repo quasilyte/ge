@@ -108,6 +108,8 @@ func (h *Handler) mappedGamepadKey(b ebiten.GamepadButton) ebiten.GamepadButton 
 	switch model {
 	case gamepadXbox:
 		return b
+	case gamepadDualSense:
+		return dualsenseToXbox(b)
 	case gamepadMicront:
 		return microntToXbox(b)
 	default:
@@ -120,6 +122,7 @@ type gamepadModel int
 const (
 	gamepadUnknown gamepadModel = iota
 	gamepadXbox
+	gamepadDualSense
 	gamepadMicront
 )
 
@@ -127,6 +130,9 @@ func guessGamepadModel(s string) gamepadModel {
 	s = strings.ToLower(s)
 	if strings.Contains(s, "xinput") {
 		return gamepadXbox
+	}
+	if strings.Contains(s, "dualsense") {
+		return gamepadDualSense
 	}
 	if s == "micront" {
 		return gamepadMicront
@@ -137,6 +143,25 @@ func guessGamepadModel(s string) gamepadModel {
 type gamepadInfo struct {
 	model     gamepadModel
 	modelName string
+}
+
+func dualsenseToXbox(b ebiten.GamepadButton) ebiten.GamepadButton {
+	switch b {
+	case ebiten.GamepadButton11:
+		return ebiten.GamepadButton13
+	case ebiten.GamepadButton12:
+		return ebiten.GamepadButton14
+	case ebiten.GamepadButton13:
+		return ebiten.GamepadButton15
+	case ebiten.GamepadButton14:
+		return ebiten.GamepadButton16
+
+	case ebiten.GamepadButton7:
+		return ebiten.GamepadButton10
+
+	default:
+		return b
+	}
 }
 
 func microntToXbox(b ebiten.GamepadButton) ebiten.GamepadButton {
