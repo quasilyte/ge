@@ -1,26 +1,45 @@
 package ge
 
 import (
+	"math"
+	"strings"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/quasilyte/ge/gemath"
 	"golang.org/x/image/font"
 )
 
-type AlignHorizontal int
+type AlignVertical uint8
 
 const (
-	AlignLeft AlignHorizontal = iota
-	AlignCenterHorizontal
-	AlignRight
+	AlignVerticalTop AlignVertical = iota
+	AlignVerticalCenter
+	AlignVerticalBottom
 )
 
-type AlignVertical int
+type AlignHorizontal uint8
 
 const (
-	AlignTop AlignVertical = iota
-	AlignCenter
-	AlignBottom
+	AlignHorizontalLeft AlignHorizontal = iota
+	AlignHorizontalCenter
+	AlignHorizontalRight
+)
+
+type GrowVertical uint8
+
+const (
+	GrowVerticalDown GrowVertical = iota
+	GrowVerticalUp
+	GrowVerticalNone
+)
+
+type GrowHorizontal uint8
+
+const (
+	GrowHorizontalRight GrowHorizontal = iota
+	GrowHorizontalLeft
+	GrowHorizontalNone
 )
 
 type Label struct {
@@ -28,22 +47,34 @@ type Label struct {
 
 	ColorScale ColorScale
 
-	Pos Pos
+	Pos    Pos
+	Width  float64
+	Height float64
 
 	Visible bool
-	HAlign  AlignHorizontal
-	VAlign  AlignVertical
 
-	face font.Face
+	AlignVertical   AlignVertical
+	AlignHorizontal AlignHorizontal
+	GrowVertical    GrowVertical
+	GrowHorizontal  GrowHorizontal
+
+	face       font.Face
+	capHeight  float64
+	lineHeight float64
 }
 
 func NewLabel(ff font.Face) *Label {
+	m := ff.Metrics()
+	capHeight := math.Abs(float64(m.CapHeight.Floor()))
+	lineHeight := float64(m.Height.Floor())
 	label := &Label{
-		face:       ff,
-		ColorScale: defaultColorScale,
-		HAlign:     AlignLeft,
-		VAlign:     AlignTop,
-		Visible:    true,
+		face:            ff,
+		capHeight:       capHeight,
+		lineHeight:      lineHeight,
+		ColorScale:      defaultColorScale,
+		Visible:         true,
+		AlignHorizontal: AlignHorizontalLeft,
+		AlignVertical:   AlignVerticalTop,
 	}
 	return label
 }
@@ -57,36 +88,65 @@ func (l *Label) Dispose() {
 }
 
 func (l *Label) Draw(screen *ebiten.Image) {
-	if !l.Visible {
+	if !l.Visible || l.Text == "" {
 		return
 	}
 
-	var drawOptions ebiten.DrawImageOptions
+	pos := l.Pos.Resolve()
 
-	var origin gemath.Vec
+	// Adjust the pos, since "dot position" (baseline) is not a top-left corner.
+	pos.Y += l.capHeight
 
+	numLines := strings.Count(l.Text, "\n") + 1
+
+	var containerRect gemath.Rect
 	bounds := text.BoundString(l.face, l.Text)
 	boundsWidth := float64(bounds.Dx())
-	switch l.VAlign {
-	case AlignTop:
-		origin.Y = float64(l.face.Metrics().CapHeight.Round())
-	case AlignCenter:
-		origin.Y = float64(l.face.Metrics().CapHeight.Round() / 2)
-	}
-	switch l.HAlign {
-	case AlignLeft:
-		// Do nothing.
-	case AlignCenterHorizontal:
-		origin.X = boundsWidth / 2
-	}
-	origin = origin.Sub(l.Pos.Offset)
-
-	if l.Pos.Base != nil {
-		drawOptions.GeoM.Translate(l.Pos.Base.X-origin.X, l.Pos.Base.Y-origin.Y)
+	boundsHeight := float64(bounds.Dy())
+	if l.Width == 0 && l.Height == 0 {
+		// Auto-sized container.
+		containerRect = gemath.Rect{
+			Min: pos,
+			Max: pos.Add(gemath.Vec{X: float64(bounds.Dx()), Y: float64(bounds.Dy())}),
+		}
 	} else {
-		drawOptions.GeoM.Translate(origin.X, origin.Y)
+		containerRect = gemath.Rect{
+			Min: pos,
+			Max: pos.Add(gemath.Vec{X: l.Width, Y: l.Height}),
+		}
+		if delta := boundsWidth - l.Width; delta > 0 {
+			switch l.GrowHorizontal {
+			case GrowHorizontalRight:
+				containerRect.Max.X += delta
+			case GrowHorizontalLeft:
+				containerRect.Min.X -= delta
+			case GrowHorizontalNone:
+				// Do nothing.
+			}
+		}
+		if delta := boundsHeight - l.Height; delta > 0 {
+			switch l.GrowVertical {
+			case GrowVerticalDown:
+				containerRect.Min.Y += delta
+			case GrowVerticalUp:
+				containerRect.Min.Y -= delta
+				pos.Y -= delta
+			case GrowVerticalNone:
+				// Do nothing.
+			}
+		}
 	}
 
+	switch l.AlignVertical {
+	case AlignVerticalTop:
+		// Do nothing.
+	case AlignVerticalCenter:
+		pos.Y += (containerRect.Height() - l.estimateHeight(numLines)) / 2
+	case AlignVerticalBottom:
+		pos.Y += containerRect.Height() - l.estimateHeight(numLines)
+	}
+
+	var drawOptions ebiten.DrawImageOptions
 	if l.ColorScale != defaultColorScale {
 		r := float64(l.ColorScale.R)
 		g := float64(l.ColorScale.G)
@@ -94,7 +154,46 @@ func (l *Label) Draw(screen *ebiten.Image) {
 		a := float64(l.ColorScale.A)
 		drawOptions.ColorM.Scale(r, g, b, a)
 	}
+	// drawOptions.Filter = ebiten.FilterLinear
 
-	drawOptions.Filter = ebiten.FilterLinear
-	text.DrawWithOptions(screen, l.Text, l.face, &drawOptions)
+	if l.AlignHorizontal == AlignHorizontalLeft {
+		drawOptions.GeoM.Translate(pos.X, pos.Y)
+		text.DrawWithOptions(screen, l.Text, l.face, &drawOptions)
+		return
+	}
+
+	textRemaining := l.Text
+	offsetY := 0.0
+	for {
+		nextLine := strings.IndexByte(textRemaining, '\n')
+		lineText := textRemaining
+		if nextLine != -1 {
+			lineText = textRemaining[:nextLine]
+			textRemaining = textRemaining[nextLine+len("\n"):]
+		}
+		lineBounds := text.BoundString(l.face, lineText)
+		lineBoundsWidth := float64(lineBounds.Dx())
+		offsetX := 0.0
+		switch l.AlignHorizontal {
+		case AlignHorizontalCenter:
+			offsetX = (containerRect.Width() - lineBoundsWidth) / 2
+		case AlignHorizontalRight:
+			offsetX = containerRect.Width() - lineBoundsWidth
+		}
+		drawOptions.GeoM.Reset()
+		drawOptions.GeoM.Translate(pos.X+offsetX, pos.Y+offsetY)
+		text.DrawWithOptions(screen, lineText, l.face, &drawOptions)
+		if nextLine == -1 {
+			break
+		}
+		offsetY += l.lineHeight
+	}
+}
+
+func (l *Label) estimateHeight(numLines int) float64 {
+	estimatedHeight := l.capHeight
+	if numLines >= 2 {
+		estimatedHeight += (float64(numLines) - 1) * l.lineHeight
+	}
+	return estimatedHeight
 }
