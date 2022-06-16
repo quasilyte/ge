@@ -98,6 +98,16 @@ func (s *Sprite) SetRepeatedImage(img resource.Image, width, height float64) {
 	}
 }
 
+// AnchorPos returns a top-left position.
+// When Centered is false, it's identical to Pos, otherwise
+// it will apply the computations to get the right anchor for the centered sprite.
+func (s *Sprite) AnchorPos() Pos {
+	if s.Centered {
+		return s.Pos.WithOffset(-s.FrameWidth/2, -s.FrameHeight/2)
+	}
+	return s.Pos
+}
+
 func (s *Sprite) ImageWidth() float64 {
 	w, _ := s.image.Size()
 	return float64(w)

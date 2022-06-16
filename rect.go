@@ -43,6 +43,16 @@ func (rect *Rect) Dispose() {
 	rect.disposed = true
 }
 
+// AnchorPos returns a top-left position.
+// When Centered is false, it's identical to Pos, otherwise
+// it will apply the computations to get the right anchor for the centered rect.
+func (rect *Rect) AnchorPos() Pos {
+	if rect.Centered {
+		return rect.Pos.WithOffset(-rect.Width/2, -rect.Height/2)
+	}
+	return rect.Pos
+}
+
 func (rect *Rect) Draw(screen *ebiten.Image) {
 	if !rect.Visible {
 		return
