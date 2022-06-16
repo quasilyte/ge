@@ -65,33 +65,39 @@ func (popup *popupBuildTank) Init(scene *ge.Scene) {
 	scene.AddGraphics(popup.stashLabel)
 
 	popup.ironStash = scene.NewLabel(FontSmall)
-	popup.ironStash.HAlign = ge.AlignCenterHorizontal
-	popup.ironStash.Pos.Set(&popup.Pos, 196, 52+24)
+	popup.ironStash.AlignHorizontal = ge.AlignHorizontalCenter
+	popup.ironStash.Width = 28
+	popup.ironStash.Pos.Set(&popup.Pos, 180, 52+24)
 	scene.AddGraphics(popup.ironStash)
 
 	popup.ironIncome = scene.NewLabel(FontSmall)
-	popup.ironIncome.HAlign = ge.AlignCenterHorizontal
-	popup.ironIncome.Pos.Set(&popup.Pos, 196, 52+48)
+	popup.ironIncome.AlignHorizontal = ge.AlignHorizontalCenter
+	popup.ironIncome.Width = 28
+	popup.ironIncome.Pos.Set(&popup.Pos, 180, 52+48)
 	scene.AddGraphics(popup.ironIncome)
 
 	popup.goldStash = scene.NewLabel(FontSmall)
-	popup.goldStash.HAlign = ge.AlignCenterHorizontal
-	popup.goldStash.Pos.Set(&popup.Pos, 196+40, 52+24)
+	popup.goldStash.AlignHorizontal = ge.AlignHorizontalCenter
+	popup.goldStash.Width = 28
+	popup.goldStash.Pos.Set(&popup.Pos, 180+40, 52+24)
 	scene.AddGraphics(popup.goldStash)
 
 	popup.goldIncome = scene.NewLabel(FontSmall)
-	popup.goldIncome.HAlign = ge.AlignCenterHorizontal
-	popup.goldIncome.Pos.Set(&popup.Pos, 196+40, 52+48)
+	popup.goldIncome.AlignHorizontal = ge.AlignHorizontalCenter
+	popup.goldIncome.Width = 28
+	popup.goldIncome.Pos.Set(&popup.Pos, 180+40, 52+48)
 	scene.AddGraphics(popup.goldIncome)
 
 	popup.oilStash = scene.NewLabel(FontSmall)
-	popup.oilStash.HAlign = ge.AlignCenterHorizontal
-	popup.oilStash.Pos.Set(&popup.Pos, 196+80, 52+24)
+	popup.oilStash.AlignHorizontal = ge.AlignHorizontalCenter
+	popup.oilStash.Width = 28
+	popup.oilStash.Pos.Set(&popup.Pos, 180+80, 52+24)
 	scene.AddGraphics(popup.oilStash)
 
 	popup.oilIncome = scene.NewLabel(FontSmall)
-	popup.oilIncome.HAlign = ge.AlignCenterHorizontal
-	popup.oilIncome.Pos.Set(&popup.Pos, 196+80, 52+48)
+	popup.oilIncome.AlignHorizontal = ge.AlignHorizontalCenter
+	popup.oilIncome.Width = 28
+	popup.oilIncome.Pos.Set(&popup.Pos, 180+80, 52+48)
 	scene.AddGraphics(popup.oilIncome)
 
 	{

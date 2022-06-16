@@ -29,9 +29,11 @@ func (l *label) Init(scene *ge.Scene) {
 
 	label := scene.NewLabel(FontBig)
 	label.Text = l.text
-	label.Pos = l.pos
-	label.HAlign = ge.AlignCenterHorizontal
-	label.VAlign = ge.AlignCenter
+	label.Pos = bg.AnchorPos()
+	label.Width = bg.Width
+	label.Height = bg.Height
+	label.AlignHorizontal = ge.AlignHorizontalCenter
+	label.AlignVertical = ge.AlignVerticalCenter
 	scene.AddGraphics(label)
 }
 
@@ -59,16 +61,20 @@ func (b *checkboxButton) Init(scene *ge.Scene) {
 
 	label := scene.NewLabel(FontDescription)
 	label.Text = b.Text
-	label.Pos = b.pos.WithOffset(32, 0)
-	label.HAlign = ge.AlignCenterHorizontal
-	label.VAlign = ge.AlignCenter
+	label.Pos = sprite.AnchorPos().WithOffset(76, 2)
+	label.AlignHorizontal = ge.AlignHorizontalCenter
+	label.AlignVertical = ge.AlignVerticalCenter
+	label.Width = 242
+	label.Height = 58
 	scene.AddGraphics(label)
 	b.label = label
 
 	b.status = scene.NewLabel(FontDescription)
-	b.status.HAlign = ge.AlignCenterHorizontal
-	b.status.VAlign = ge.AlignCenter
-	b.status.Pos = b.pos.WithOffset(-120, 0)
+	b.status.AlignHorizontal = ge.AlignHorizontalCenter
+	b.status.AlignVertical = ge.AlignVerticalCenter
+	b.status.Width = 68
+	b.status.Height = 34
+	b.status.Pos = sprite.AnchorPos().WithOffset(5, 14)
 	scene.AddGraphics(b.status)
 
 	b.updateColor()
@@ -124,9 +130,11 @@ func (b *selectButton) Init(scene *ge.Scene) {
 
 	label := scene.NewLabel(FontBig)
 	label.Text = b.options[b.selected.Value()]
-	label.Pos = b.pos
-	label.HAlign = ge.AlignCenterHorizontal
-	label.VAlign = ge.AlignCenter
+	label.Pos = sprite.AnchorPos()
+	label.AlignHorizontal = ge.AlignHorizontalCenter
+	label.AlignVertical = ge.AlignVerticalCenter
+	label.Width = sprite.FrameWidth
+	label.Height = sprite.FrameHeight
 	scene.AddGraphics(label)
 	b.label = label
 	b.updateColor()
@@ -189,9 +197,11 @@ func (b *button) Init(scene *ge.Scene) {
 
 	label := scene.NewLabel(FontBig)
 	label.Text = b.Text
-	label.Pos = b.pos
-	label.HAlign = ge.AlignCenterHorizontal
-	label.VAlign = ge.AlignCenter
+	label.Pos = sprite.AnchorPos()
+	label.AlignHorizontal = ge.AlignHorizontalCenter
+	label.AlignVertical = ge.AlignVerticalCenter
+	label.Width = sprite.FrameWidth
+	label.Height = sprite.FrameHeight
 	scene.AddGraphics(label)
 	b.label = label
 	b.updateColor()
@@ -236,18 +246,21 @@ func (d *priceDisplay) Init(scene *ge.Scene) {
 	scene.AddGraphics(d.sprite)
 
 	d.ironPrice = scene.NewLabel(FontSmall)
-	d.ironPrice.HAlign = ge.AlignCenterHorizontal
-	d.ironPrice.Pos = d.Pos.WithOffset(14, 38)
+	d.ironPrice.AlignHorizontal = ge.AlignHorizontalCenter
+	d.ironPrice.Pos = d.Pos.WithOffset(0, 38)
+	d.ironPrice.Width = 28
 	scene.AddGraphics(d.ironPrice)
 
 	d.goldPrice = scene.NewLabel(FontSmall)
-	d.goldPrice.HAlign = ge.AlignCenterHorizontal
-	d.goldPrice.Pos = d.Pos.WithOffset(14+40, 38)
+	d.goldPrice.AlignHorizontal = ge.AlignHorizontalCenter
+	d.goldPrice.Pos = d.Pos.WithOffset(40, 38)
+	d.goldPrice.Width = 28
 	scene.AddGraphics(d.goldPrice)
 
 	d.oilPrice = scene.NewLabel(FontSmall)
-	d.oilPrice.HAlign = ge.AlignCenterHorizontal
-	d.oilPrice.Pos = d.Pos.WithOffset(14+80, 38)
+	d.oilPrice.AlignHorizontal = ge.AlignHorizontalCenter
+	d.oilPrice.Pos = d.Pos.WithOffset(80, 38)
+	d.oilPrice.Width = 28
 	scene.AddGraphics(d.oilPrice)
 }
 

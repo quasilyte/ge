@@ -59,8 +59,9 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 
 			timeLabel := scene.NewLabel(FontDescription)
 			timeLabel.Text = fmt.Sprintf("%.1f sec", d.Production)
-			timeLabel.HAlign = ge.AlignCenterHorizontal
-			timeLabel.Pos = descriptionBg.Pos.WithOffset(268+52, 80)
+			timeLabel.AlignHorizontal = ge.AlignHorizontalCenter
+			timeLabel.Pos = descriptionBg.Pos.WithOffset(268, 80)
+			timeLabel.Width = 112
 			scene.AddGraphics(timeLabel)
 
 			descLabel := scene.NewLabel(FontDescription)
@@ -101,8 +102,9 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 
 			timeLabel := scene.NewLabel(FontDescription)
 			timeLabel.Text = fmt.Sprintf("%.1f sec", d.Production)
-			timeLabel.HAlign = ge.AlignCenterHorizontal
-			timeLabel.Pos = descriptionBg.Pos.WithOffset(268+52, 80)
+			timeLabel.AlignHorizontal = ge.AlignHorizontalCenter
+			timeLabel.Pos = descriptionBg.Pos.WithOffset(268, 80)
+			timeLabel.Width = 112
 			scene.AddGraphics(timeLabel)
 
 			descLabel := scene.NewLabel(FontDescription)
