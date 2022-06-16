@@ -31,6 +31,7 @@ type GrowVertical uint8
 const (
 	GrowVerticalDown GrowVertical = iota
 	GrowVerticalUp
+	GrowVerticalBoth
 	GrowVerticalNone
 )
 
@@ -39,6 +40,7 @@ type GrowHorizontal uint8
 const (
 	GrowHorizontalRight GrowHorizontal = iota
 	GrowHorizontalLeft
+	GrowHorizontalBoth
 	GrowHorizontalNone
 )
 
@@ -120,6 +122,9 @@ func (l *Label) Draw(screen *ebiten.Image) {
 				containerRect.Max.X += delta
 			case GrowHorizontalLeft:
 				containerRect.Min.X -= delta
+			case GrowHorizontalBoth:
+				containerRect.Min.X -= delta / 2
+				containerRect.Max.X += delta / 2
 			case GrowHorizontalNone:
 				// Do nothing.
 			}
@@ -131,6 +136,10 @@ func (l *Label) Draw(screen *ebiten.Image) {
 			case GrowVerticalUp:
 				containerRect.Min.Y -= delta
 				pos.Y -= delta
+			case GrowVerticalBoth:
+				containerRect.Min.Y -= delta / 2
+				containerRect.Max.Y += delta / 2
+				pos.Y -= delta / 2
 			case GrowVerticalNone:
 				// Do nothing.
 			}
