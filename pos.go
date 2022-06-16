@@ -13,6 +13,9 @@ func MakePos(base gemath.Vec) Pos {
 }
 
 func (p Pos) Resolve() gemath.Vec {
+	if p.Base == nil {
+		return p.Offset
+	}
 	return p.Base.Add(p.Offset)
 }
 
