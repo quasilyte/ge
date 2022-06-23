@@ -66,11 +66,53 @@ func (state *battleState) addTank(bt *battleTank) {
 	bt.EventDestroyed.Connect(nil, state.onTankDestroyed)
 }
 
-func (state *battleState) DeploySectors(r *gemath.Rand) {
+func (state *battleState) DeploySectors(r *gemath.Rand, balanced bool) {
+	if !balanced {
+		// Random resources distribution.
+		for y := 0; y < state.numRows; y++ {
+			for x := 0; x < state.numCols; x++ {
+				resource := resourceKind(r.IntRange(0, 2))
+				id := len(state.Sectors)
+				s := newSector(resource, id, x, y)
+				state.Sectors = append(state.Sectors, s)
+			}
+		}
+		return
+	}
+
+	// Every player will have a 6-sector segment (a "zone") that will have
+	// 3 kinds of resources evenly distributed.
+	// Since HQ has its own kind of resources, one of the three resources
+	// will be replaced with all-in-one, but it's still more balanced
+	// than a random resources generation.
+	zones := []int{
+		0, 0, 0,
+		1, 1, 1,
+		0, 0, 0,
+		1, 1, 1,
+
+		2, 2, 2,
+		3, 3, 3,
+		2, 2, 2,
+		3, 3, 3,
+	}
+	zoneResources := make([][]resourceKind, 4)
+	for i := range zoneResources {
+		zoneResources[i] = []resourceKind{
+			resIron, resIron,
+			resGold, resGold,
+			resOil, resOil,
+		}
+		gemath.Shuffle(r, zoneResources[i])
+	}
 	for y := 0; y < state.numRows; y++ {
 		for x := 0; x < state.numCols; x++ {
-			resource := resourceKind(r.IntRange(0, 2))
 			id := len(state.Sectors)
+			zoneID := zones[id]
+			resourcesStack := zoneResources[zoneID]
+			resource := resourcesStack[len(resourcesStack)-1]
+			resourcesStack = resourcesStack[:len(resourcesStack)-1]
+			zoneResources[zoneID] = resourcesStack
 			s := newSector(resource, id, x, y)
 			state.Sectors = append(state.Sectors, s)
 		}

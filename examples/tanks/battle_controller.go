@@ -64,6 +64,9 @@ var battleRules = []string{
 	// All sector incomes are doubled (2 instead of 1).
 	"Doubled Income",
 
+	// Generate fair resources layout instead of a purely random one.
+	"Balanced Resources",
+
 	// Players start with two bases instead of one.
 	"Quick Start",
 
@@ -135,7 +138,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 		}
 	}
 
-	c.battleState.DeploySectors(c.scene.Rand())
+	c.battleState.DeploySectors(c.scene.Rand(), c.config.rules["Balanced Resources"])
 
 	if c.config.rules["Barren Center"] {
 		emptySectors := []int{8, 9, 14, 15}
