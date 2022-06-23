@@ -360,13 +360,7 @@ func (p *computerPlayer) orderProduction() {
 			builderDesign.Hull = hullDesigns["scout"]
 		}
 		if p.Resources.Contains(builderDesign.Price()) {
-			delay := float64((len(p.ownSectors)-1)*5 + 5)
-			p.orderBuilderDelay = p.scene.Rand().FloatRange(delay, delay*1.05)
-			p.orderBuilderDelay = gemath.ClampMax(p.orderBuilderDelay, 30)
-			if p.easy {
-				p.orderBuilderDelay += 10
-				p.orderBuilderDelay *= 2
-			}
+			p.updateBuilderDelay()
 			s.Base.StartProduction(builderDesign)
 			p.Resources.Sub(builderDesign.Price())
 			return
@@ -376,7 +370,7 @@ func (p *computerPlayer) orderProduction() {
 		}
 		p.orderBuilderDelay = p.scene.Rand().FloatRange(2, 5)
 		if len(p.ownSectors) < 8 {
-			p.orderTankDelay = p.scene.Rand().FloatRange(3, 6)
+			p.orderTankDelay = p.scene.Rand().FloatRange(4, 8)
 		}
 	}
 
@@ -431,6 +425,34 @@ func (p *computerPlayer) orderProduction() {
 	}
 	s.Base.StartProduction(selectedDesign)
 	p.Resources.Sub(selectedDesign.Price())
+}
+
+func (p *computerPlayer) updateBuilderDelay() {
+	// Easy bots only consider the number of sectors they have.
+	// More sectors cause them to be less agressive.
+	if p.easy {
+		// This calculation method is more complicated than it should be really...
+		delay := float64((len(p.ownSectors)-1)*5 + 5)
+		p.orderBuilderDelay = p.scene.Rand().FloatRange(delay, delay*1.05)
+		p.orderBuilderDelay = gemath.ClampMax(p.orderBuilderDelay, 30)
+		p.orderBuilderDelay += 10
+		p.orderBuilderDelay *= 2
+		return
+	}
+
+	// For harder bots, they will focus on sectors capturing as long
+	// as there is something to capture.
+	minBaseDelay := 2.0
+	maxBaseDelay := 6.0
+	delay := p.scene.Rand().FloatRange(minBaseDelay, maxBaseDelay)
+	delay += (24.0 - float64(p.numFreeSectors)) * 1.5
+	switch {
+	case len(p.ownSectors) < 4:
+		delay *= 0.7
+	case len(p.ownSectors) < 8:
+		delay *= 0.9
+	}
+	p.orderBuilderDelay = delay
 }
 
 func (p *computerPlayer) updateSectorsInfo() {
