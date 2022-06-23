@@ -59,13 +59,7 @@ func drawLine(dst *ebiten.Image, pos1, pos2 gemath.Vec, width float64, c ColorSc
 	drawOptions.GeoM.Rotate(math.Atan2(y2-y1, x2-x1))
 	drawOptions.GeoM.Translate(x1, y1)
 
-	if c != defaultColorScale {
-		r := float64(c.R)
-		g := float64(c.G)
-		b := float64(c.B)
-		a := float64(c.A)
-		drawOptions.ColorM.Scale(r, g, b, a)
-	}
+	applyColorScale(c, &drawOptions)
 
 	dst.DrawImage(primitives.WhitePixel, &drawOptions)
 }

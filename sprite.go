@@ -163,13 +163,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 		drawOptions.GeoM.Translate(0-origin.X, 0-origin.Y)
 	}
 
-	if s.ColorScale != defaultColorScale {
-		r := float64(s.ColorScale.R)
-		g := float64(s.ColorScale.G)
-		b := float64(s.ColorScale.B)
-		a := float64(s.ColorScale.A)
-		drawOptions.ColorM.Scale(r, g, b, a)
-	}
+	applyColorScale(s.ColorScale, &drawOptions)
 	if s.Hue != 0 {
 		drawOptions.ColorM.RotateHue(float64(s.Hue))
 	}

@@ -14,6 +14,10 @@ type TiledBackground struct {
 
 	Visible bool
 
+	ColorScale ColorScale
+
+	Hue gemath.Rad
+
 	disposed bool
 
 	tiles  []tileInfo
@@ -27,7 +31,8 @@ type tileInfo struct {
 
 func NewTiledBackground() *TiledBackground {
 	return &TiledBackground{
-		Visible: true,
+		Visible:    true,
+		ColorScale: defaultColorScale,
 	}
 }
 
@@ -78,6 +83,10 @@ func (bg *TiledBackground) Draw(screen *ebiten.Image) {
 	}
 
 	var op ebiten.DrawImageOptions
+	applyColorScale(bg.ColorScale, &op)
+	if bg.Hue != 0 {
+		op.ColorM.RotateHue(float64(bg.Hue))
+	}
 	for _, t := range bg.tiles {
 		img := bg.frames[t.frame]
 		op.GeoM.Reset()

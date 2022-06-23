@@ -156,14 +156,8 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	}
 
 	var drawOptions ebiten.DrawImageOptions
-	if l.ColorScale != defaultColorScale {
-		r := float64(l.ColorScale.R)
-		g := float64(l.ColorScale.G)
-		b := float64(l.ColorScale.B)
-		a := float64(l.ColorScale.A)
-		drawOptions.ColorM.Scale(r, g, b, a)
-	}
-	// drawOptions.Filter = ebiten.FilterLinear
+	applyColorScale(l.ColorScale, &drawOptions)
+	drawOptions.Filter = ebiten.FilterLinear
 
 	if l.AlignHorizontal == AlignHorizontalLeft {
 		drawOptions.GeoM.Translate(pos.X, pos.Y)

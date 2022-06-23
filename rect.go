@@ -82,13 +82,7 @@ func (rect *Rect) Draw(screen *ebiten.Image) {
 		drawOptions.GeoM.Translate(0-origin.X, 0-origin.Y)
 	}
 
-	if rect.ColorScale != defaultColorScale {
-		r := float64(rect.ColorScale.R)
-		g := float64(rect.ColorScale.G)
-		b := float64(rect.ColorScale.B)
-		a := float64(rect.ColorScale.A)
-		drawOptions.ColorM.Scale(r, g, b, a)
-	}
+	applyColorScale(rect.ColorScale, &drawOptions)
 
 	screen.DrawImage(primitives.WhitePixel, &drawOptions)
 }
