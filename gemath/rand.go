@@ -58,3 +58,9 @@ func RandElem[T any](r *Rand, slice []T) (elem T) {
 	}
 	return slice[r.rng.Intn(len(slice))]
 }
+
+func Shuffle[T any](r *Rand, slice []T) {
+	r.rng.Shuffle(len(slice), func(i, j int) {
+		slice[i], slice[j] = slice[j], slice[i]
+	})
+}
