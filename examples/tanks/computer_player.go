@@ -234,11 +234,21 @@ func (p *computerPlayer) sendUnits() {
 			if s.Base.Turret != nil {
 				turretScore = 0
 			}
+			healthScore := 0.0
+			if !p.easy {
+				switch {
+				case s.Base.HP <= 100:
+					healthScore = 1.25
+				case s.Base.HP <= 400:
+					healthScore = 0.75
+				}
+			}
 			resourceScore := 1.5
 			if s.Resource == resNone {
 				resourceScore = 0.5
 			}
-			score := (3000 - candidate.Center().DistanceTo(s.Center())) * (numDefendersScore + turretScore + resourceScore)
+			rollScore := p.scene.Rand().FloatRange(0, 0.6)
+			score := (3000 - candidate.Center().DistanceTo(s.Center())) * (rollScore + healthScore + numDefendersScore + turretScore + resourceScore)
 			if score > bestScore {
 				attackTarget = candidate
 			}
