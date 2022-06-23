@@ -165,10 +165,12 @@ func (p *computerPlayer) defendBase() {
 			return
 		}
 		// As a last resort, order a small tank to distract the enemy?
-		cheapestDesign := p.pickCheapDesign()
-		if p.Resources.Contains(cheapestDesign.Price()) {
-			s.Base.StartProduction(cheapestDesign)
-			p.Resources.Sub(cheapestDesign.Price())
+		if s.Base.Turret == nil && s.Base.HP >= 300 {
+			cheapestDesign := p.pickCheapDesign()
+			if p.Resources.Contains(cheapestDesign.Price()) {
+				s.Base.StartProduction(cheapestDesign)
+				p.Resources.Sub(cheapestDesign.Price())
+			}
 		}
 		return
 	}

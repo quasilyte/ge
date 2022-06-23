@@ -233,7 +233,7 @@ var hullDesignList = []*hullDesign{
 
 	{
 		Name:          "mammoth",
-		HP:            600,
+		HP:            700,
 		Size:          hullLarge,
 		Speed:         95,
 		RotationSpeed: 0.8,
@@ -288,7 +288,7 @@ var turretDesignList = []*turretDesign{
 
 	{
 		Name:            "gatling gun",
-		HPBonus:         60,
+		HPBonus:         70,
 		FireRange:       200,
 		ProjectileSpeed: 600,
 		RotationSpeed:   1.3,
@@ -337,7 +337,7 @@ var turretDesignList = []*turretDesign{
 
 	{
 		Name:            "heavy cannon",
-		HPBonus:         200,
+		HPBonus:         240,
 		SpeedPenalty:    20,
 		ProjectileSpeed: 500,
 		FireRange:       320,

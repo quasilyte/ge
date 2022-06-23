@@ -107,6 +107,9 @@ func (c *battleController) Init(scene *ge.Scene) {
 	c.battleState.HQDefeat = c.config.rules["HQ Siege"]
 
 	bg := ge.NewTiledBackground()
+	if c.battleState.MudTerrain {
+		bg.Hue = gemath.DegToRad(160)
+	}
 	bg.LoadTileset(scene.Context(), 1920, 1080, ImageBackgroundTiles, RawTilesJSON)
 	scene.AddGraphicsBelow(bg, 1)
 

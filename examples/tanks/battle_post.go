@@ -27,7 +27,7 @@ type battlePost struct {
 
 	turretHp float64
 
-	hp          float64
+	HP          float64
 	maxHP       float64
 	frameOffset float64
 
@@ -47,7 +47,7 @@ func newBattlePost(p *playerData, pos gemath.Vec, turret *turretDesign) *battleP
 		maxHP:          750,
 		startingTurret: turret,
 	}
-	bp.hp = bp.maxHP
+	bp.HP = bp.maxHP
 	bp.body.Pos = pos
 	return bp
 }
@@ -135,9 +135,9 @@ func (bp *battlePost) OnDamage(damage float64, kind damageKind) {
 		return
 	}
 
-	bp.hp -= damage
+	bp.HP -= damage
 	bp.spritesheet.Tick(damage)
-	if bp.hp <= 0 {
+	if bp.HP <= 0 {
 		bp.Destroy()
 	}
 }
