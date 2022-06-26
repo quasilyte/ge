@@ -13,6 +13,8 @@ import (
 	_ "image/png"
 )
 
+var gameBuildVersion = "build 2"
+
 //go:embed assets/*
 var gameAssets embed.FS
 

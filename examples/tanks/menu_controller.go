@@ -30,10 +30,14 @@ func (c *menuController) Init(scene *ge.Scene) {
 	bg.Centered = false
 	scene.AddGraphics(bg)
 
+	versionLabel := scene.NewLabel(FontBig)
+	versionLabel.Text = gameBuildVersion
+	versionLabel.Pos = ge.MakePos(gemath.Vec{X: 16, Y: 1080 - 32})
+	scene.AddGraphics(versionLabel)
+
 	buttons := []string{
 		"NEW GAME",
 		"UNIT STATS",
-		"OPTIONS",
 		"EXIT",
 	}
 	c.selectedButton.SetBounds(0, len(buttons)-1)
