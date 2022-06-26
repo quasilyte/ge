@@ -27,7 +27,11 @@ func (sys *System) Update() {
 			modelName := ebiten.GamepadName(id)
 			if info.modelName != modelName {
 				info.modelName = modelName
-				info.model = guessGamepadModel(modelName)
+				if ebiten.IsStandardGamepadLayoutAvailable(id) {
+					info.model = gamepadStandard
+				} else {
+					info.model = guessGamepadModel(modelName)
+				}
 			}
 		}
 	}
@@ -80,7 +84,10 @@ func (h *Handler) ActionIsJustPressed(action Action) bool {
 	}
 	switch key.kind {
 	case keyGamepad:
-		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(ebiten.GamepadButton(key.code)))
+		if h.gamepadInfo().model == gamepadStandard {
+			return inpututil.IsStandardGamepadButtonJustPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(key.code))
+		}
+		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(key.code))
 	case keyMouse:
 		return inpututil.IsMouseButtonJustPressed(ebiten.MouseButton(key.code))
 	default:
@@ -95,7 +102,10 @@ func (h *Handler) ActionIsPressed(action Action) bool {
 	}
 	switch key.kind {
 	case keyGamepad:
-		return ebiten.IsGamepadButtonPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(ebiten.GamepadButton(key.code)))
+		if h.gamepadInfo().model == gamepadStandard {
+			return ebiten.IsStandardGamepadButtonPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(key.code))
+		}
+		return ebiten.IsGamepadButtonPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(key.code))
 	case keyMouse:
 		return ebiten.IsMouseButtonPressed(ebiten.MouseButton(key.code))
 	default:
@@ -103,17 +113,17 @@ func (h *Handler) ActionIsPressed(action Action) bool {
 	}
 }
 
-func (h *Handler) mappedGamepadKey(b ebiten.GamepadButton) ebiten.GamepadButton {
-	model := h.sys.gamepadInfo[h.id].model
-	switch model {
-	case gamepadXbox:
-		return b
-	case gamepadDualSense:
-		return dualsenseToXbox(b)
+func (h *Handler) gamepadInfo() *gamepadInfo {
+	return &h.sys.gamepadInfo[h.id]
+}
+
+func (h *Handler) mappedGamepadKey(keyCode int) ebiten.GamepadButton {
+	b := ebiten.StandardGamepadButton(keyCode)
+	switch h.gamepadInfo().model {
 	case gamepadMicront:
 		return microntToXbox(b)
 	default:
-		return b
+		return ebiten.GamepadButton(keyCode)
 	}
 }
 
@@ -121,19 +131,12 @@ type gamepadModel int
 
 const (
 	gamepadUnknown gamepadModel = iota
-	gamepadXbox
-	gamepadDualSense
+	gamepadStandard
 	gamepadMicront
 )
 
 func guessGamepadModel(s string) gamepadModel {
 	s = strings.ToLower(s)
-	if strings.Contains(s, "xinput") {
-		return gamepadXbox
-	}
-	if strings.Contains(s, "dualsense") {
-		return gamepadDualSense
-	}
 	if s == "micront" {
 		return gamepadMicront
 	}
@@ -145,47 +148,27 @@ type gamepadInfo struct {
 	modelName string
 }
 
-func dualsenseToXbox(b ebiten.GamepadButton) ebiten.GamepadButton {
+func microntToXbox(b ebiten.StandardGamepadButton) ebiten.GamepadButton {
 	switch b {
-	case ebiten.GamepadButton11:
-		return ebiten.GamepadButton13
-	case ebiten.GamepadButton12:
-		return ebiten.GamepadButton14
-	case ebiten.GamepadButton13:
-		return ebiten.GamepadButton15
-	case ebiten.GamepadButton14:
-		return ebiten.GamepadButton16
-
-	case ebiten.GamepadButton7:
-		return ebiten.GamepadButton10
-
-	default:
-		return b
-	}
-}
-
-func microntToXbox(b ebiten.GamepadButton) ebiten.GamepadButton {
-	switch b {
-	case ebiten.GamepadButton7:
-		return ebiten.GamepadButton9
-
-	case ebiten.GamepadButton11:
+	case ebiten.StandardGamepadButtonLeftTop:
 		return ebiten.GamepadButton12
-	case ebiten.GamepadButton12:
+	case ebiten.StandardGamepadButtonLeftRight:
 		return ebiten.GamepadButton13
-	case ebiten.GamepadButton13:
+	case ebiten.StandardGamepadButtonLeftBottom:
 		return ebiten.GamepadButton14
-	case ebiten.GamepadButton14:
+	case ebiten.StandardGamepadButtonLeftLeft:
 		return ebiten.GamepadButton15
 
-	case ebiten.GamepadButton0:
-		return ebiten.GamepadButton2
-	case ebiten.GamepadButton2:
-		return ebiten.GamepadButton3
-	case ebiten.GamepadButton3:
+	case ebiten.StandardGamepadButtonRightTop:
 		return ebiten.GamepadButton0
+	case ebiten.StandardGamepadButtonRightRight:
+		return ebiten.GamepadButton1
+	case ebiten.StandardGamepadButtonRightBottom:
+		return ebiten.GamepadButton2
+	case ebiten.StandardGamepadButtonRightLeft:
+		return ebiten.GamepadButton3
 
 	default:
-		return b
+		return ebiten.GamepadButton(b)
 	}
 }

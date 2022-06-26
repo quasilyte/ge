@@ -43,18 +43,19 @@ var (
 
 // Gamepad keys.
 var (
-	KeyGamepadStart Key = Key{code: int(ebiten.GamepadButton7), kind: keyGamepad}
+	KeyGamepadStart  Key = Key{code: int(ebiten.StandardGamepadButtonCenterRight), kind: keyGamepad}
+	KeyGamepadSelect Key = Key{code: int(ebiten.StandardGamepadButtonCenterLeft), kind: keyGamepad}
 
-	KeyGamepadUp    Key = Key{code: int(ebiten.GamepadButton11), kind: keyGamepad}
-	KeyGamepadRight Key = Key{code: int(ebiten.GamepadButton12), kind: keyGamepad}
-	KeyGamepadDown  Key = Key{code: int(ebiten.GamepadButton13), kind: keyGamepad}
-	KeyGamepadLeft  Key = Key{code: int(ebiten.GamepadButton14), kind: keyGamepad}
+	KeyGamepadUp    Key = Key{code: int(ebiten.StandardGamepadButtonLeftTop), kind: keyGamepad}
+	KeyGamepadRight Key = Key{code: int(ebiten.StandardGamepadButtonLeftRight), kind: keyGamepad}
+	KeyGamepadDown  Key = Key{code: int(ebiten.StandardGamepadButtonLeftBottom), kind: keyGamepad}
+	KeyGamepadLeft  Key = Key{code: int(ebiten.StandardGamepadButtonLeftLeft), kind: keyGamepad}
 
-	KeyGamepadA Key = Key{code: int(ebiten.GamepadButton0), kind: keyGamepad}
-	KeyGamepadB Key = Key{code: int(ebiten.GamepadButton1), kind: keyGamepad}
-	KeyGamepadX Key = Key{code: int(ebiten.GamepadButton2), kind: keyGamepad}
-	KeyGamepadY Key = Key{code: int(ebiten.GamepadButton3), kind: keyGamepad}
+	KeyGamepadA Key = Key{code: int(ebiten.StandardGamepadButtonRightBottom), kind: keyGamepad}
+	KeyGamepadB Key = Key{code: int(ebiten.StandardGamepadButtonRightRight), kind: keyGamepad}
+	KeyGamepadX Key = Key{code: int(ebiten.StandardGamepadButtonRightLeft), kind: keyGamepad}
+	KeyGamepadY Key = Key{code: int(ebiten.StandardGamepadButtonRightTop), kind: keyGamepad}
 
-	KeyGamepadL1 Key = Key{code: int(ebiten.GamepadButton4), kind: keyGamepad}
-	KeyGamepadR1 Key = Key{code: int(ebiten.GamepadButton5), kind: keyGamepad}
+	KeyGamepadL1 Key = Key{code: int(ebiten.StandardGamepadButtonFrontTopLeft), kind: keyGamepad}
+	KeyGamepadR1 Key = Key{code: int(ebiten.StandardGamepadButtonFrontTopRight), kind: keyGamepad}
 )
