@@ -165,6 +165,10 @@ func (c *gameController) startBattle() {
 			config.players[i] = pkLocalPlayer1
 		case "PLAYER 2 gamepad":
 			config.players[i] = pkLocalPlayer2
+		case "PLAYER 3 gamepad":
+			config.players[i] = pkLocalPlayer3
+		case "PLAYER 4 gamepad":
+			config.players[i] = pkLocalPlayer4
 		case "EASY BOT":
 			config.players[i] = pkEasyBot
 		case "BOT":

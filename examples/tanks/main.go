@@ -150,6 +150,8 @@ func main() {
 	state.Player1keyboard = ctx.Input.NewHandler(0, keyboardKeymap)
 	state.Player1gamepad = ctx.Input.NewHandler(0, gamepadKeymap)
 	state.Player2gamepad = ctx.Input.NewHandler(1, gamepadKeymap)
+	state.Player3gamepad = ctx.Input.NewHandler(2, gamepadKeymap)
+	state.Player4gamepad = ctx.Input.NewHandler(3, gamepadKeymap)
 	if *gamepad {
 		state.MainInput = state.Player1gamepad
 	} else {
@@ -252,4 +254,6 @@ type gameState struct {
 	Player1keyboard *input.Handler
 	Player1gamepad  *input.Handler
 	Player2gamepad  *input.Handler
+	Player3gamepad  *input.Handler
+	Player4gamepad  *input.Handler
 }

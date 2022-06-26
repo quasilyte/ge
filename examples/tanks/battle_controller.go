@@ -33,6 +33,8 @@ const (
 	pkLocalPlayer1keyboard
 	pkLocalPlayer1
 	pkLocalPlayer2
+	pkLocalPlayer3
+	pkLocalPlayer4
 	pkEasyBot
 	pkBot
 )
@@ -42,6 +44,8 @@ var playerKindNames = []string{
 	"PLAYER 1",
 	"PLAYER 1 gamepad",
 	"PLAYER 2 gamepad",
+	"PLAYER 3 gamepad",
+	"PLAYER 4 gamepad",
 	"EASY BOT",
 	"BOT",
 }
@@ -194,6 +198,10 @@ func (c *battleController) Init(scene *ge.Scene) {
 			object = newLocalPlayer(p, c.gameState.Player1gamepad, s)
 		case pkLocalPlayer2:
 			object = newLocalPlayer(p, c.gameState.Player2gamepad, s)
+		case pkLocalPlayer3:
+			object = newLocalPlayer(p, c.gameState.Player3gamepad, s)
+		case pkLocalPlayer4:
+			object = newLocalPlayer(p, c.gameState.Player4gamepad, s)
 		case pkBot:
 			object = newComputerPlayer(p, c.battleState, s, false)
 		case pkEasyBot:
