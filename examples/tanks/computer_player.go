@@ -90,7 +90,11 @@ func (p *computerPlayer) Update(delta float64) {
 			p.actionDelay += 6
 		}
 	} else {
-		p.actionDelay = p.scene.Rand().FloatRange(0.1, 0.2)
+		delay := p.scene.Rand().FloatRange(0.1, 0.2)
+		if p.BattleState.DoubledIncome {
+			delay *= 0.5
+		}
+		p.actionDelay = delay
 	}
 }
 
@@ -451,6 +455,9 @@ func (p *computerPlayer) updateBuilderDelay() {
 		delay *= 0.7
 	case len(p.ownSectors) < 8:
 		delay *= 0.9
+	}
+	if p.BattleState.DoubledIncome {
+		delay *= 0.4
 	}
 	p.orderBuilderDelay = delay
 }

@@ -105,6 +105,7 @@ func newBattleController(state *gameState, config battleConfig) *battleControlle
 func (c *battleController) Init(scene *ge.Scene) {
 	ctx := scene.Context()
 
+	c.battleState.DoubledIncome = c.config.rules["Doubled Income"]
 	c.battleState.FortificationsAllowed = !c.config.rules["No Fortifications"]
 	c.battleState.MudTerrain = c.config.rules["Mud Terrain"]
 	c.battleState.HQDefeat = c.config.rules["HQ Siege"]
