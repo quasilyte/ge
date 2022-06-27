@@ -50,6 +50,36 @@ func (sys *System) NewHandler(playerID int, keymap Keymap) *Handler {
 	}
 }
 
+func (sys *System) NewMultiHandler() *MultiHandler {
+	return &MultiHandler{}
+}
+
+type MultiHandler struct {
+	list []*Handler
+}
+
+func (h *MultiHandler) AddHandler(handler *Handler) {
+	h.list = append(h.list, handler)
+}
+
+func (h *MultiHandler) ActionIsJustPressed(action Action) bool {
+	for i := range h.list {
+		if h.list[i].ActionIsJustPressed(action) {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *MultiHandler) ActionIsPressed(action Action) bool {
+	for i := range h.list {
+		if h.list[i].ActionIsPressed(action) {
+			return true
+		}
+	}
+	return false
+}
+
 type Handler struct {
 	id     int
 	keymap Keymap
@@ -58,6 +88,15 @@ type Handler struct {
 
 type EventInfo struct {
 	Pos gemath.Vec
+}
+
+func (h *Handler) GamepadConnected() bool {
+	for _, id := range h.sys.gamepadIDs {
+		if id == ebiten.GamepadID(h.id) {
+			return true
+		}
+	}
+	return false
 }
 
 func (h *Handler) CursorPos() gemath.Vec {
