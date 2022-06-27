@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"flag"
 	"io"
 	"time"
 
@@ -12,8 +11,6 @@ import (
 
 	_ "image/png"
 )
-
-var gameBuildVersion = "build 2"
 
 //go:embed assets/*
 var gameAssets embed.FS
@@ -98,9 +95,6 @@ const (
 )
 
 func main() {
-	gamepad := flag.Bool("gamepad", false, "use gamepad controls instead of keyboard")
-	flag.Parse()
-
 	ctx := ge.NewContext()
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.WindowTitle = "Tanks"
@@ -154,11 +148,10 @@ func main() {
 	state.Player2gamepad = ctx.Input.NewHandler(1, gamepadKeymap)
 	state.Player3gamepad = ctx.Input.NewHandler(2, gamepadKeymap)
 	state.Player4gamepad = ctx.Input.NewHandler(3, gamepadKeymap)
-	if *gamepad {
-		state.MainInput = state.Player1gamepad
-	} else {
-		state.MainInput = state.Player1keyboard
-	}
+
+	state.MenuInput = ctx.Input.NewMultiHandler()
+	state.MenuInput.AddHandler(state.Player1gamepad)
+	state.MenuInput.AddHandler(state.Player1keyboard)
 
 	// Associate audio resources.
 	audioResources := map[resource.AudioID]resource.Audio{
@@ -252,7 +245,7 @@ func main() {
 }
 
 type gameState struct {
-	MainInput       *input.Handler
+	MenuInput       *input.MultiHandler
 	Player1keyboard *input.Handler
 	Player1gamepad  *input.Handler
 	Player2gamepad  *input.Handler

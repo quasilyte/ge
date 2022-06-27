@@ -9,7 +9,7 @@ import (
 )
 
 type menuController struct {
-	input     *input.Handler
+	input     *input.MultiHandler
 	scene     *ge.Scene
 	gameState *gameState
 
@@ -18,7 +18,7 @@ type menuController struct {
 }
 
 func newMenuController(state *gameState) *menuController {
-	return &menuController{gameState: state, input: state.MainInput}
+	return &menuController{gameState: state, input: state.MenuInput}
 }
 
 func (c *menuController) Init(scene *ge.Scene) {
@@ -75,7 +75,7 @@ func (c *menuController) onButtonPressed(op string) {
 	switch op {
 	case "NEW GAME":
 		defaultPlayer1 := pkLocalPlayer1keyboard
-		if c.gameState.MainInput == c.gameState.Player1gamepad {
+		if c.gameState.Player1gamepad.GamepadConnected() {
 			defaultPlayer1 = pkLocalPlayer1
 		}
 		config := battleConfig{

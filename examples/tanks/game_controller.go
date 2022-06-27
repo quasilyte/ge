@@ -11,7 +11,7 @@ import (
 type gameController struct {
 	scene *ge.Scene
 
-	input *input.Handler
+	input *input.MultiHandler
 
 	gameState *gameState
 	config    battleConfig
@@ -27,7 +27,7 @@ type gameController struct {
 func newGameController(state *gameState, config battleConfig) *gameController {
 	return &gameController{
 		gameState: state,
-		input:     state.MainInput,
+		input:     state.MenuInput,
 		config:    config,
 	}
 }

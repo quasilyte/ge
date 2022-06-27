@@ -11,12 +11,12 @@ import (
 
 type unitStatsController struct {
 	scene     *ge.Scene
-	input     *input.Handler
+	input     *input.MultiHandler
 	gameState *gameState
 }
 
 func newUnitStatsController(state *gameState) *unitStatsController {
-	return &unitStatsController{gameState: state, input: state.MainInput}
+	return &unitStatsController{gameState: state, input: state.MenuInput}
 }
 
 func (c *unitStatsController) Init(scene *ge.Scene) {

@@ -85,7 +85,7 @@ var battleRules = []string{
 }
 
 type battleController struct {
-	input *input.Handler
+	input *input.MultiHandler
 
 	config battleConfig
 
@@ -100,7 +100,7 @@ type battleController struct {
 func newBattleController(state *gameState, config battleConfig) *battleController {
 	return &battleController{
 		gameState:   state,
-		input:       state.MainInput,
+		input:       state.MenuInput,
 		battleState: newBattleState(),
 		config:      config,
 	}
