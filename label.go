@@ -49,6 +49,8 @@ type Label struct {
 
 	ColorScale ColorScale
 
+	Hue gemath.Rad
+
 	Pos    Pos
 	Width  float64
 	Height float64
@@ -157,6 +159,9 @@ func (l *Label) Draw(screen *ebiten.Image) {
 
 	var drawOptions ebiten.DrawImageOptions
 	applyColorScale(l.ColorScale, &drawOptions)
+	if l.Hue != 0 {
+		drawOptions.ColorM.RotateHue(float64(l.Hue))
+	}
 	drawOptions.Filter = ebiten.FilterLinear
 
 	if l.AlignHorizontal == AlignHorizontalLeft {
