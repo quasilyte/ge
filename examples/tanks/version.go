@@ -14,4 +14,6 @@ package main
 // Build 4
 // * Fixed a bug with victory condition
 // * Added a "curtains" game start effect
-var gameBuildVersion = "build 3"
+// * Mark best scores in the results screen
+// * Different projectile sprite for the light cannon
+var gameBuildVersion = "build 4"

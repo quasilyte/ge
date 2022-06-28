@@ -100,6 +100,32 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		offsetY += 64
 	}
 
+	maxIron := 0
+	maxGold := 0
+	maxOil := 0
+	maxUnitsProduced := 0
+	for _, p := range c.result.players {
+		if p.Iron > maxIron {
+			maxIron = p.Iron
+		}
+		if p.Gold > maxGold {
+			maxGold = p.Gold
+		}
+		if p.Oil > maxOil {
+			maxOil = p.Oil
+		}
+		if p.UnitsProduced > maxUnitsProduced {
+			maxUnitsProduced = p.UnitsProduced
+		}
+	}
+
+	maybeWrap := func(s string, cond bool) string {
+		if cond {
+			return "*" + s + "*"
+		}
+		return s
+	}
+
 	for _, p := range c.result.players {
 		textColor := getPlayerTextColor(p.ID)
 
@@ -109,10 +135,10 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		}
 		columnValues := []string{
 			fmt.Sprintf("Player %d", p.ID+1),
-			strconv.Itoa(p.Iron),
-			strconv.Itoa(p.Gold),
-			strconv.Itoa(p.Oil),
-			strconv.Itoa(p.UnitsProduced),
+			maybeWrap(strconv.Itoa(p.Iron), maxIron == p.Iron),
+			maybeWrap(strconv.Itoa(p.Gold), maxGold == p.Gold),
+			maybeWrap(strconv.Itoa(p.Oil), maxOil == p.Oil),
+			maybeWrap(strconv.Itoa(p.UnitsProduced), maxUnitsProduced == p.UnitsProduced),
 			teamValue,
 		}
 

@@ -49,6 +49,7 @@ const (
 	ImageTurretIon
 	ImageBattlePost
 	ImageAmmoGatlingGun
+	ImageAmmoLightCannon
 	ImageAmmoMediumCannon
 	ImageAmmoDualCannon
 	ImageAmmoLancer
@@ -201,6 +202,7 @@ func main() {
 		ImageTurretIon:            {Path: "turret_ion.png"},
 		ImageBattlePost:           {Path: "battle_post.png"},
 		ImageAmmoGatlingGun:       {Path: "ammo_gatling_gun.png"},
+		ImageAmmoLightCannon:      {Path: "ammo_light_cannon.png"},
 		ImageAmmoMediumCannon:     {Path: "ammo_medium_cannon.png"},
 		ImageAmmoDualCannon:       {Path: "ammo_dual_cannon.png"},
 		ImageAmmoLancer:           {Path: "ammo_lancer.png"},
@@ -247,56 +249,6 @@ func main() {
 		ctx.Loader.RawRegistry.Set(id, res)
 		ctx.Loader.PreloadRaw(id)
 	}
-
-	// {
-	// 	results := battleResult{
-	// 		alliance: 0,
-	// 		players: []playerResult{
-	// 			{
-	// 				ID:       0,
-	// 				Alliance: 0,
-	// 				Resources: resourceContainer{
-	// 					Iron: 10,
-	// 					Gold: 20,
-	// 					Oil:  4,
-	// 				},
-	// 				UnitsProduced: 10,
-	// 			},
-
-	// 			{
-	// 				ID:       1,
-	// 				Alliance: 1,
-	// 				Resources: resourceContainer{
-	// 					Iron: 5,
-	// 					Gold: 10,
-	// 					Oil:  4423,
-	// 				},
-	// 				UnitsProduced: 15,
-	// 			},
-
-	// 			{
-	// 				ID:       2,
-	// 				Alliance: 1,
-	// 				Resources: resourceContainer{
-	// 					Iron: 54,
-	// 					Gold: 1,
-	// 					Oil:  1413,
-	// 				},
-	// 			},
-
-	// 			{
-	// 				ID:       3,
-	// 				Alliance: 2,
-	// 				Resources: resourceContainer{
-	// 					Iron: 0,
-	// 					Gold: 0,
-	// 					Oil:  0,
-	// 				},
-	// 			},
-	// 		},
-	// 	}
-	// 	ctx.CurrentScene = ctx.NewRootScene("results", newResultsController(state, battleConfig{}, results))
-	// }
 
 	ctx.CurrentScene = ctx.NewRootScene("menu", newMenuController(state))
 
