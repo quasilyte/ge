@@ -248,7 +248,56 @@ func main() {
 		ctx.Loader.PreloadRaw(id)
 	}
 
-	// ctx.CurrentScene = ctx.NewRootScene("game", newGameController(state))
+	// {
+	// 	results := battleResult{
+	// 		alliance: 0,
+	// 		players: []playerResult{
+	// 			{
+	// 				ID:       0,
+	// 				Alliance: 0,
+	// 				Resources: resourceContainer{
+	// 					Iron: 10,
+	// 					Gold: 20,
+	// 					Oil:  4,
+	// 				},
+	// 				UnitsProduced: 10,
+	// 			},
+
+	// 			{
+	// 				ID:       1,
+	// 				Alliance: 1,
+	// 				Resources: resourceContainer{
+	// 					Iron: 5,
+	// 					Gold: 10,
+	// 					Oil:  4423,
+	// 				},
+	// 				UnitsProduced: 15,
+	// 			},
+
+	// 			{
+	// 				ID:       2,
+	// 				Alliance: 1,
+	// 				Resources: resourceContainer{
+	// 					Iron: 54,
+	// 					Gold: 1,
+	// 					Oil:  1413,
+	// 				},
+	// 			},
+
+	// 			{
+	// 				ID:       3,
+	// 				Alliance: 2,
+	// 				Resources: resourceContainer{
+	// 					Iron: 0,
+	// 					Gold: 0,
+	// 					Oil:  0,
+	// 				},
+	// 			},
+	// 		},
+	// 	}
+	// 	ctx.CurrentScene = ctx.NewRootScene("results", newResultsController(state, battleConfig{}, results))
+	// }
+
 	ctx.CurrentScene = ctx.NewRootScene("menu", newMenuController(state))
 
 	if err := ge.RunGame(ctx); err != nil {

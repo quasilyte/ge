@@ -308,7 +308,7 @@ var turretDesignList = []*turretDesign{
 		FireRange:       270,
 		ProjectileSpeed: 520,
 		RotationSpeed:   2,
-		Reload:          0.9,
+		Reload:          0.85,
 		Damage:          12,
 		DamageKind:      damageKinetic,
 		Price:           resourceContainer{Iron: 3, Oil: 1},
@@ -321,7 +321,7 @@ var turretDesignList = []*turretDesign{
 	{
 		Name:            "dual cannon",
 		HPBonus:         140,
-		FireRange:       260,
+		FireRange:       230,
 		SpeedPenalty:    20,
 		ProjectileSpeed: 500,
 		RotationSpeed:   1.4,

@@ -264,10 +264,21 @@ func (p *computerPlayer) sendUnits() {
 	if attackTarget == nil {
 		return
 	}
+
 	// Do not try to attack a base with insufficient forces.
-	if !p.easy && attackTarget.Base.Turret != nil && s.NumDefenders() < 3 && !s.HasLancer() {
-		if p.scene.Rand().Chance(0.9) {
-			return
+	if !p.easy {
+		numUnits := s.NumDefenders()
+		// To attack a base with a turret, at least 3 units are needed; or a lancer.
+		if attackTarget.Base.Turret != nil && numUnits < 3 && !s.HasLancer() {
+			if p.scene.Rand().Chance(0.9) {
+				return
+			}
+		}
+		// If we only have 1 unit, don't send it to a base that has defenders.
+		if numUnits == 1 && attackTarget.Base == nil && attackTarget.NumDefenders() != 0 {
+			if p.scene.Rand().Chance(0.8) {
+				return
+			}
 		}
 	}
 
@@ -493,9 +504,9 @@ func (p *computerPlayer) updateSectorsInfo() {
 func (p *computerPlayer) pickSectorToOccupy(from *sector) *sector {
 	// Choose a sector to occupy.
 	// Two criterias: proximity and resource kinds (their score).
-	ironScore := p.resourceScore(resIron) + 0.1
+	ironScore := p.resourceScore(resIron) * 1.05
 	goldScore := p.resourceScore(resGold)
-	oilScore := p.resourceScore(resOil) + 0.2
+	oilScore := p.resourceScore(resOil) * 1.10
 	combinedScore := ironScore + goldScore + oilScore
 	var best *sector
 	bestScore := float64(0)

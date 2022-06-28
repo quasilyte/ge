@@ -6,5 +6,8 @@ package main
 //
 // Build 3
 // * Bots can now send coordinated attack groups
+// * Bots try to do less suicidal attacks that are ought to fail
 // * Added sound cues for some events (production completed, etc); disabled when there are more than 1 local player
+// * Added battle results screen (and win/lose condition checks)
+// * Minor balance tweaks
 var gameBuildVersion = "build 3"

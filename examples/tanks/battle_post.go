@@ -55,6 +55,8 @@ func newBattlePost(p *playerData, pos gemath.Vec, turret *turretDesign) *battleP
 func (bp *battlePost) Init(scene *ge.Scene) {
 	bp.scene = scene
 
+	bp.Player.NumBases++
+
 	// TODO: InitRect.
 	bp.body.InitRotatedRect(bp, 50, 50)
 
@@ -168,6 +170,7 @@ func (bp *battlePost) Destroy() {
 	bp.EventDestroyed.Emit(bp)
 	e := newExplosion(bp.body.Pos)
 	bp.scene.AddObject(e)
+	bp.Player.NumBases--
 }
 
 func (bp *battlePost) IsBusy() bool {
@@ -187,6 +190,7 @@ func (bp *battlePost) handleProcution(delta float64) {
 		bp.production = 0
 		bp.product = tankDesign{}
 		bp.progressLabel.Visible = false
+		bp.Player.Stats.UnitsProduced++
 	} else {
 		percent := gemath.Percentage(bp.production, bp.product.ProductionTime())
 		bp.progressLabel.Text = strconv.Itoa(int(percent)) + "%"

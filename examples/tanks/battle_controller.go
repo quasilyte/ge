@@ -95,14 +95,18 @@ type battleController struct {
 
 	harvestDelay    float64
 	reallianceDelay float64
+
+	winnerAlliance int
+	victoryState   bool
 }
 
 func newBattleController(state *gameState, config battleConfig) *battleController {
 	return &battleController{
-		gameState:   state,
-		input:       state.MenuInput,
-		battleState: newBattleState(),
-		config:      config,
+		gameState:      state,
+		input:          state.MenuInput,
+		battleState:    newBattleState(),
+		config:         config,
+		winnerAlliance: -1,
 	}
 }
 
@@ -140,6 +144,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 		}
 		for i := range c.battleState.Players {
 			c.battleState.Players[i].Alliance = alliances[i]
+			c.battleState.Players[i].Stats.ID = i
 		}
 	}
 
@@ -193,7 +198,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 		var object ge.SceneObject
 		switch pk {
 		case pkEmpty:
-			// Do nothing.
+			p.Alliance = -1 // Mark as inactive
 		case pkLocalPlayer1keyboard:
 			numLocalPlayers++
 			singleLocalPlayer = p
@@ -259,6 +264,13 @@ func (c *battleController) recalculateAlliances() {
 }
 
 func (c *battleController) Update(delta float64) {
+	if c.winnerAlliance == -1 {
+		if winner := c.checkVictory(); winner != -1 {
+			c.winnerAlliance = winner
+			c.scene.DelayedCall(3, c.onVictoryState)
+		}
+	}
+
 	if c.battleState.DynamicAlliances {
 		c.reallianceDelay = gemath.ClampMin(c.reallianceDelay-delta, 0)
 		if c.reallianceDelay == 0 {
@@ -277,6 +289,9 @@ func (c *battleController) Update(delta float64) {
 		for i := range c.battleState.Players {
 			p := &c.battleState.Players[i]
 			p.Resources.Add(p.Income)
+			p.Stats.Iron += p.Income.Iron
+			p.Stats.Gold += p.Income.Gold
+			p.Stats.Oil += p.Income.Oil
 		}
 	}
 
@@ -299,12 +314,53 @@ func (c *battleController) calculateIncome() {
 	}
 }
 
+func (c *battleController) checkVictory() int {
+	winner := -1
+	for i := range c.battleState.Players {
+		p := &c.battleState.Players[i]
+		if p.Alliance == -1 || p.NumBases == 0 {
+			continue
+		}
+		if winner == -1 {
+			winner = p.Alliance
+			continue
+		}
+		if winner != p.Alliance {
+			return -1
+		}
+	}
+	return winner
+}
+
+func (c *battleController) onVictoryState() {
+	c.scene.Audio().PauseCurrentMusic()
+	c.scene.Audio().PlaySound(AudioCueScreenReset)
+	results := battleResult{
+		alliance: c.winnerAlliance,
+	}
+	for i := range c.battleState.Players {
+		p := &c.battleState.Players[i]
+		if p.Alliance == -1 {
+			continue
+		}
+		stats := p.Stats
+		stats.ID = p.ID
+		stats.Alliance = p.Alliance
+		results.players = append(results.players, stats)
+	}
+	c.scene.Context().ChangeScene("results", newResultsController(c.gameState, c.config, results))
+}
+
 type playerData struct {
 	ID       int
 	Alliance int
+
+	NumBases int
 
 	Resources resourceContainer
 	Income    resourceContainer
 
 	BattleState *battleState
+
+	Stats playerResult
 }
