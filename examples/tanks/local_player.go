@@ -73,10 +73,17 @@ func (p *localPlayer) handlePopupControls() {
 		p.popupOpened = false
 	} else if p.input.ActionIsJustPressed(ActionConfirm) {
 		d := p.buildTank.Confirm()
-		if !d.IsEmpty() {
+		if d.IsEmpty() {
+			if p.BattleState.SingleLocalPlayer == p.playerData {
+				p.scene.Audio().PlaySound(AudioCueError)
+			}
+		} else {
 			p.Resources.Sub(d.Price())
 			p.sector().Base.StartProduction(d)
 			p.popupOpened = false
+			if p.BattleState.SingleLocalPlayer == p.playerData {
+				p.scene.Audio().EnqueueSound(AudioCueProductionStarted)
+			}
 		}
 	} else if p.input.ActionIsJustPressed(ActionNextItem) {
 		p.buildTank.SelectNextItem()
@@ -123,10 +130,13 @@ func (p *localPlayer) handleControls() {
 		if base != nil && base.Player.ID == p.ID && p.selectedSector == nil {
 			p.selectedSector = p.sector()
 			p.sector().SelectUnits()
-		} else if p.selectedSector != nil {
+		} else if p.selectedSector != nil && p.selectedSector.NumDefenders() != 0 {
 			p.selectedSector.UnselectUnits()
 			p.selectedSector.SendUnits(p.sector())
 			p.selectedSector = nil
+			if p.BattleState.SingleLocalPlayer == p.playerData {
+				p.scene.Audio().PlaySound(AudioCueSendUnits)
+			}
 		}
 	}
 

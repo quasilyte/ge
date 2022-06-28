@@ -188,6 +188,10 @@ func (g *battleGroup) buildBase() {
 	}
 	g.scene.AddObject(bp)
 
+	if g.player == g.player.BattleState.SingleLocalPlayer {
+		g.scene.Audio().EnqueueSound(AudioCueConstructionCompleted)
+	}
+
 	g.tanks = nil
 	g.checkDisposed()
 }

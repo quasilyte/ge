@@ -185,6 +185,8 @@ func (c *battleController) Init(scene *ge.Scene) {
 		c.scene.AddObjectBelow(s, 1)
 	}
 
+	numLocalPlayers := 0
+	var singleLocalPlayer *playerData
 	for i, pk := range c.config.players {
 		s := c.battleState.Sectors[startingSectors[i]]
 		p := &c.battleState.Players[i]
@@ -193,14 +195,24 @@ func (c *battleController) Init(scene *ge.Scene) {
 		case pkEmpty:
 			// Do nothing.
 		case pkLocalPlayer1keyboard:
+			numLocalPlayers++
+			singleLocalPlayer = p
 			object = newLocalPlayer(p, c.gameState.Player1keyboard, s)
 		case pkLocalPlayer1:
+			numLocalPlayers++
+			singleLocalPlayer = p
 			object = newLocalPlayer(p, c.gameState.Player1gamepad, s)
 		case pkLocalPlayer2:
+			numLocalPlayers++
+			singleLocalPlayer = p
 			object = newLocalPlayer(p, c.gameState.Player2gamepad, s)
 		case pkLocalPlayer3:
+			numLocalPlayers++
+			singleLocalPlayer = p
 			object = newLocalPlayer(p, c.gameState.Player3gamepad, s)
 		case pkLocalPlayer4:
+			numLocalPlayers++
+			singleLocalPlayer = p
 			object = newLocalPlayer(p, c.gameState.Player4gamepad, s)
 		case pkBot:
 			object = newComputerPlayer(p, c.battleState, s, false)
@@ -210,6 +222,11 @@ func (c *battleController) Init(scene *ge.Scene) {
 		if object != nil {
 			scene.AddObject(object)
 		}
+	}
+	if numLocalPlayers == 1 {
+		c.battleState.SingleLocalPlayer = singleLocalPlayer
+	} else {
+		c.battleState.SingleLocalPlayer = nil
 	}
 
 	ctx.Audio.ContinueMusic(AudioMusic)

@@ -270,6 +270,18 @@ func (p *computerPlayer) sendUnits() {
 			return
 		}
 	}
+
+	// Launch the attack using the combined forces.
+	if !p.easy && p.scene.Rand().Bool() {
+		s2 := p.selectOwnedSector(func(candidate *sector) bool {
+			return !candidate.HasBuilder() && candidate.NumDefenders() >= 1 && candidate != s &&
+				candidate.Base.UnderAttack == 0
+		})
+		if s2 != nil {
+			s2.SendUnits(attackTarget)
+		}
+	}
+
 	s.SendUnits(attackTarget)
 }
 

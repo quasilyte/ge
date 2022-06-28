@@ -13,6 +13,8 @@ type battleState struct {
 	Tanks   [maxPlayers]map[*battleTank]struct{}
 	Players [maxPlayers]playerData
 
+	SingleLocalPlayer *playerData
+
 	DoubledIncome         bool
 	FortificationsAllowed bool
 	MudTerrain            bool

@@ -126,11 +126,15 @@ func (s *sector) onBaseDestroyed(bp *battlePost) {
 }
 
 func (s *sector) onProductionCompleted(design tankDesign) {
-	bt := s.Base.Player.BattleState.NewBattleTank(s.Base.Player, design)
+	st := s.Base.Player.BattleState
+	bt := st.NewBattleTank(s.Base.Player, design)
 	bt.Body.Pos = s.Center().Add(gemath.Vec{Y: 48})
 	bt.Waypoint = s.Center().Add(gemath.Vec{Y: 64})
 	s.AddTank(bt)
 	s.scene.AddObjectAbove(bt, 1)
+	if st.SingleLocalPlayer == s.Base.Player {
+		s.scene.Audio().EnqueueSound(AudioCueProductionCompleted)
+	}
 }
 
 func (s *sector) SelectUnits() {

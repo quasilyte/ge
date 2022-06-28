@@ -81,6 +81,12 @@ const (
 	AudioLancer
 	AudioGauss
 	AudioIon
+	AudioCueError
+	AudioCueSendUnits
+	AudioCueProductionStarted
+	AudioCueProductionCompleted
+	AudioCueConstructionCompleted
+	AudioCueScreenReset
 	AudioMusic
 )
 
@@ -155,15 +161,21 @@ func main() {
 
 	// Associate audio resources.
 	audioResources := map[resource.AudioID]resource.Audio{
-		AudioGatlingGun:  {Path: "sounds/gatling_gun.wav", Volume: -0.5},
-		AudioLightCannon: {Path: "sounds/light_cannon.wav", Volume: -0.4},
-		AudioDualCannon:  {Path: "sounds/dual_cannon.wav", Volume: -0.3},
-		AudioHeavyCannon: {Path: "sounds/heavy_cannon.wav", Volume: -0.75},
-		AudioRailgun:     {Path: "sounds/railgun.wav", Volume: -0.5},
-		AudioLancer:      {Path: "sounds/lancer.wav", Volume: -0.75},
-		AudioGauss:       {Path: "sounds/gauss.wav", Volume: -0.5},
-		AudioIon:         {Path: "sounds/ion.wav", Volume: -0.5},
-		AudioMusic:       {Path: "sounds/music.ogg"},
+		AudioGatlingGun:               {Path: "sounds/gatling_gun.wav", Volume: -0.5},
+		AudioLightCannon:              {Path: "sounds/light_cannon.wav", Volume: -0.4},
+		AudioDualCannon:               {Path: "sounds/dual_cannon.wav", Volume: -0.3},
+		AudioHeavyCannon:              {Path: "sounds/heavy_cannon.wav", Volume: -0.75},
+		AudioRailgun:                  {Path: "sounds/railgun.wav", Volume: -0.5},
+		AudioLancer:                   {Path: "sounds/lancer.wav", Volume: -0.75},
+		AudioGauss:                    {Path: "sounds/gauss.wav", Volume: -0.5},
+		AudioIon:                      {Path: "sounds/ion.wav", Volume: -0.5},
+		AudioCueError:                 {Path: "sounds/error.wav", Volume: -0.45},
+		AudioCueSendUnits:             {Path: "sounds/send_units.wav", Volume: -0.3},
+		AudioCueProductionStarted:     {Path: "sounds/production_started.wav", Volume: -0.1},
+		AudioCueProductionCompleted:   {Path: "sounds/production_completed.wav", Volume: +0.1},
+		AudioCueConstructionCompleted: {Path: "sounds/construction_completed.wav"},
+		AudioCueScreenReset:           {Path: "sounds/screen_reset.wav"},
+		AudioMusic:                    {Path: "sounds/music.ogg"},
 	}
 	for id, res := range audioResources {
 		ctx.Loader.AudioRegistry.Set(id, res)
