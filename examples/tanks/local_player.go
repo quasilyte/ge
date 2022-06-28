@@ -130,13 +130,13 @@ func (p *localPlayer) handleControls() {
 		if base != nil && base.Player.ID == p.ID && p.selectedSector == nil {
 			p.selectedSector = p.sector()
 			p.sector().SelectUnits()
-		} else if p.selectedSector != nil && p.selectedSector.NumDefenders() != 0 {
+		} else if p.selectedSector != nil {
 			p.selectedSector.UnselectUnits()
 			p.selectedSector.SendUnits(p.sector())
-			p.selectedSector = nil
-			if p.BattleState.SingleLocalPlayer == p.playerData {
+			if p.BattleState.SingleLocalPlayer == p.playerData && p.selectedSector.NumDefenders() != 0 {
 				p.scene.Audio().PlaySound(AudioCueSendUnits)
 			}
+			p.selectedSector = nil
 		}
 	}
 

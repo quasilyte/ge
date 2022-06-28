@@ -98,6 +98,9 @@ type battleController struct {
 
 	winnerAlliance int
 	victoryState   bool
+
+	curtainLeft  *ge.Sprite
+	curtainRight *ge.Sprite
 }
 
 func newBattleController(state *gameState, config battleConfig) *battleController {
@@ -235,6 +238,17 @@ func (c *battleController) Init(scene *ge.Scene) {
 	}
 
 	ctx.Audio.ContinueMusic(AudioMusic)
+
+	{
+		window := scene.Context().WindowRect()
+		c.curtainLeft = scene.NewRepeatedSprite(ImageMenuBackground, window.Width()/2, window.Height())
+		c.curtainLeft.Centered = false
+		scene.AddGraphics(c.curtainLeft)
+		c.curtainRight = scene.NewRepeatedSprite(ImageMenuBackground, window.Width()/2, window.Height())
+		c.curtainRight.Centered = false
+		c.curtainRight.Pos.Offset.X += window.Width() / 2
+		scene.AddGraphics(c.curtainRight)
+	}
 }
 
 func (c *battleController) recalculateAlliances() {
@@ -264,6 +278,17 @@ func (c *battleController) recalculateAlliances() {
 }
 
 func (c *battleController) Update(delta float64) {
+	if c.curtainLeft != nil {
+		c.curtainLeft.Pos.Offset.X -= delta * 512 * 5
+		c.curtainRight.Pos.Offset.X += delta * 512 * 5
+		if c.curtainLeft.Pos.Offset.X <= -c.curtainLeft.FrameWidth {
+			c.curtainLeft.Dispose()
+			c.curtainRight.Dispose()
+			c.curtainLeft = nil
+			c.curtainRight = nil
+		}
+	}
+
 	if c.winnerAlliance == -1 {
 		if winner := c.checkVictory(); winner != -1 {
 			c.winnerAlliance = winner

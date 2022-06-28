@@ -1,6 +1,8 @@
 package main
 
-import "github.com/quasilyte/ge/gemath"
+import (
+	"github.com/quasilyte/ge/gemath"
+)
 
 const maxPlayers = 4
 
@@ -55,6 +57,7 @@ func (state *battleState) onGroupDisposed(g *battleGroup) {
 func (state *battleState) NewBattlePost(p *playerData, pos gemath.Vec, turret *turretDesign) *battlePost {
 	bp := newBattlePost(p, pos, turret)
 	bp.EventDestroyed.Connect(nil, state.onBaseDestroyed)
+	bp.Player.NumBases++
 	return bp
 }
 
@@ -127,6 +130,7 @@ func (state *battleState) onTankDestroyed(bt *battleTank) {
 }
 
 func (state *battleState) onBaseDestroyed(bp *battlePost) {
+	bp.Player.NumBases--
 	if state.HQDefeat && bp.HQ {
 		state.playerDefeat(bp.Player)
 	}

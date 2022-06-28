@@ -55,8 +55,6 @@ func newBattlePost(p *playerData, pos gemath.Vec, turret *turretDesign) *battleP
 func (bp *battlePost) Init(scene *ge.Scene) {
 	bp.scene = scene
 
-	bp.Player.NumBases++
-
 	// TODO: InitRect.
 	bp.body.InitRotatedRect(bp, 50, 50)
 
@@ -170,7 +168,6 @@ func (bp *battlePost) Destroy() {
 	bp.EventDestroyed.Emit(bp)
 	e := newExplosion(bp.body.Pos)
 	bp.scene.AddObject(e)
-	bp.Player.NumBases--
 }
 
 func (bp *battlePost) IsBusy() bool {
