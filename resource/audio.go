@@ -36,6 +36,9 @@ type AudioSystem struct {
 
 	audioContext *audio.Context
 	resources    map[AudioID]*audioResource
+
+	currentQueueSound *audioResource
+	soundQueue        []AudioID
 }
 
 type audioResource struct {
@@ -47,6 +50,7 @@ func (sys *AudioSystem) Init(l *Loader) {
 	sys.loader = l
 	sys.audioContext = audio.NewContext(32000)
 	sys.resources = make(map[AudioID]*audioResource)
+	sys.soundQueue = make([]AudioID, 0, 4)
 
 	// Audio player factory has lazy initialization that may lead
 	// to a ~0.2s delay before the first sound can be played.
@@ -54,6 +58,26 @@ func (sys *AudioSystem) Init(l *Loader) {
 	// right now, before the game is started.
 	dummy := sys.audioContext.NewPlayerFromBytes(nil)
 	dummy.Rewind()
+}
+
+func (sys *AudioSystem) Update() {
+	if sys.currentQueueSound == nil {
+		if len(sys.soundQueue) == 0 {
+			// Nothing to play in the queue.
+			return
+		}
+		// Do a dequeue.
+		sys.currentQueueSound = sys.playSound(sys.soundQueue[0])
+		for i, id := range sys.soundQueue[1:] {
+			sys.soundQueue[i] = id
+		}
+		sys.soundQueue = sys.soundQueue[:len(sys.soundQueue)-1]
+		return
+	}
+	if !sys.currentQueueSound.player.IsPlaying() {
+		// Finished playing the current enqueued sound.
+		sys.currentQueueSound = nil
+	}
 }
 
 func (sys *AudioSystem) DecodeWAV(r io.Reader) (*wav.Stream, error) {
@@ -124,7 +148,19 @@ func (sys *AudioSystem) PlayMusic(id AudioID) {
 	res.player.Play()
 }
 
+func (sys *AudioSystem) ResetQueue() {
+	sys.soundQueue = sys.soundQueue[:0]
+}
+
+func (sys *AudioSystem) EnqueueSound(id AudioID) {
+	sys.soundQueue = append(sys.soundQueue, id)
+}
+
 func (sys *AudioSystem) PlaySound(id AudioID) {
+	sys.playSound(id)
+}
+
+func (sys *AudioSystem) playSound(id AudioID) *audioResource {
 	resource, ok := sys.resources[id]
 	if !ok {
 		stream := sys.loader.LoadWAV(id)
@@ -143,4 +179,5 @@ func (sys *AudioSystem) PlaySound(id AudioID) {
 	resource.player.SetVolume(resource.volume)
 	resource.player.Rewind()
 	resource.player.Play()
+	return resource
 }

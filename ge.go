@@ -33,6 +33,7 @@ func (g *gameRunner) Update() error {
 	g.prevTime = now
 
 	g.ctx.Input.Update()
+	g.ctx.Audio.Update()
 	g.ctx.CurrentScene.update(timeDelta)
 	return nil
 }
