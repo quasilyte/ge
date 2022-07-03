@@ -36,9 +36,9 @@ func (c *menuController) Init(scene *ge.Scene) {
 	scene.AddGraphics(versionLabel)
 
 	buttons := []string{
-		"NEW GAME",
-		"UNIT STATS",
-		"EXIT",
+		"menu.new_game",
+		"menu.unit_stats",
+		"menu.exit",
 	}
 	c.selectedButton.SetBounds(0, len(buttons)-1)
 	buttonHeight := 80.0
@@ -73,7 +73,7 @@ func (c *menuController) Update(delta float64) {
 
 func (c *menuController) onButtonPressed(op string) {
 	switch op {
-	case "NEW GAME":
+	case "menu.new_game":
 		defaultPlayer1 := pkLocalPlayer1keyboard
 		if c.gameState.Player1gamepad.GamepadConnected() {
 			defaultPlayer1 = pkLocalPlayer1
@@ -89,9 +89,9 @@ func (c *menuController) onButtonPressed(op string) {
 			rules: make(map[string]bool),
 		}
 		c.scene.Context().ChangeScene("game", newGameController(c.gameState, config))
-	case "UNIT STATS":
+	case "menu.unit_stats":
 		c.scene.Context().ChangeScene("unit stats", newUnitStatsController(c.gameState))
-	case "EXIT":
+	case "menu.exit":
 		os.Exit(0)
 	}
 }

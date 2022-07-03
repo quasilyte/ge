@@ -46,6 +46,8 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 	window := scene.Context().WindowRect()
 
+	scene.Audio().ResetQueue()
+
 	bg := scene.NewRepeatedSprite(ImageMenuBackground, window.Width(), window.Height())
 	bg.Centered = false
 	scene.AddGraphics(bg)
@@ -58,12 +60,12 @@ func (c *resultsController) Init(scene *ge.Scene) {
 	offsetY := 384.0
 
 	headerColumns := []string{
-		"PLAYER",
-		"IRON COLLECTED",
-		"GOLD COLLECTED",
-		"OIL COLLECTED",
-		"UNITS PRODUCED",
-		"TEAM",
+		"menu.results_player",
+		"menu.results_iron",
+		"menu.results_gold",
+		"menu.results_oil",
+		"menu.results_units",
+		"menu.results_team",
 	}
 
 	bgHeight := float64(len(c.result.players))*48 + 64 + 32
@@ -92,7 +94,8 @@ func (c *resultsController) Init(scene *ge.Scene) {
 	{
 		offsetX := baseOffsetX
 		for _, col := range headerColumns {
-			headerLabel := newLabel(col, ge.RGB(0xffffff), offsetX, offsetY)
+			text := scene.Dict().Get(col)
+			headerLabel := newLabel(text, ge.RGB(0xffffff), offsetX, offsetY)
 			scene.AddGraphics(headerLabel)
 			offsetX += 256
 		}
@@ -155,7 +158,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		buttonPos := ge.Pos{}
 		buttonPos.Offset.Y += offsetY + 64
 		buttonPos.Offset.X = scene.Context().WindowRect().Center().X
-		b := newButton("EXIT", buttonPos)
+		b := newButton("menu.exit", buttonPos)
 		b.Focused = true
 		scene.AddObject(b)
 	}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/resource"
 
 	_ "image/png"
@@ -28,6 +29,7 @@ const (
 	ActionNextCategory
 	ActionPrevCategory
 	ActionFortify
+	ActionLeftClick
 	ActionExit
 )
 
@@ -99,6 +101,8 @@ const (
 
 const (
 	RawTilesJSON resource.RawID = iota
+	RawDictEng
+	RawDictRus
 )
 
 func main() {
@@ -149,6 +153,8 @@ func main() {
 		ActionPrevCategory: input.KeyW,
 		ActionFortify:      input.KeyE,
 		ActionExit:         input.KeyEscape,
+
+		ActionLeftClick: input.KeyMouseLeft,
 	})
 	state.Player1keyboard = ctx.Input.NewHandler(0, keyboardKeymap)
 	state.Player1gamepad = ctx.Input.NewHandler(0, gamepadKeymap)
@@ -244,15 +250,32 @@ func main() {
 	// Associate other resources.
 	rawResources := map[resource.RawID]resource.Raw{
 		RawTilesJSON: {Path: "tiles.json"},
+		RawDictEng:   {Path: "langs/eng.txt"},
+		RawDictRus:   {Path: "langs/rus.txt"},
 	}
 	for id, res := range rawResources {
 		ctx.Loader.RawRegistry.Set(id, res)
 		ctx.Loader.PreloadRaw(id)
 	}
 
-	ctx.CurrentScene = ctx.NewRootScene("menu", newMenuController(state))
+	languages := ge.InferLanguages()
+	preferredDict := RawDictEng
+	selectedLang := "en"
+	for _, l := range languages {
+		// if l == "ru" {
+		_ = l
+		preferredDict = RawDictRus
+		selectedLang = "ru"
+		break
+		// }
+	}
+	dict, err := langs.ParseDictionary(selectedLang, ctx.Loader.LoadRaw(preferredDict))
+	if err != nil {
+		panic(err)
+	}
+	ctx.Dict = dict
 
-	if err := ge.RunGame(ctx); err != nil {
+	if err := ge.RunGame(ctx, newTutorialController(state)); err != nil {
 		panic(err)
 	}
 }

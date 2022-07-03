@@ -265,12 +265,64 @@ func (p *computerPlayer) sendUnits() {
 		return
 	}
 
+	// Find the attack support groups.
+	var supportGroup1 *sector
+	var supportGroup2 *sector
+	if !p.easy {
+		if p.scene.Rand().Chance(0.75) {
+			supportGroup1 = p.selectOwnedSector(func(candidate *sector) bool {
+				return !candidate.HasBuilder() && candidate.NumDefenders() >= 1 &&
+					candidate != s &&
+					candidate.Base.UnderAttack == 0
+			})
+		}
+		if supportGroup1 != nil && p.scene.Rand().Chance(0.6) {
+			supportGroup2 = p.selectOwnedSector(func(candidate *sector) bool {
+				return !candidate.HasBuilder() && candidate.NumDefenders() >= 1 &&
+					candidate != s && candidate != supportGroup1 &&
+					candidate.Base.UnderAttack == 0
+			})
+		}
+	}
+
 	// Do not try to attack a base with insufficient forces.
 	if !p.easy {
 		numUnits := s.NumDefenders()
+		hasLancer := s.HasLancer()
+		if supportGroup1 != nil {
+			numUnits += supportGroup1.NumDefenders()
+			hasLancer = hasLancer || supportGroup1.HasLancer()
+		}
+		if supportGroup2 != nil {
+			numUnits += supportGroup2.NumDefenders()
+			hasLancer = hasLancer || supportGroup2.HasLancer()
+		}
 		// To attack a base with a turret, at least 3 units are needed; or a lancer.
-		if attackTarget.Base.Turret != nil && numUnits < 3 && !s.HasLancer() {
+		if attackTarget.Base.Turret != nil && numUnits < 3 && !hasLancer {
 			if p.scene.Rand().Chance(0.9) {
+				return
+			}
+		}
+		// The same condition goes for the bases that have nearby turrets
+		// that can interfere.
+		if attackTarget.Base.Turret == nil && numUnits < 3 && !hasLancer {
+			foundDanger := false
+			isAlliedBorder := false
+			p.BattleState.WalkNeighbours(attackTarget, func(n *sector) bool {
+				if n.Base == nil {
+					return true
+				}
+				if n.Base.Player.Alliance == p.Alliance {
+					isAlliedBorder = true
+					return false
+				}
+				if n.Base.Turret != nil && n.Base.Player.Alliance != p.Alliance {
+					foundDanger = true
+					return false
+				}
+				return true
+			})
+			if !isAlliedBorder && foundDanger && p.scene.Rand().Chance(0.85) {
 				return
 			}
 		}
@@ -282,17 +334,12 @@ func (p *computerPlayer) sendUnits() {
 		}
 	}
 
-	// Launch the attack using the combined forces.
-	if !p.easy && p.scene.Rand().Bool() {
-		s2 := p.selectOwnedSector(func(candidate *sector) bool {
-			return !candidate.HasBuilder() && candidate.NumDefenders() >= 1 && candidate != s &&
-				candidate.Base.UnderAttack == 0
-		})
-		if s2 != nil {
-			s2.SendUnits(attackTarget)
-		}
+	if supportGroup1 != nil {
+		supportGroup1.SendUnits(attackTarget)
 	}
-
+	if supportGroup2 != nil {
+		supportGroup2.SendUnits(attackTarget)
+	}
 	s.SendUnits(attackTarget)
 }
 
@@ -545,7 +592,7 @@ func (p *computerPlayer) initFavDesigns() {
 	var options = []computerDesignOption{
 		{
 			hull:   "scout",
-			turret: "gatling gun",
+			turret: "gatling_gun",
 			cond: func() bool {
 				return p.Resources.Iron < 8 && p.Resources.Gold < 8
 			},
@@ -553,7 +600,7 @@ func (p *computerPlayer) initFavDesigns() {
 
 		{
 			hull:   "fighter",
-			turret: "light cannon",
+			turret: "light_cannon",
 			cond: func() bool {
 				return p.resourceScore(resIron) < p.resourceScore(resGold) &&
 					p.resourceScore(resIron) < p.resourceScore(resOil) &&
@@ -563,12 +610,12 @@ func (p *computerPlayer) initFavDesigns() {
 
 		{
 			hull:   "hunter",
-			turret: "dual cannon",
+			turret: "dual_cannon",
 		},
 
 		{
 			hull:   "scorpion",
-			turret: "dual cannon",
+			turret: "dual_cannon",
 			cond: func() bool {
 				return p.resourceScore(resGold) > p.resourceScore(resOil)
 			},
@@ -576,7 +623,7 @@ func (p *computerPlayer) initFavDesigns() {
 
 		{
 			hull:   "fighter",
-			turret: "dual cannon",
+			turret: "dual_cannon",
 			cond: func() bool {
 				return p.resourceScore(resIron) < p.resourceScore(resOil) &&
 					p.Resources.Iron >= 16
@@ -604,12 +651,12 @@ func (p *computerPlayer) initFavDesigns() {
 
 		{
 			hull:   "scorpion",
-			turret: "heavy cannon",
+			turret: "heavy_cannon",
 		},
 
 		{
 			hull:   "scout",
-			turret: "heavy cannon",
+			turret: "heavy_cannon",
 			cond: func() bool {
 				return p.resourceScore(resGold) > p.resourceScore(resIron) &&
 					p.resourceScore(resGold) > p.resourceScore(resOil) &&
@@ -620,7 +667,7 @@ func (p *computerPlayer) initFavDesigns() {
 
 		{
 			hull:   "fighter",
-			turret: "heavy cannon",
+			turret: "heavy_cannon",
 			cond: func() bool {
 				return p.resourceScore(resIron) < p.resourceScore(resGold) &&
 					p.resourceScore(resIron) < p.resourceScore(resOil) &&
@@ -669,19 +716,19 @@ func (p *computerPlayer) pickCheapDesign() tankDesign {
 	case p.Resources.Oil > p.Resources.Iron && p.Resources.Oil > p.Resources.Gold:
 		// 4,1,6
 		cheapestDesign.Hull = hullDesigns["scout"]
-		cheapestDesign.Turret = turretDesigns["gatling gun"]
+		cheapestDesign.Turret = turretDesigns["gatling_gun"]
 	case p.Resources.Gold > p.Resources.Oil:
 		// 5,4,2
 		cheapestDesign.Hull = hullDesigns["viper"]
-		cheapestDesign.Turret = turretDesigns["gatling gun"]
+		cheapestDesign.Turret = turretDesigns["gatling_gun"]
 	case p.Resources.Oil < p.Resources.Iron && p.Resources.Gold < p.Resources.Iron:
 		// 6,3,3
 		cheapestDesign.Hull = hullDesigns["viper"]
-		cheapestDesign.Turret = turretDesigns["light cannon"]
+		cheapestDesign.Turret = turretDesigns["light_cannon"]
 	default:
 		// 5,0,7
 		cheapestDesign.Hull = hullDesigns["scout"]
-		cheapestDesign.Turret = turretDesigns["light cannon"]
+		cheapestDesign.Turret = turretDesigns["light_cannon"]
 	}
 	return cheapestDesign
 }

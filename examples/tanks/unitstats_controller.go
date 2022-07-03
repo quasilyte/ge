@@ -31,6 +31,8 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 	rowHeight := 128.0
 	numRows := len(turretDesignListNoBuilder) + 1
 
+	dict := scene.Dict()
+
 	{
 		pos := window.Center()
 		pos.X -= 464
@@ -58,7 +60,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 			price.SetPrice(d.Price)
 
 			timeLabel := scene.NewLabel(FontDescription)
-			timeLabel.Text = fmt.Sprintf("%.1f sec", d.Production)
+			timeLabel.Text = fmt.Sprintf("%.1f %s", d.Production, dict.Get("word.sec"))
 			timeLabel.AlignHorizontal = ge.AlignHorizontalCenter
 			timeLabel.Pos = descriptionBg.Pos.WithOffset(268, 80)
 			timeLabel.Width = 112
@@ -101,7 +103,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 			price.SetPrice(d.Price)
 
 			timeLabel := scene.NewLabel(FontDescription)
-			timeLabel.Text = fmt.Sprintf("%.1f sec", d.Production)
+			timeLabel.Text = fmt.Sprintf("%.1f %s", d.Production, dict.Get("word.sec"))
 			timeLabel.AlignHorizontal = ge.AlignHorizontalCenter
 			timeLabel.Pos = descriptionBg.Pos.WithOffset(268, 80)
 			timeLabel.Width = 112
@@ -120,7 +122,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 	{
 		buttonPos := ge.MakePos(window.Center())
 		buttonPos.Base.Y += (rowHeight * float64(numRows-1)) / 2
-		b := newButton("EXIT", buttonPos)
+		b := newButton("menu.exit", buttonPos)
 		b.Focused = true
 		scene.AddObject(b)
 	}
@@ -128,21 +130,24 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 
 func (c *unitStatsController) hullDescription(d *hullDesign) string {
 	var lines []string
-	lines = append(lines, strings.ToUpper(d.Name))
+	dict := c.scene.Dict()
+	lines = append(lines, strings.ToUpper(dict.Get("design.hull."+d.Name)))
 	lines = append(lines, fmt.Sprintf("HP: %d", int(d.HP)))
-	lines = append(lines, fmt.Sprintf("Speed: %d", int(d.Speed)))
-	lines = append(lines, fmt.Sprintf("Rotation: %.1f", d.RotationSpeed))
+	lines = append(lines, fmt.Sprintf("%s: %d", dict.GetTitleCase("word.speed"), int(d.Speed)))
+	lines = append(lines, fmt.Sprintf("%s: %.1f", dict.GetTitleCase("word.rotation"), d.RotationSpeed))
 	return strings.Join(lines, "\n")
 }
 
 func (c *unitStatsController) turretDescription(d *turretDesign) string {
 	var lines []string
-	lines = append(lines, strings.ToUpper(d.Name))
+	dict := c.scene.Dict()
+	lines = append(lines, strings.ToUpper(dict.Get("design.turret."+d.Name)))
 	dps := (1 / d.Reload) * d.Damage
-	lines = append(lines, fmt.Sprintf("DPS: %.1f (%s)", dps, d.DamageKind))
-	lines = append(lines, fmt.Sprintf("HP bonus: +%d", int(d.HPBonus)))
+	damageKindText := dict.Get("design.damage_" + d.DamageKind.String())
+	lines = append(lines, fmt.Sprintf("DPS: %.1f (%s)", dps, damageKindText))
+	lines = append(lines, fmt.Sprintf("HP %s: +%d", dict.Get("word.bonus"), int(d.HPBonus)))
 	if d.SpeedPenalty != 0 {
-		lines = append(lines, fmt.Sprintf("Speed penalty: -%d", int(d.SpeedPenalty)))
+		lines = append(lines, fmt.Sprintf("%s: -%d", dict.GetTitleCase("word.speed"), int(d.SpeedPenalty)))
 	}
 	return strings.Join(lines, "\n")
 }

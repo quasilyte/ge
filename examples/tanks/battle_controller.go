@@ -18,10 +18,10 @@ const (
 )
 
 var teamsModeNames = []string{
-	"2 VS 2",
-	"1 VS 3",
-	"DEATHMATCH",
-	"VS LEADER",
+	"menu.team_2vs2",
+	"menu.team_1vs3",
+	"menu.team_deathmatch",
+	"menu.team_vs_leader",
 }
 
 func (t teamsMode) String() string { return teamsModeNames[t] }
@@ -40,14 +40,14 @@ const (
 )
 
 var playerKindNames = []string{
-	"EMPTY",
-	"PLAYER 1",
-	"PLAYER 1 gamepad",
-	"PLAYER 2 gamepad",
-	"PLAYER 3 gamepad",
-	"PLAYER 4 gamepad",
-	"EASY BOT",
-	"BOT",
+	"menu.slot_empty",
+	"menu.slot_player1",
+	"menu.slot_player1_gamepad",
+	"menu.slot_player2_gamepad",
+	"menu.slot_player3_gamepad",
+	"menu.slot_player4_gamepad",
+	"menu.slot_easy_bot",
+	"menu.slot_bot",
 }
 
 func (pk playerKind) String() string { return playerKindNames[pk] }
@@ -59,29 +59,33 @@ type battleConfig struct {
 }
 
 var battleRules = []string{
+
+	// Bots get unfair bonuses.
+	"mode.unfair_bots",
+
 	// Makes starting locations closer to each other.
-	"Close Combat",
+	"mode.close_combat",
 
 	// Central sectors have no resources.
-	"Barren Center",
+	"mode.barren_center",
 
 	// All sector incomes are doubled (2 instead of 1).
-	"Doubled Income",
+	"mode.doubled_income",
 
 	// Generate fair resources layout instead of a purely random one.
-	"Balanced Resources",
+	"mode.balanced_resources",
 
 	// Players start with two bases instead of one.
-	"Quick Start",
+	"mode.quick_start",
 
 	// Losing HQ causes the immediate loss.
-	"HQ Siege",
+	"mode.hq_siege",
 
 	// Building battle post fortifications (gauss turrets) is prohibited.
-	"No Fortifications",
+	"mode.no_fortifications",
 
 	// Causes tanks to move and turn slower.
-	"Mud Terrain",
+	"mode.mud_terrain",
 }
 
 type battleController struct {
@@ -114,12 +118,11 @@ func newBattleController(state *gameState, config battleConfig) *battleControlle
 }
 
 func (c *battleController) Init(scene *ge.Scene) {
-	ctx := scene.Context()
-
-	c.battleState.DoubledIncome = c.config.rules["Doubled Income"]
-	c.battleState.FortificationsAllowed = !c.config.rules["No Fortifications"]
-	c.battleState.MudTerrain = c.config.rules["Mud Terrain"]
-	c.battleState.HQDefeat = c.config.rules["HQ Siege"]
+	c.battleState.DoubledIncome = c.config.rules["mode.doubled_income"]
+	c.battleState.FortificationsAllowed = !c.config.rules["mode.no_fortifications"]
+	c.battleState.MudTerrain = c.config.rules["mode.mud_terrain"]
+	c.battleState.HQDefeat = c.config.rules["mode.hq_siege"]
+	c.battleState.UnfairBots = c.config.rules["mode.unfair_bots"]
 
 	bg := ge.NewTiledBackground()
 	if c.battleState.MudTerrain {
@@ -151,9 +154,9 @@ func (c *battleController) Init(scene *ge.Scene) {
 		}
 	}
 
-	c.battleState.DeploySectors(c.scene.Rand(), c.config.rules["Balanced Resources"])
+	c.battleState.DeploySectors(c.scene.Rand(), c.config.rules["mode.balanced_resources"])
 
-	if c.config.rules["Barren Center"] {
+	if c.config.rules["mode.barren_center"] {
 		emptySectors := []int{8, 9, 14, 15}
 		for _, id := range emptySectors {
 			c.battleState.Sectors[id].Resource = resNone
@@ -162,11 +165,11 @@ func (c *battleController) Init(scene *ge.Scene) {
 
 	startingSectors := []int{0, 18, 0 + 5, 18 + 5}
 	extraBaseSectors := []int{1, 19, 4, 22}
-	if c.config.rules["Close Combat"] {
+	if c.config.rules["mode.close_combat"] {
 		startingSectors = []int{7, 20, 16, 3}
 		extraBaseSectors = []int{13, 21, 10, 2}
 	}
-	quickStartEnabled := c.config.rules["Quick Start"]
+	quickStartEnabled := c.config.rules["mode.quick_start"]
 	for i, pk := range c.config.players {
 		if pk == pkEmpty {
 			continue
@@ -181,7 +184,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 
 			guard := c.battleState.NewBattleTank(bp.Player, tankDesign{
 				Hull:   hullDesigns["scout"],
-				Turret: turretDesigns["gatling gun"],
+				Turret: turretDesigns["gatling_gun"],
 			})
 			guard.Body.Pos = s.Center().Add(gemath.Vec{Y: 64})
 			guard.Body.Rotation = guard.Body.Pos.AngleToPoint(gemath.Vec{X: 1920 / 2, Y: 1080 / 2})
@@ -198,6 +201,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 	for i, pk := range c.config.players {
 		s := c.battleState.Sectors[startingSectors[i]]
 		p := &c.battleState.Players[i]
+		p.IsBot = false
 		var object ge.SceneObject
 		switch pk {
 		case pkEmpty:
@@ -224,8 +228,10 @@ func (c *battleController) Init(scene *ge.Scene) {
 			object = newLocalPlayer(p, c.gameState.Player4gamepad, s)
 		case pkBot:
 			object = newComputerPlayer(p, c.battleState, s, false)
+			p.IsBot = true
 		case pkEasyBot:
 			object = newComputerPlayer(p, c.battleState, s, true)
+			p.IsBot = true
 		}
 		if object != nil {
 			scene.AddObject(object)
@@ -237,7 +243,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 		c.battleState.SingleLocalPlayer = nil
 	}
 
-	ctx.Audio.ContinueMusic(AudioMusic)
+	scene.Audio().ContinueMusic(AudioMusic)
 
 	{
 		window := scene.Context().WindowRect()
@@ -317,6 +323,17 @@ func (c *battleController) Update(delta float64) {
 			p.Stats.Iron += p.Income.Iron
 			p.Stats.Gold += p.Income.Gold
 			p.Stats.Oil += p.Income.Oil
+			if p.BattleState.UnfairBots && p.IsBot {
+				// This unfair bot income is not recorded in the statistics.
+				var unfairIncome resourceContainer
+				multiplier := 1
+				if c.battleState.DoubledIncome {
+					multiplier = 2
+				}
+				kind := resourceKind(c.scene.Rand().IntRange(0, 2))
+				unfairIncome.AddOfKind(kind, c.scene.Rand().IntRange(1, 2)*multiplier)
+				p.Resources.Add(unfairIncome)
+			}
 		}
 	}
 
@@ -328,7 +345,7 @@ func (c *battleController) Update(delta float64) {
 
 func (c *battleController) calculateIncome() {
 	amount := 1
-	if c.config.rules["Doubled Income"] {
+	if c.battleState.DoubledIncome {
 		amount = 2
 	}
 	for _, s := range c.battleState.Sectors {
@@ -384,6 +401,8 @@ type playerData struct {
 
 	Resources resourceContainer
 	Income    resourceContainer
+
+	IsBot bool
 
 	BattleState *battleState
 

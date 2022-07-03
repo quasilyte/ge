@@ -1,0 +1,149 @@
+##word.turret : turret
+##word.hull : hull
+##word.cost : cost
+##word.resources_amount : have
+##word.sec : sec
+##word.speed : speed
+##word.bonus : bonus
+##word.rotation : rotation
+
+##design.damage_kinetic : kinetic
+##design.damage_energy : energy
+##design.damage_thermal : thermal
+
+##design.turret.builder : builder
+##design.turret.gatling_gun : gatling gun
+##design.turret.light_cannon : light cannon
+##design.turret.dual_cannon : dual cannon
+##design.turret.heavy_cannon : heavy cannon
+##design.turret.railgun : railgun
+##design.turret.lancer : lancer
+
+##design.hull.viper : viper
+##design.hull.scout : scout
+##design.hull.hunter : hunter
+##design.hull.scorpion : scorpion
+##design.hull.fighter : fighter
+##design.hull.mammoth : mammoth
+
+##mode.unfair_bots : Unfair Bots
+##mode.close_combat : Close Combat
+##mode.barren_center : Barren Center
+##mode.doubled_income : Doubled Income
+##mode.balanced_resources : Balanced Resources
+##mode.quick_start : Quick Start
+##mode.hq_siege : HQ Siege
+##mode.no_fortifications : No Fortifications
+##mode.mud_terrain : Mud Terrain
+
+##menu.start_game : START GAME
+##menu.new_game : NEW GAME
+##menu.unit_stats : UNIT STATS
+##menu.exit : EXIT
+##menu.team_mode : TEAMS
+##menu.slot : SLOT
+
+##menu.slot_empty : EMPTY
+##menu.slot_bot : BOT
+##menu.slot_easy_bot : EASY BOT
+##menu.slot_player1 : PLAYER 1
+##menu.slot_player1_gamepad : PLAYER 1 gamepad
+##menu.slot_player2_gamepad : PLAYER 2 gamepad
+##menu.slot_player3_gamepad : PLAYER 3 gamepad
+##menu.slot_player4_gamepad : PLAYER 4 gamepad
+
+##menu.team_2vs2 : 2 VS 2
+##menu.team_1vs3 : 1 VS 3
+##menu.team_deathmatch : DEATHMATCH
+##menu.team_vs_leader : VS LEADER
+
+##menu.results_player : PLAYER
+##menu.results_iron : IRON COLLECTED
+##menu.results_gold : GOLD COLLECTED
+##menu.results_oil : OIL COLLECTED
+##menu.results_units : UNITS PRODUCED
+##menu.results_team : TEAM
+
+##ui.off : OFF
+##ui.on : ON
+
+##tutorial.continue_keyboard : PRESS [ENTER] TO CONTINUE
+##tutorial.continue_gamepad : PRESS (X) OR (A) TO CONTINUE
+##tutorial.continue_wasm : CLICK TO CONTINUE
+
+##tutorial.keymap.keyboard
+CONTROL SCHEME: KEYBOARD
+
+IN MENU:
+
+    [W], [S] - selects the focused menu button
+    [A], [D] - loop through the focused button options
+    [Enter] - activate button / toggle option
+    [Escape] - go to the previous screen
+
+IN BATTLE:
+
+    [W], [A], [S], [D] - move the sector selector
+    [Space] - select units / send units
+    [Enter] - open sector menu
+    [E] - build a defensive turret
+    [Q] - cancel selection / action
+    [Escape] - back to the menu
+
+IN BATTLE SECTOR MENU:
+
+    [W], [S] - select turret/hull entry
+    [A], [S] - loop through the selected entry options
+    [Space] - order selected design
+    [Enter], [Q] - close the menu
+
+##tutorial.keymap.gamepad
+CONTROL SCHEME: GAMEPAD (X-BOX LAYOUT)
+
+IN MENU:
+
+    [Up], [Down] - selects the focused menu button
+    [Left], [Right] - loop through the focused button options
+    (A) - activate button / toggle option
+    [Select] - go to the previous screen
+
+IN BATTLE:
+
+    [Up], [Down], [Left], [Right] - move the sector selector
+    (A) - select units / send units
+    (X) - open sector menu
+    (Y) - build a defensive turret
+    (B) - cancel selection / action
+    [Select] - back to the menu
+
+IN BATTLE SECTOR MENU:
+
+    [Up], [Down] - select turret/hull entry
+    [Left], [Right] - loop through the selected entry options
+    (A) - order selected design
+    (X), (B) - close the menu
+
+##tutorial.hints
+HOW TO PLAY: A QUICK GUIDE
+
+    * Send the starting builder to some nearby sector
+    * Build more builders to expand, sectors provide resources
+    * Order some battle tanks for attack and defense purposes
+    * When your base is under attack, build a defensive turret
+
+You can't control your units directly,
+but you can choose a sector to send them to.
+
+Every unit consist of two parts: a hull and a turret.
+Depending on what resources and situation you have,
+different combinations can be considered optimal.
+Open "UNIT STATS" page to see the relevant values.
+
+Good luck and have fun!
+
+##tutorial.wasm_notice
+Things to keep in mind when running this game in browser:
+
+    * Consider enabling the fullscreen mode
+    * FPS may be unstable
+    * Not all gamepad models will work correctly

@@ -22,6 +22,7 @@ type battleState struct {
 	MudTerrain            bool
 	HQDefeat              bool
 	DynamicAlliances      bool
+	UnfairBots            bool
 }
 
 func newBattleState() *battleState {
@@ -150,6 +151,27 @@ func (state *battleState) playerDefeat(p *playerData) {
 
 func (state *battleState) GetSector(x, y int) *sector {
 	return state.Sectors[y*state.numCols+x]
+}
+
+func (state *battleState) WalkNeighbours(s *sector, visit func(*sector) bool) {
+	for dx := -1; dx <= 1; dx++ {
+		x := s.X + dx
+		if x < 0 || x >= state.numCols {
+			continue
+		}
+		for dy := -1; dy <= 1; dy++ {
+			y := s.Y + dy
+			if y < 0 || y >= state.numRows {
+				continue
+			}
+			if dx == 0 && dx == 0 {
+				continue
+			}
+			if !visit(state.GetSector(x, y)) {
+				return
+			}
+		}
+	}
 }
 
 func (state *battleState) WrapXY(x, y int) (int, int) {

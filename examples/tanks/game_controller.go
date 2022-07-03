@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"strconv"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gemath"
@@ -69,7 +69,8 @@ func (c *gameController) Init(scene *ge.Scene) {
 
 	{
 		for i, pk := range c.config.players {
-			l := newLabel(fmt.Sprintf("SLOT %d", i+1), buttonPos.WithOffset(-170, 0))
+			labelText := scene.Dict().Get("menu.slot") + " " + strconv.Itoa(i+1)
+			l := newLabel(labelText, buttonPos.WithOffset(-170, 0))
 			scene.AddObject(l)
 
 			b := newSelectButton(playerKindNames, buttonPos.WithOffset(72, 0))
@@ -82,7 +83,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 		}
 	}
 	{
-		l := newLabel("TEAMS", buttonPos.WithOffset(-170, 0))
+		l := newLabel(scene.Dict().Get("menu.team_mode"), buttonPos.WithOffset(-170, 0))
 		scene.AddObject(l)
 
 		b := newSelectButton(teamsModeNames, buttonPos.WithOffset(72, 0))
@@ -95,7 +96,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 	}
 
 	{
-		b := newButton("START", buttonPos)
+		b := newButton("menu.start_game", buttonPos)
 		b.Focused = true
 		c.focusedButton.TrySetValue(6)
 		scene.AddObject(b)
@@ -103,7 +104,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 		c.buttons = append(c.buttons, b)
 	}
 	{
-		b := newButton("EXIT", buttonPos)
+		b := newButton("menu.exit", buttonPos)
 		scene.AddObject(b)
 		buttonPos.Offset.Y += buttonHeight
 		c.buttons = append(c.buttons, b)
@@ -143,13 +144,13 @@ func (c *gameController) startBattle() {
 	config.rules = c.config.rules
 
 	switch c.teamsSelector.SelectedOption() {
-	case "2 VS 2":
+	case "menu.team_2vs2":
 		config.teamsMode = teams2vs2
-	case "1 VS 3":
+	case "menu.team_1vs2":
 		config.teamsMode = teams1vs3
-	case "DEATHMATCH":
+	case "menu.team_deathmatch":
 		config.teamsMode = teamsDeathmatch
-	case "VS LEADER":
+	case "menu.team_vs_leader":
 		config.teamsMode = teamsLeader
 	default:
 		panic("unexpected option")
@@ -157,21 +158,21 @@ func (c *gameController) startBattle() {
 
 	for i, sb := range c.slotSelectors {
 		switch sb.SelectedOption() {
-		case "EMPTY":
+		case "menu.slot_empty":
 			config.players[i] = pkEmpty
-		case "PLAYER 1":
+		case "menu.slot_player1":
 			config.players[i] = pkLocalPlayer1keyboard
-		case "PLAYER 1 gamepad":
+		case "menu.slot_player1_gamepad":
 			config.players[i] = pkLocalPlayer1
-		case "PLAYER 2 gamepad":
+		case "menu.slot_player2_gamepad":
 			config.players[i] = pkLocalPlayer2
-		case "PLAYER 3 gamepad":
+		case "menu.slot_player3_gamepad":
 			config.players[i] = pkLocalPlayer3
-		case "PLAYER 4 gamepad":
+		case "menu.slot_player4_gamepad":
 			config.players[i] = pkLocalPlayer4
-		case "EASY BOT":
+		case "menu.slot_easy_bot":
 			config.players[i] = pkEasyBot
-		case "BOT":
+		case "menu.slot_bot":
 			config.players[i] = pkBot
 		default:
 			panic("unexpected option")
@@ -185,9 +186,9 @@ func (c *gameController) onButtonPressed() {
 	switch b := c.buttons[c.focusedButton.Value()].(type) {
 	case *button:
 		switch b.Text {
-		case "START":
+		case "menu.start_game":
 			c.startBattle()
-		case "EXIT":
+		case "menu.exit":
 			c.scene.Context().ChangeScene("menu", newMenuController(c.gameState))
 		}
 	case *checkboxButton:

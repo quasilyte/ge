@@ -87,7 +87,7 @@ func (p *projectile) Update(delta float64) {
 
 func (p *projectile) Destroy() {
 	switch p.design.Name {
-	case "gatling gun", "gauss", "ion":
+	case "gatling_gun", "gauss", "ion":
 		// No explosion.
 	case "lancer":
 		// Bigger explosion.
@@ -95,7 +95,7 @@ func (p *projectile) Destroy() {
 		e.Scale = 0.7
 		e.AnimationSpeed = 1.75
 		p.scene.AddObject(e)
-	case "dual cannon":
+	case "dual_cannon":
 		// Two explosions.
 		e1 := newExplosion(p.body.Pos.Add(gemath.Vec{X: 3, Y: 3}))
 		e1.Scale = 0.4

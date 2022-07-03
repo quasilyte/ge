@@ -42,6 +42,7 @@ func (l *label) Update(delta float64) {}
 func (l *label) IsDisposed() bool { return false }
 
 type checkboxButton struct {
+	scene   *ge.Scene
 	status  *ge.Label
 	label   *ge.Label
 	checked bool
@@ -55,12 +56,14 @@ func newCheckboxButton(text string, checked bool, pos ge.Pos) *checkboxButton {
 }
 
 func (b *checkboxButton) Init(scene *ge.Scene) {
+	b.scene = scene
+
 	sprite := scene.NewSprite(ImageMenuCheckboxButton)
 	sprite.Pos = b.pos
 	scene.AddGraphics(sprite)
 
 	label := scene.NewLabel(FontDescription)
-	label.Text = b.Text
+	label.Text = b.scene.Dict().Get(b.Text)
 	label.Pos = sprite.AnchorPos().WithOffset(76, 2)
 	label.AlignHorizontal = ge.AlignHorizontalCenter
 	label.AlignVertical = ge.AlignVerticalCenter
@@ -81,11 +84,11 @@ func (b *checkboxButton) Init(scene *ge.Scene) {
 }
 
 func (b *checkboxButton) Update(delta float64) {
-	b.label.Text = b.Text
+	b.label.Text = b.scene.Dict().Get(b.Text)
 	if b.checked {
-		b.status.Text = "ON"
+		b.status.Text = b.scene.Dict().Get("ui.on")
 	} else {
-		b.status.Text = "OFF"
+		b.status.Text = b.scene.Dict().Get("ui.off")
 	}
 	b.updateColor()
 }
@@ -107,6 +110,7 @@ func (b *checkboxButton) SetChecked(checked bool) { b.checked = checked }
 func (b *checkboxButton) ToggleFocus() { b.Focused = !b.Focused }
 
 type selectButton struct {
+	scene    *ge.Scene
 	label    *ge.Label
 	options  []string
 	Focused  bool
@@ -124,12 +128,14 @@ func newSelectButton(options []string, pos ge.Pos) *selectButton {
 }
 
 func (b *selectButton) Init(scene *ge.Scene) {
+	b.scene = scene
+
 	sprite := scene.NewSprite(ImageMenuSelectButton)
 	sprite.Pos = b.pos
 	scene.AddGraphics(sprite)
 
 	label := scene.NewLabel(FontBig)
-	label.Text = b.options[b.selected.Value()]
+	label.Text = scene.Dict().Get(b.options[b.selected.Value()])
 	label.Pos = sprite.AnchorPos()
 	label.AlignHorizontal = ge.AlignHorizontalCenter
 	label.AlignVertical = ge.AlignVerticalCenter
@@ -141,7 +147,7 @@ func (b *selectButton) Init(scene *ge.Scene) {
 }
 
 func (b *selectButton) Update(delta float64) {
-	b.label.Text = b.options[b.selected.Value()]
+	b.label.Text = b.scene.Dict().Get(b.options[b.selected.Value()])
 	b.updateColor()
 }
 
@@ -196,7 +202,7 @@ func (b *button) Init(scene *ge.Scene) {
 	scene.AddGraphics(sprite)
 
 	label := scene.NewLabel(FontBig)
-	label.Text = b.Text
+	label.Text = scene.Dict().Get(b.Text)
 	label.Pos = sprite.AnchorPos()
 	label.AlignHorizontal = ge.AlignHorizontalCenter
 	label.AlignVertical = ge.AlignVerticalCenter

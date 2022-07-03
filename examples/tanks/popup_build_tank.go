@@ -55,12 +55,12 @@ func (popup *popupBuildTank) Init(scene *ge.Scene) {
 	scene.AddObject(popup.priceDisplay)
 
 	popup.priceLabel = scene.NewLabel(FontSmall)
-	popup.priceLabel.Text = "Cost:"
+	popup.priceLabel.Text = scene.Dict().GetTitleCase("word.cost") + ":"
 	popup.priceLabel.Pos.Set(&popup.Pos, 180-54, 52)
 	scene.AddGraphics(popup.priceLabel)
 
 	popup.stashLabel = scene.NewLabel(FontSmall)
-	popup.stashLabel.Text = "Have:"
+	popup.stashLabel.Text = scene.Dict().GetTitleCase("word.resources_amount") + ":"
 	popup.stashLabel.Pos.Set(&popup.Pos, 180-54, 52+24)
 	scene.AddGraphics(popup.stashLabel)
 
@@ -277,11 +277,11 @@ func (popup *popupBuildTank) updateHull() {
 	d := hullDesignList[popup.selectedHull]
 	popup.hullSprite.SetImage(popup.scene.LoadImage(d.Image))
 	popup.hullSprite.Pos.Offset.X = 64 + d.OriginX
-	popup.hullName.Text = "Hull: " + d.Name
+	popup.hullName.Text = popup.scene.Dict().GetTitleCase("word.hull") + ": " + popup.scene.Dict().Get("design.hull."+d.Name)
 }
 
 func (popup *popupBuildTank) updateTurret() {
 	d := turretDesignList[popup.selectedTurret]
 	popup.turretSprite.SetImage(popup.scene.LoadImage(d.Image))
-	popup.turretName.Text = "Turret: " + d.Name
+	popup.turretName.Text = popup.scene.Dict().GetTitleCase("word.turret") + ": " + popup.scene.Dict().Get("design.turret."+d.Name)
 }

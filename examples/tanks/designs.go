@@ -287,7 +287,7 @@ var turretDesignList = []*turretDesign{
 	},
 
 	{
-		Name:            "gatling gun",
+		Name:            "gatling_gun",
 		HPBonus:         70,
 		FireRange:       200,
 		ProjectileSpeed: 600,
@@ -303,7 +303,7 @@ var turretDesignList = []*turretDesign{
 	},
 
 	{
-		Name:            "light cannon",
+		Name:            "light_cannon",
 		HPBonus:         40,
 		FireRange:       270,
 		ProjectileSpeed: 520,
@@ -319,7 +319,7 @@ var turretDesignList = []*turretDesign{
 	},
 
 	{
-		Name:            "dual cannon",
+		Name:            "dual_cannon",
 		HPBonus:         140,
 		FireRange:       230,
 		SpeedPenalty:    20,
@@ -336,7 +336,7 @@ var turretDesignList = []*turretDesign{
 	},
 
 	{
-		Name:            "heavy cannon",
+		Name:            "heavy_cannon",
 		HPBonus:         240,
 		SpeedPenalty:    20,
 		ProjectileSpeed: 500,

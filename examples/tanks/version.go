@@ -16,4 +16,11 @@ package main
 // * Added a "curtains" game start effect
 // * Mark best scores in the results screen
 // * Different projectile sprite for the light cannon
-var gameBuildVersion = "build 4"
+//
+// Build 5
+// * Bots can now send a combined attack from 3 bases
+// * Victory screen resets the sound queue
+// * Added "Unfair Bots" option, makes bots more challenging
+// * Added a tutorial screen
+// * Added Russian language support
+var gameBuildVersion = "build 5"
