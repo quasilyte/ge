@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/resource"
 )
 
@@ -13,6 +14,8 @@ type Context struct {
 
 	Input input.System
 	Audio resource.AudioSystem
+
+	Dict *langs.Dictionary
 
 	Rand gemath.Rand
 
@@ -24,6 +27,8 @@ type Context struct {
 	WindowTitle  string
 	WindowWidth  float64
 	WindowHeight float64
+
+	firstController SceneController
 }
 
 func NewContext() *Context {

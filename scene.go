@@ -3,6 +3,7 @@ package ge
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/physics"
 	"github.com/quasilyte/ge/resource"
 )
@@ -51,6 +52,10 @@ type Scene struct {
 
 func (s *Scene) Context() *Context {
 	return s.root.context
+}
+
+func (s *Scene) Dict() *langs.Dictionary {
+	return s.root.context.Dict
 }
 
 func (s *Scene) Audio() *resource.AudioSystem {

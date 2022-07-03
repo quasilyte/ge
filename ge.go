@@ -4,12 +4,14 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/quasilyte/ge/internal/locales"
 )
 
-func RunGame(ctx *Context) error {
-	if ctx.CurrentScene == nil {
-		panic("running game without a scene: Context.CurrentScene is nil")
-	}
+func InferLanguages() []string {
+	return locales.InferLanguages()
+}
+
+func RunGame(ctx *Context, controller SceneController) error {
 	g := &gameRunner{
 		ctx:      ctx,
 		prevTime: time.Now(),
@@ -17,6 +19,7 @@ func RunGame(ctx *Context) error {
 	if ctx.FullScreen {
 		ebiten.SetFullscreen(true)
 	}
+	ctx.firstController = controller
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
 	return ebiten.RunGame(g)
@@ -28,12 +31,18 @@ type gameRunner struct {
 }
 
 func (g *gameRunner) Update() error {
+	g.ctx.Input.Update()
+	g.ctx.Audio.Update()
+
+	if g.ctx.CurrentScene == nil && g.ctx.firstController != nil {
+		g.ctx.ChangeScene("entry", g.ctx.firstController)
+		g.ctx.firstController = nil
+	}
+
 	now := time.Now()
 	timeDelta := now.Sub(g.prevTime).Seconds()
 	g.prevTime = now
 
-	g.ctx.Input.Update()
-	g.ctx.Audio.Update()
 	g.ctx.CurrentScene.update(timeDelta)
 	return nil
 }

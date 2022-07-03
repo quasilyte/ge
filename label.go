@@ -109,9 +109,31 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	boundsHeight := float64(bounds.Dy())
 	if l.Width == 0 && l.Height == 0 {
 		// Auto-sized container.
-		containerRect = gemath.Rect{
-			Min: pos,
-			Max: pos.Add(gemath.Vec{X: float64(bounds.Dx()), Y: float64(bounds.Dy())}),
+		switch l.GrowHorizontal {
+		case GrowHorizontalRight:
+			containerRect.Min.X = pos.X
+			containerRect.Max.X = pos.X + boundsWidth
+		case GrowHorizontalLeft:
+			containerRect.Min.X = pos.X - boundsWidth
+			containerRect.Max.X = pos.X
+			pos.X -= boundsWidth
+		case GrowHorizontalBoth:
+			containerRect.Min.X = pos.X - boundsWidth/2
+			containerRect.Max.X = pos.X + boundsWidth/2
+			pos.X -= boundsWidth / 2
+		}
+		switch l.GrowVertical {
+		case GrowVerticalDown:
+			containerRect.Min.Y = pos.Y
+			containerRect.Max.Y = pos.Y + boundsHeight
+		case GrowVerticalUp:
+			containerRect.Min.Y = pos.Y - boundsHeight
+			containerRect.Max.Y = pos.Y
+			pos.Y -= boundsHeight
+		case GrowVerticalBoth:
+			containerRect.Min.Y = pos.Y - boundsHeight/2
+			containerRect.Max.Y = pos.Y + boundsHeight/2
+			pos.Y -= boundsHeight / 2
 		}
 	} else {
 		containerRect = gemath.Rect{
