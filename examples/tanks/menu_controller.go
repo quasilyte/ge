@@ -88,9 +88,9 @@ func (c *menuController) onButtonPressed(op string) {
 			},
 			rules: make(map[string]bool),
 		}
-		c.scene.Context().ChangeScene("game", newGameController(c.gameState, config))
+		c.scene.Context().ChangeScene(newGameController(c.gameState, config))
 	case "menu.unit_stats":
-		c.scene.Context().ChangeScene("unit stats", newUnitStatsController(c.gameState))
+		c.scene.Context().ChangeScene(newUnitStatsController(c.gameState))
 	case "menu.exit":
 		os.Exit(0)
 	}

@@ -339,7 +339,7 @@ func (c *battleController) Update(delta float64) {
 
 	if c.input.ActionIsJustPressed(ActionExit) {
 		c.scene.Audio().PauseCurrentMusic()
-		c.scene.Context().ChangeScene("game", newGameController(c.gameState, c.config))
+		c.scene.Context().ChangeScene(newGameController(c.gameState, c.config))
 	}
 }
 
@@ -390,7 +390,7 @@ func (c *battleController) onVictoryState() {
 		stats.Alliance = p.Alliance
 		results.players = append(results.players, stats)
 	}
-	c.scene.Context().ChangeScene("results", newResultsController(c.gameState, c.config, results))
+	c.scene.Context().ChangeScene(newResultsController(c.gameState, c.config, results))
 }
 
 type playerData struct {

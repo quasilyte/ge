@@ -171,5 +171,5 @@ func (c *resultsController) Update(delta float64) {
 }
 
 func (c *resultsController) leave() {
-	c.scene.Context().ChangeScene("game", newGameController(c.gameState, c.config))
+	c.scene.Context().ChangeScene(newGameController(c.gameState, c.config))
 }

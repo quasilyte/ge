@@ -37,11 +37,7 @@ func main() {
 	keymap.Set(ActionNextShape, input.KeyEnter)
 	inputHandler := ctx.Input.NewHandler(0, keymap)
 
-	ctx.CurrentScene = ctx.NewRootScene("game", &controller{
-		input: inputHandler,
-	})
-
-	if err := ge.RunGame(ctx); err != nil {
+	if err := ge.RunGame(ctx, &controller{input: inputHandler}); err != nil {
 		panic(err)
 	}
 }

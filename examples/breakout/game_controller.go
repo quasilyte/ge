@@ -111,7 +111,7 @@ func (c *gameController) onBallLost(gesignal.Void) {
 		c.platform.Dispose()
 		c.scene.DelayedCall(2, func() {
 			ctx := c.scene.Context()
-			ctx.CurrentScene = ctx.NewRootScene("game", newGameController(c.input))
+			ctx.ChangeScene(newGameController(c.input))
 		})
 	}
 }

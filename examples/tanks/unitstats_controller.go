@@ -154,6 +154,6 @@ func (c *unitStatsController) turretDescription(d *turretDesign) string {
 
 func (c *unitStatsController) Update(delta float64) {
 	if c.input.ActionIsJustPressed(ActionExit) || c.input.ActionIsJustPressed(ActionConfirm) || c.input.ActionIsJustPressed(ActionOpenMenu) {
-		c.scene.Context().ChangeScene("menu", newMenuController(c.gameState))
+		c.scene.Context().ChangeScene(newMenuController(c.gameState))
 	}
 }

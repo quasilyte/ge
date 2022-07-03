@@ -9,8 +9,6 @@ const zindexMax = 6
 type RootScene struct {
 	context *Context
 
-	Name string
-
 	controller   SceneController
 	objects      []SceneObject
 	addedObjects []SceneObject

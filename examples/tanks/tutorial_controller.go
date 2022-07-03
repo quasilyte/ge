@@ -84,6 +84,6 @@ func (c *tutorialController) Update(delta float64) {
 		c.input.ActionIsJustPressed(ActionOpenMenu) ||
 		c.input.ActionIsJustPressed(ActionLeftClick)
 	if skipPressed {
-		c.scene.Context().ChangeScene("menu", newMenuController(c.gameState))
+		c.scene.Context().ChangeScene(newMenuController(c.gameState))
 	}
 }

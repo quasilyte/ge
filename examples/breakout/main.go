@@ -80,9 +80,7 @@ func main() {
 		ctx.Loader.ImageRegistry.Set(id, res)
 	}
 
-	ctx.CurrentScene = ctx.NewRootScene("game", newGameController(ctx.Input.NewHandler(0, keymap)))
-
-	if err := ge.RunGame(ctx); err != nil {
+	if err := ge.RunGame(ctx, newGameController(ctx.Input.NewHandler(0, keymap))); err != nil {
 		panic(err)
 	}
 }

@@ -135,7 +135,7 @@ func (c *gameController) Update(delta float64) {
 	}
 
 	if c.input.ActionIsJustPressed(ActionExit) {
-		c.scene.Context().ChangeScene("menu", newMenuController(c.gameState))
+		c.scene.Context().ChangeScene(newMenuController(c.gameState))
 	}
 }
 
@@ -179,7 +179,7 @@ func (c *gameController) startBattle() {
 		}
 	}
 
-	c.scene.Context().ChangeScene("battle", newBattleController(c.gameState, config))
+	c.scene.Context().ChangeScene(newBattleController(c.gameState, config))
 }
 
 func (c *gameController) onButtonPressed() {
@@ -189,7 +189,7 @@ func (c *gameController) onButtonPressed() {
 		case "menu.start_game":
 			c.startBattle()
 		case "menu.exit":
-			c.scene.Context().ChangeScene("menu", newMenuController(c.gameState))
+			c.scene.Context().ChangeScene(newMenuController(c.gameState))
 		}
 	case *checkboxButton:
 		c.checkbox.ToggleChecked()

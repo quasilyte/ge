@@ -46,13 +46,12 @@ func NewContext() *Context {
 	return ctx
 }
 
-func (ctx *Context) ChangeScene(name string, controller SceneController) {
-	ctx.CurrentScene = ctx.NewRootScene(name, controller)
+func (ctx *Context) ChangeScene(controller SceneController) {
+	ctx.CurrentScene = ctx.NewRootScene(controller)
 }
 
-func (ctx *Context) NewRootScene(name string, controller SceneController) *RootScene {
+func (ctx *Context) NewRootScene(controller SceneController) *RootScene {
 	rootScene := newRootScene()
-	rootScene.Name = name
 	rootScene.context = ctx
 	rootScene.controller = controller
 

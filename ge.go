@@ -35,7 +35,7 @@ func (g *gameRunner) Update() error {
 	g.ctx.Audio.Update()
 
 	if g.ctx.CurrentScene == nil && g.ctx.firstController != nil {
-		g.ctx.ChangeScene("entry", g.ctx.firstController)
+		g.ctx.ChangeScene(g.ctx.firstController)
 		g.ctx.firstController = nil
 	}
 
