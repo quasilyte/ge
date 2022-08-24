@@ -14,12 +14,6 @@ type SceneController interface {
 	Update(delta float64)
 }
 
-type Disposable interface {
-	IsDisposed() bool
-
-	Dispose()
-}
-
 type SceneObject interface {
 	// Init is called once when object is added to the scene.
 	//
