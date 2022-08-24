@@ -27,12 +27,16 @@ var (
 	KeyLeft  Key = Key{code: int(ebiten.KeyLeft)}
 	KeyRight Key = Key{code: int(ebiten.KeyRight)}
 
+	KeyTab Key = Key{code: int(ebiten.KeyTab)}
+
 	KeyA Key = Key{code: int(ebiten.KeyA)}
 	KeyW Key = Key{code: int(ebiten.KeyW)}
 	KeyS Key = Key{code: int(ebiten.KeyS)}
 	KeyD Key = Key{code: int(ebiten.KeyD)}
 	KeyE Key = Key{code: int(ebiten.KeyE)}
 	KeyR Key = Key{code: int(ebiten.KeyR)}
+	KeyT Key = Key{code: int(ebiten.KeyT)}
+	KeyY Key = Key{code: int(ebiten.KeyY)}
 	KeyQ Key = Key{code: int(ebiten.KeyQ)}
 
 	KeyEscape Key = Key{code: int(ebiten.KeyEscape)}
