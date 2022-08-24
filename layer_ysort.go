@@ -22,7 +22,11 @@ func NewYSortLayer() *YSortLayer {
 	}
 }
 
-func (l *YSortLayer) AddGraphics(g SceneGraphics, pos Pos) {
+func (l *YSortLayer) AddGraphics(g SceneGraphics) {
+	l.nodes.list = append(l.nodes.list, ysortNode{g: g})
+}
+
+func (l *YSortLayer) AddGraphicsWithPos(g SceneGraphics, pos Pos) {
 	l.nodes.list = append(l.nodes.list, ysortNode{g: g, pos: pos, y: 0})
 }
 

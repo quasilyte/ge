@@ -38,6 +38,12 @@ type SceneGraphics interface {
 	IsDisposed() bool
 }
 
+type SceneGraphicsLayer interface {
+	AddGraphics(g SceneGraphics)
+
+	Draw(dst *ebiten.Image)
+}
+
 type Scene struct {
 	root *RootScene
 

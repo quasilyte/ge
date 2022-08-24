@@ -5,8 +5,7 @@ import (
 )
 
 type SimpleLayer struct {
-	Visible  bool
-	disposed bool
+	Visible bool
 
 	graphics []SceneGraphics
 }
@@ -23,11 +22,7 @@ func (l *SimpleLayer) AddGraphics(g SceneGraphics) {
 }
 
 func (l *SimpleLayer) IsDisposed() bool {
-	return l.disposed
-}
-
-func (l *SimpleLayer) Dispose() {
-	l.disposed = true
+	return false
 }
 
 func (l *SimpleLayer) Draw(screen *ebiten.Image) {
