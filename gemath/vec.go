@@ -176,6 +176,15 @@ func (v Vec) Normalized() Vec {
 	return v
 }
 
+func (v Vec) ClampLen(limit float64) Vec {
+	l := v.Len()
+	if l > 0 && l > limit {
+		v = v.Divf(l)
+		v = v.Mulf(limit)
+	}
+	return v
+}
+
 // Neg applies unary minus (-) to the vector.
 func (v Vec) Neg() Vec {
 	return Vec{
