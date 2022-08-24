@@ -94,6 +94,14 @@ func (s *Scene) AddGraphics(g SceneGraphics) {
 	s.root.graphics[s.zindex] = append(s.root.graphics[s.zindex], g)
 }
 
+func (s *Scene) AddGraphicsAbove(g SceneGraphics, zindex uint8) {
+	z := int(s.zindex) + int(zindex)
+	if z > zindexMax {
+		panic("z index overflow")
+	}
+	s.root.graphics[z] = append(s.root.graphics[z], g)
+}
+
 func (s *Scene) AddGraphicsBelow(g SceneGraphics, zindex uint8) {
 	z := int(s.zindex) - int(zindex)
 	if z < 0 {
