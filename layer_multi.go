@@ -3,7 +3,7 @@ package ge
 import "github.com/hajimehoshi/ebiten/v2"
 
 type MultiLayer struct {
-	Layers []SceneGraphicsLayer
+	List []SceneGraphicsLayer
 }
 
 func NewMultiLayer(layers ...SceneGraphicsLayer) *MultiLayer {
@@ -11,12 +11,20 @@ func NewMultiLayer(layers ...SceneGraphicsLayer) *MultiLayer {
 		panic("numLayers should be greated than 0")
 	}
 	return &MultiLayer{
-		Layers: layers,
+		List: layers,
 	}
 }
 
+func NewMultiSimpleLayer(numLayers int) *MultiLayer {
+	layers := make([]SceneGraphicsLayer, numLayers)
+	for i := range layers {
+		layers[i] = NewSimpleLayer()
+	}
+	return NewMultiLayer(layers...)
+}
+
 func (l *MultiLayer) AddGraphics(g SceneGraphics) {
-	l.Layers[0].AddGraphics(g)
+	l.List[0].AddGraphics(g)
 }
 
 func (l *MultiLayer) IsDisposed() bool {
@@ -24,7 +32,7 @@ func (l *MultiLayer) IsDisposed() bool {
 }
 
 func (l *MultiLayer) Draw(screen *ebiten.Image) {
-	for i := range l.Layers {
-		l.Layers[i].Draw(screen)
+	for i := range l.List {
+		l.List[i].Draw(screen)
 	}
 }
