@@ -124,38 +124,38 @@ func main() {
 	state := &gameState{}
 
 	// Bind controls.
-	gamepadKeymap := input.MakeKeymap(map[input.Action]input.Key{
-		ActionSectorLeft:   input.KeyGamepadLeft,
-		ActionSectorRight:  input.KeyGamepadRight,
-		ActionSectorDown:   input.KeyGamepadDown,
-		ActionSectorUp:     input.KeyGamepadUp,
-		ActionConfirm:      input.KeyGamepadA,
-		ActionOpenMenu:     input.KeyGamepadX,
-		ActionCancel:       input.KeyGamepadB,
-		ActionPrevItem:     input.KeyGamepadLeft,
-		ActionNextItem:     input.KeyGamepadRight,
-		ActionNextCategory: input.KeyGamepadDown,
-		ActionPrevCategory: input.KeyGamepadUp,
-		ActionFortify:      input.KeyGamepadY,
-		ActionExit:         input.KeyGamepadStart,
-	})
-	keyboardKeymap := input.MakeKeymap(map[input.Action]input.Key{
-		ActionSectorLeft:   input.KeyA,
-		ActionSectorRight:  input.KeyD,
-		ActionSectorDown:   input.KeyS,
-		ActionSectorUp:     input.KeyW,
-		ActionConfirm:      input.KeySpace,
-		ActionOpenMenu:     input.KeyEnter,
-		ActionCancel:       input.KeyQ,
-		ActionPrevItem:     input.KeyA,
-		ActionNextItem:     input.KeyD,
-		ActionNextCategory: input.KeyS,
-		ActionPrevCategory: input.KeyW,
-		ActionFortify:      input.KeyE,
-		ActionExit:         input.KeyEscape,
+	gamepadKeymap := input.Keymap{
+		ActionSectorLeft:   {input.KeyGamepadLeft},
+		ActionSectorRight:  {input.KeyGamepadRight},
+		ActionSectorDown:   {input.KeyGamepadDown},
+		ActionSectorUp:     {input.KeyGamepadUp},
+		ActionConfirm:      {input.KeyGamepadA},
+		ActionOpenMenu:     {input.KeyGamepadX},
+		ActionCancel:       {input.KeyGamepadB},
+		ActionPrevItem:     {input.KeyGamepadLeft},
+		ActionNextItem:     {input.KeyGamepadRight},
+		ActionNextCategory: {input.KeyGamepadDown},
+		ActionPrevCategory: {input.KeyGamepadUp},
+		ActionFortify:      {input.KeyGamepadY},
+		ActionExit:         {input.KeyGamepadStart},
+	}
+	keyboardKeymap := input.Keymap{
+		ActionSectorLeft:   {input.KeyA},
+		ActionSectorRight:  {input.KeyD},
+		ActionSectorDown:   {input.KeyS},
+		ActionSectorUp:     {input.KeyW},
+		ActionConfirm:      {input.KeySpace},
+		ActionOpenMenu:     {input.KeyEnter},
+		ActionCancel:       {input.KeyQ},
+		ActionPrevItem:     {input.KeyA},
+		ActionNextItem:     {input.KeyD},
+		ActionNextCategory: {input.KeyS},
+		ActionPrevCategory: {input.KeyW},
+		ActionFortify:      {input.KeyE},
+		ActionExit:         {input.KeyEscape},
 
-		ActionLeftClick: input.KeyMouseLeft,
-	})
+		ActionLeftClick: {input.KeyMouseLeft},
+	}
 	state.Player1keyboard = ctx.Input.NewHandler(0, keyboardKeymap)
 	state.Player1gamepad = ctx.Input.NewHandler(0, gamepadKeymap)
 	state.Player2gamepad = ctx.Input.NewHandler(1, gamepadKeymap)
@@ -262,12 +262,11 @@ func main() {
 	preferredDict := RawDictEng
 	selectedLang := "en"
 	for _, l := range languages {
-		// if l == "ru" {
-		_ = l
-		preferredDict = RawDictRus
-		selectedLang = "ru"
-		break
-		// }
+		if l == "ru" {
+			preferredDict = RawDictRus
+			selectedLang = "ru"
+			break
+		}
 	}
 	dict, err := langs.ParseDictionary(selectedLang, ctx.Loader.LoadRaw(preferredDict))
 	if err != nil {
