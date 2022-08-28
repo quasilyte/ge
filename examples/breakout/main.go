@@ -52,10 +52,11 @@ func main() {
 	}
 
 	// Bind controls.
-	var keymap input.Keymap
-	keymap.Set(ActionLeft, input.KeyA)
-	keymap.Set(ActionRight, input.KeyD)
-	keymap.Set(ActionFire, input.KeySpace)
+	keymap := input.Keymap{
+		ActionLeft:  {input.KeyA},
+		ActionRight: {input.KeyD},
+		ActionFire:  {input.KeySpace},
+	}
 
 	// Associate audio resources.
 	audioResources := map[resource.AudioID]resource.Audio{

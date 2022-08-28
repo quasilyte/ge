@@ -28,13 +28,14 @@ func main() {
 
 	// Bind controls.
 
-	var keymap input.Keymap
-	keymap.Set(ActionLeft, input.KeyA)
-	keymap.Set(ActionRight, input.KeyD)
-	keymap.Set(ActionUp, input.KeyW)
-	keymap.Set(ActionDown, input.KeyS)
-	keymap.Set(ActionSolidToggle, input.KeySpace)
-	keymap.Set(ActionNextShape, input.KeyEnter)
+	keymap := input.Keymap{
+		ActionLeft:        {input.KeyA},
+		ActionRight:       {input.KeyD},
+		ActionUp:          {input.KeyW},
+		ActionDown:        {input.KeyS},
+		ActionSolidToggle: {input.KeySpace},
+		ActionNextShape:   {input.KeyEnter},
+	}
 	inputHandler := ctx.Input.NewHandler(0, keymap)
 
 	if err := ge.RunGame(ctx, &controller{input: inputHandler}); err != nil {

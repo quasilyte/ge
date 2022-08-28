@@ -8,6 +8,10 @@ import (
 	"github.com/quasilyte/ge/gemath"
 )
 
+type Action uint32
+
+type Keymap map[Action][]Key
+
 type System struct {
 	gamepadIDs  []ebiten.GamepadID
 	gamepadInfo []gamepadInfo
@@ -103,52 +107,76 @@ func (h *Handler) CursorPos() gemath.Vec {
 	return h.sys.cursorPos
 }
 
-func (h *Handler) EventInfo(action Action) EventInfo {
+func (h *Handler) JustPressedActionInfo(action Action) (EventInfo, bool) {
 	var info EventInfo
-	key, ok := h.keymap.mapping[action]
+	keys, ok := h.keymap[action]
 	if !ok {
-		return info
+		return info, false
 	}
-	switch key.kind {
-	case keyMouse:
-		info.Pos = h.sys.cursorPos
+	for _, k := range keys {
+		if !h.keyIsJustPressed(k) {
+			continue
+		}
+		switch k.kind {
+		case keyMouse:
+			info.Pos = h.sys.cursorPos
+		}
+		return info, true
 	}
-	return info
+	return info, false
 }
 
 func (h *Handler) ActionIsJustPressed(action Action) bool {
-	key, ok := h.keymap.mapping[action]
+	keys, ok := h.keymap[action]
 	if !ok {
 		return false
 	}
-	switch key.kind {
+	for _, k := range keys {
+		if h.keyIsJustPressed(k) {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *Handler) keyIsJustPressed(k Key) bool {
+	switch k.kind {
 	case keyGamepad:
 		if h.gamepadInfo().model == gamepadStandard {
-			return inpututil.IsStandardGamepadButtonJustPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(key.code))
+			return inpututil.IsStandardGamepadButtonJustPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(k.code))
 		}
-		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(key.code))
+		return inpututil.IsGamepadButtonJustPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(k.code))
 	case keyMouse:
-		return inpututil.IsMouseButtonJustPressed(ebiten.MouseButton(key.code))
+		return inpututil.IsMouseButtonJustPressed(ebiten.MouseButton(k.code))
 	default:
-		return inpututil.IsKeyJustPressed(ebiten.Key(key.code))
+		return inpututil.IsKeyJustPressed(ebiten.Key(k.code))
 	}
 }
 
 func (h *Handler) ActionIsPressed(action Action) bool {
-	key, ok := h.keymap.mapping[action]
+	keys, ok := h.keymap[action]
 	if !ok {
 		return false
 	}
-	switch key.kind {
+	for _, k := range keys {
+		if h.keyIsPressed(k) {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *Handler) keyIsPressed(k Key) bool {
+	switch k.kind {
 	case keyGamepad:
 		if h.gamepadInfo().model == gamepadStandard {
-			return ebiten.IsStandardGamepadButtonPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(key.code))
+			return ebiten.IsStandardGamepadButtonPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(k.code))
 		}
-		return ebiten.IsGamepadButtonPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(key.code))
+		return ebiten.IsGamepadButtonPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(k.code))
 	case keyMouse:
-		return ebiten.IsMouseButtonPressed(ebiten.MouseButton(key.code))
+		return ebiten.IsMouseButtonPressed(ebiten.MouseButton(k.code))
 	default:
-		return ebiten.IsKeyPressed(ebiten.Key(key.code))
+		return ebiten.IsKeyPressed(ebiten.Key(k.code))
 	}
 }
 
