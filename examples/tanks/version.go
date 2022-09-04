@@ -23,4 +23,9 @@ package main
 // * Added "Unfair Bots" option, makes bots more challenging
 // * Added a tutorial screen
 // * Added Russian language support
-var gameBuildVersion = "build 5"
+//
+// Build 6
+// * Added 4 seconds defensive turret build delay
+// * Rebalanced most units
+// * Fixed thermal damage kind calculations
+var gameBuildVersion = "build 6"

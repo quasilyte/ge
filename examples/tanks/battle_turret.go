@@ -20,6 +20,9 @@ type battleTurret struct {
 	design         *turretDesign
 	preferVehicles bool
 
+	ready bool
+	delay float64
+
 	scene *ge.Scene
 
 	Rotation gemath.Rad
@@ -39,6 +42,7 @@ func newBattleTurret(p *playerData, pos *gemath.Vec, design *turretDesign) *batt
 		pos:    pos,
 		design: design,
 		player: p,
+		ready:  true,
 	}
 	return turret
 }
@@ -93,10 +97,32 @@ func (turret *battleTurret) calculateSnipePos() {
 	}
 }
 
+func (turret *battleTurret) SetDelay(delay float64) {
+	if delay != 0 {
+		turret.ready = false
+		turret.delay = delay
+	}
+}
+
+func (turret *battleTurret) IsReady() bool {
+	return turret.ready
+}
+
 func (turret *battleTurret) Update(delta float64) {
 	turret.reload = gemath.ClampMin(turret.reload-delta, 0)
 	turret.sprite.Pos.Offset.X = gemath.ClampMax(turret.sprite.Pos.Offset.X+delta*20, 0)
 	turret.targetSelectDelay = gemath.ClampMin(turret.targetSelectDelay-delta, 0)
+
+	if !turret.ready {
+		turret.sprite.ColorScale.A = 0.5
+		turret.delay = gemath.ClampMin(turret.delay-delta, 0)
+		if turret.delay == 0 {
+			turret.ready = true
+		}
+		return
+	}
+
+	turret.sprite.ColorScale.A = 1.0
 
 	if turret.target != nil {
 		if turret.target.IsDisposed() || (turret.target.Pos().DistanceTo(*turret.pos) > turret.design.FireRange*1.1) {

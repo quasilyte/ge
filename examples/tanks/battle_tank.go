@@ -147,7 +147,7 @@ func (bt *battleTank) OnDamage(damage float64, kind damageKind) {
 	}
 
 	if kind == damageThermal {
-		damage *= 0.9
+		damage *= 0.8
 	}
 	bt.hp -= damage
 	if bt.hp <= 0 {

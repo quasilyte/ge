@@ -75,7 +75,7 @@ func (bp *battlePost) Init(scene *ge.Scene) {
 	scene.AddBody(&bp.body)
 
 	if bp.startingTurret != nil {
-		bp.InstallTurret(bp.startingTurret)
+		bp.installTurret(bp.startingTurret, 0)
 		bp.startingTurret = nil
 	}
 }
@@ -104,8 +104,13 @@ func (bp *battlePost) Update(delta float64) {
 }
 
 func (bp *battlePost) InstallTurret(design *turretDesign) {
+	bp.installTurret(design, 4)
+}
+
+func (bp *battlePost) installTurret(design *turretDesign, delay float64) {
 	bp.turretHp = design.HP
 	bp.Turret = newBattlePostTurret(bp.Player, &bp.body.Pos, design)
+	bp.Turret.SetDelay(delay)
 	bp.Turret.Rotation = bp.body.Pos.AngleToPoint(gemath.Vec{X: 1920 / 2, Y: 1080 / 2})
 	bp.scene.AddObject(bp.Turret)
 
@@ -125,7 +130,7 @@ func (bp *battlePost) OnDamage(damage float64, kind damageKind) {
 		damage *= 1.2
 	}
 
-	if bp.Turret != nil {
+	if bp.Turret != nil && bp.Turret.IsReady() {
 		bp.turretHp -= damage
 		bp.turretSpritesheet.Tick(damage)
 		if bp.turretHp < 0 {
