@@ -324,7 +324,7 @@ var turretDesignList = []*turretDesign{
 		FireRange:       230,
 		SpeedPenalty:    20,
 		ProjectileSpeed: 500,
-		RotationSpeed:   1.4,
+		RotationSpeed:   1.5,
 		Reload:          1.4,
 		Damage:          40,
 		DamageKind:      damageKinetic,
@@ -338,10 +338,10 @@ var turretDesignList = []*turretDesign{
 	{
 		Name:            "heavy_cannon",
 		HPBonus:         500,
-		SpeedPenalty:    55,
+		SpeedPenalty:    65,
 		ProjectileSpeed: 500,
 		FireRange:       320,
-		RotationSpeed:   1.2,
+		RotationSpeed:   0.8,
 		Reload:          2,
 		Damage:          35,
 		DamageKind:      damageKinetic,
@@ -369,7 +369,7 @@ var turretDesignList = []*turretDesign{
 
 	{
 		Name:            "lancer",
-		SpeedPenalty:    50,
+		SpeedPenalty:    55,
 		ProjectileSpeed: 600,
 		FireRange:       370,
 		RotationSpeed:   0.7,
