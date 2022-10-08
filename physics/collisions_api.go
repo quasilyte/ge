@@ -56,9 +56,9 @@ func (e *CollisionEngine) AddBody(b *Body) {
 func (e *CollisionEngine) GetCollisions(b *Body, config CollisionConfig) []Collision {
 	translated := b
 	if !config.Offset.IsZero() {
-		translated := &e.translatedBody
+		translated = &e.translatedBody
 		*translated = *b
-		translated.Pos = translated.Pos.Add(config.Offset)
+		translated.Pos = b.Pos.Add(config.Offset)
 	}
 	layerMask := b.LayerMask
 	if config.LayerMask != 0 {
