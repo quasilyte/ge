@@ -26,9 +26,11 @@ type Sprite struct {
 	Visible        bool
 	Centered       bool
 
-	FrameOffset gemath.Vec
-	FrameWidth  float64
-	FrameHeight float64
+	FrameOffset     gemath.Vec
+	FrameWidth      float64
+	FrameHeight     float64
+	FrameTrimTop    float64
+	FrameTrimBottom float64
 
 	disposed bool
 }
@@ -171,11 +173,11 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	subImage := s.image.SubImage(image.Rectangle{
 		Min: image.Point{
 			X: int(s.FrameOffset.X),
-			Y: int(s.FrameOffset.Y),
+			Y: int(s.FrameOffset.Y + s.FrameTrimTop),
 		},
 		Max: image.Point{
 			X: int(s.FrameOffset.X + s.FrameWidth),
-			Y: int(s.FrameOffset.Y + s.FrameHeight),
+			Y: int(s.FrameOffset.Y + s.FrameHeight - s.FrameTrimBottom),
 		},
 	}).(*ebiten.Image)
 	screen.DrawImage(subImage, &drawOptions)
