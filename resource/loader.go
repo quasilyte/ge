@@ -21,19 +21,21 @@ type Loader struct {
 	// The returned resource will be closed after it will be loaded.
 	OpenAssetFunc func(path string) io.ReadCloser
 
-	ImageRegistry ImageRegistry
-	AudioRegistry AudioRegistry
-	FontRegistry  FontRegistry
-	RawRegistry   RawRegistry
+	ImageRegistry  ImageRegistry
+	AudioRegistry  AudioRegistry
+	FontRegistry   FontRegistry
+	ShaderRegistry ShaderRegistry
+	RawRegistry    RawRegistry
 
 	wavDecoder wavDecoder
 	oggDecoder oggDecoder
 
-	images map[ImageID]Image
-	wavs   map[AudioID]*wav.Stream
-	oggs   map[AudioID]*vorbis.Stream
-	fonts  map[FontID]font.Face
-	raws   map[RawID][]byte
+	images  map[ImageID]Image
+	shaders map[ShaderID]*ebiten.Shader
+	wavs    map[AudioID]*wav.Stream
+	oggs    map[AudioID]*vorbis.Stream
+	fonts   map[FontID]font.Face
+	raws    map[RawID][]byte
 }
 
 type wavDecoder interface {
@@ -47,6 +49,7 @@ type oggDecoder interface {
 func NewLoader(wd wavDecoder, od oggDecoder) *Loader {
 	l := &Loader{
 		images:     make(map[ImageID]Image),
+		shaders:    make(map[ShaderID]*ebiten.Shader),
 		wavs:       make(map[AudioID]*wav.Stream),
 		oggs:       make(map[AudioID]*vorbis.Stream),
 		fonts:      make(map[FontID]font.Face),
@@ -56,6 +59,7 @@ func NewLoader(wd wavDecoder, od oggDecoder) *Loader {
 	}
 	l.AudioRegistry.mapping = make(map[AudioID]Audio)
 	l.ImageRegistry.mapping = make(map[ImageID]ImageInfo)
+	l.ShaderRegistry.mapping = make(map[ShaderID]ShaderInfo)
 	l.FontRegistry.mapping = make(map[FontID]Font)
 	l.RawRegistry.mapping = make(map[RawID]Raw)
 	return l
@@ -84,6 +88,10 @@ func (l *Loader) PreloadOGG(id AudioID) {
 
 func (l *Loader) PreloadFont(id FontID) {
 	l.LoadFont(id)
+}
+
+func (l *Loader) PreloadShader(id ShaderID) {
+	l.LoadShader(id)
 }
 
 func (l *Loader) PreloadRaw(id RawID) {
@@ -202,6 +210,33 @@ func (l *Loader) LoadImage(id ImageID) Image {
 		l.images[id] = img
 	}
 	return img
+}
+
+func (l *Loader) LoadShader(id ShaderID) *ebiten.Shader {
+	shader, ok := l.shaders[id]
+	if !ok {
+		shaderInfo, ok := l.ShaderRegistry.mapping[id]
+		if !ok {
+			panic(fmt.Sprintf("unregistered shader with id=%d", id))
+		}
+		r := l.OpenAssetFunc(shaderInfo.Path)
+		defer func() {
+			if err := r.Close(); err != nil {
+				panic(fmt.Sprintf("closing %q shader reader: %v", shaderInfo.Path, err))
+			}
+		}()
+		data, err := io.ReadAll(r)
+		if err != nil {
+			panic(fmt.Sprintf("read %q shader: %v", shaderInfo.Path, err))
+		}
+		rawShader, err := ebiten.NewShader(data)
+		if err != nil {
+			panic(fmt.Sprintf("compile %q shader: %v", shaderInfo.Path, err))
+		}
+		shader = rawShader
+		l.shaders[id] = shader
+	}
+	return shader
 }
 
 func (l *Loader) LoadRaw(id RawID) []byte {

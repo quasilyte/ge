@@ -9,6 +9,34 @@ import (
 	"github.com/quasilyte/ge/resource"
 )
 
+type Shader struct {
+	compiled *ebiten.Shader
+
+	shaderData map[string]any
+}
+
+func (s *Shader) IsNil() bool {
+	return s.compiled == nil
+}
+
+func (s *Shader) SetIntValue(key string, v int) {
+	s.setFloat32Value(key, float32(v))
+}
+
+func (s *Shader) SetFloatValue(key string, v float64) {
+	s.setFloat32Value(key, float32(v))
+}
+
+func (s *Shader) setFloat32Value(key string, v float32) {
+	if oldValue, ok := s.shaderData[key].(float32); ok && oldValue == v {
+		return
+	}
+	if s.shaderData == nil {
+		s.shaderData = make(map[string]any, 2)
+	}
+	s.shaderData[key] = v
+}
+
 type Sprite struct {
 	image *ebiten.Image
 
@@ -31,6 +59,8 @@ type Sprite struct {
 	FrameHeight     float64
 	FrameTrimTop    float64
 	FrameTrimBottom float64
+
+	Shader Shader
 
 	disposed bool
 }
@@ -170,7 +200,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 		drawOptions.ColorM.RotateHue(float64(s.Hue))
 	}
 
-	subImage := s.image.SubImage(image.Rectangle{
+	subImageBounds := image.Rectangle{
 		Min: image.Point{
 			X: int(s.FrameOffset.X),
 			Y: int(s.FrameOffset.Y + s.FrameTrimTop),
@@ -179,6 +209,20 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 			X: int(s.FrameOffset.X + s.FrameWidth),
 			Y: int(s.FrameOffset.Y + s.FrameHeight - s.FrameTrimBottom),
 		},
-	}).(*ebiten.Image)
-	screen.DrawImage(subImage, &drawOptions)
+	}
+	subImage := s.image.SubImage(subImageBounds).(*ebiten.Image)
+	if s.Shader.IsNil() {
+		screen.DrawImage(subImage, &drawOptions)
+	} else {
+		if s.ColorScale != defaultColorScale {
+			// TODO: add ColorScale support when shaders are used.
+			panic("ColorScale is not supported in combination with shaders")
+		}
+		var options ebiten.DrawRectShaderOptions
+		options.GeoM = drawOptions.GeoM
+		options.CompositeMode = drawOptions.CompositeMode
+		options.Images[0] = subImage
+		options.Uniforms = s.Shader.shaderData
+		screen.DrawRectShader(subImageBounds.Dx(), subImageBounds.Dy(), s.Shader.compiled, &options)
+	}
 }
