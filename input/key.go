@@ -26,6 +26,8 @@ var (
 var (
 	KeyLeft  Key = Key{code: int(ebiten.KeyLeft)}
 	KeyRight Key = Key{code: int(ebiten.KeyRight)}
+	KeyUp    Key = Key{code: int(ebiten.KeyUp)}
+	KeyDown  Key = Key{code: int(ebiten.KeyDown)}
 
 	KeyTab Key = Key{code: int(ebiten.KeyTab)}
 
