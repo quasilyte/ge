@@ -29,6 +29,8 @@ type Context struct {
 	WindowHeight float64
 
 	firstController SceneController
+
+	imageCache imageCache
 }
 
 func NewContext() *Context {
@@ -43,6 +45,7 @@ func NewContext() *Context {
 	ctx.OnCriticalError = func(err error) {
 		panic(err)
 	}
+	ctx.imageCache.Init()
 	return ctx
 }
 

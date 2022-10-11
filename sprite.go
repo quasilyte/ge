@@ -13,11 +13,15 @@ type Shader struct {
 	compiled *ebiten.Shader
 
 	shaderData map[string]any
+
+	Enabled bool
+
+	Texture1 resource.Image
+	Texture2 resource.Image
+	Texture3 resource.Image
 }
 
-func (s *Shader) IsNil() bool {
-	return s.compiled == nil
-}
+func (s *Shader) IsNil() bool { return s.compiled == nil }
 
 func (s *Shader) SetIntValue(key string, v int) {
 	s.setFloat32Value(key, float32(v))
@@ -43,11 +47,12 @@ type Sprite struct {
 	Pos      Pos
 	Rotation *gemath.Rad
 
+	colorsChanged bool
+	colorScale    ColorScale
+	hue           gemath.Rad
+	colorM        ebiten.ColorM
+
 	Scale float64
-
-	ColorScale ColorScale
-
-	Hue gemath.Rad
 
 	FlipHorizontal bool
 	FlipVertical   bool
@@ -60,7 +65,12 @@ type Sprite struct {
 	FrameTrimTop    float64
 	FrameTrimBottom float64
 
+	imageWidth  float64
+	imageHeight float64
+
 	Shader Shader
+
+	imageCache *imageCache
 
 	disposed bool
 }
@@ -86,34 +96,73 @@ func (c *ColorScale) SetRGBA(r, g, b, a uint8) {
 var defaultColorScale = ColorScale{1, 1, 1, 1}
 var transparentColor = ColorScale{0, 0, 0, 0}
 
-func NewSprite() *Sprite {
-	return &Sprite{
+func NewSprite(ctx *Context) *Sprite {
+	s := &Sprite{
 		Visible:    true,
 		Centered:   true,
 		Scale:      1,
-		ColorScale: defaultColorScale,
+		colorScale: defaultColorScale,
+		imageCache: &ctx.imageCache,
 	}
+	return s
+}
+
+func (s *Sprite) SetColorScaleRGBA(r, g, b, a uint8) {
+	var scale ColorScale
+	scale.SetRGBA(r, g, b, a)
+	s.SetColorScale(scale)
+}
+
+func (s *Sprite) SetColorScale(colorScale ColorScale) {
+	if s.colorScale == colorScale {
+		return
+	}
+	s.colorScale = colorScale
+	s.colorsChanged = true
+}
+
+func (s *Sprite) SetHue(hue gemath.Rad) {
+	if s.hue == hue {
+		return
+	}
+	s.hue = hue
+	s.colorsChanged = true
+}
+
+func (s *Sprite) recalculateColorM() {
+	var colorM ebiten.ColorM
+	if s.colorScale != defaultColorScale {
+		colorM.Scale(float64(s.colorScale.R), float64(s.colorScale.G), float64(s.colorScale.B), float64(s.colorScale.A))
+	}
+	if s.hue != 0 {
+		colorM.RotateHue(float64(s.hue))
+	}
+	s.colorM = colorM
 }
 
 func (s *Sprite) SetImage(img resource.Image) {
 	w, h := img.Data.Size()
+	s.imageWidth = float64(w)
+	s.imageHeight = float64(h)
 	s.image = img.Data
 	s.FrameWidth = img.DefaultFrameWidth
 	if s.FrameWidth == 0 {
-		s.FrameWidth = float64(w)
+		s.FrameWidth = s.imageWidth
 	}
 	s.FrameHeight = img.DefaultFrameHeight
 	if s.FrameHeight == 0 {
-		s.FrameHeight = float64(h)
+		s.FrameHeight = s.imageHeight
 	}
 }
 
 func (s *Sprite) SetRepeatedImage(img resource.Image, width, height float64) {
 	w, h := img.Data.Size()
+	s.imageWidth = float64(w)
+	s.imageHeight = float64(h)
 	repeated := ebiten.NewImage(int(width), int(height))
 	var op ebiten.DrawImageOptions
-	for y := float64(0); y < height; y += float64(h) {
-		for x := float64(0); x < width; x += float64(w) {
+	for y := float64(0); y < height; y += s.imageHeight {
+		for x := float64(0); x < width; x += s.imageWidth {
 			op.GeoM.Reset()
 			op.GeoM.Translate(x, y)
 			repeated.DrawImage(img.Data, &op)
@@ -195,34 +244,61 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 		drawOptions.GeoM.Translate(0-origin.X, 0-origin.Y)
 	}
 
-	applyColorScale(s.ColorScale, &drawOptions)
-	if s.Hue != 0 {
-		drawOptions.ColorM.RotateHue(float64(s.Hue))
+	if s.colorsChanged {
+		s.colorsChanged = false
+		s.recalculateColorM()
+	}
+	drawOptions.ColorM = s.colorM
+
+	var srcImage *ebiten.Image
+	var srcBounds image.Rectangle
+	needSubImage := (s.FrameOffset != gemath.Vec{}) ||
+		s.FrameTrimTop != 0 ||
+		s.FrameTrimBottom != 0 ||
+		s.FrameWidth != s.imageWidth ||
+		s.FrameHeight != s.imageHeight
+	if needSubImage {
+		srcBounds = image.Rectangle{
+			Min: image.Point{
+				X: int(s.FrameOffset.X),
+				Y: int(s.FrameOffset.Y + s.FrameTrimTop),
+			},
+			Max: image.Point{
+				X: int(s.FrameOffset.X + s.FrameWidth),
+				Y: int(s.FrameOffset.Y + s.FrameHeight - s.FrameTrimBottom),
+			},
+		}
+		srcImage = s.image.SubImage(srcBounds).(*ebiten.Image)
+
+	} else {
+		srcImage = s.image
+		srcBounds = s.image.Bounds()
 	}
 
-	subImageBounds := image.Rectangle{
-		Min: image.Point{
-			X: int(s.FrameOffset.X),
-			Y: int(s.FrameOffset.Y + s.FrameTrimTop),
-		},
-		Max: image.Point{
-			X: int(s.FrameOffset.X + s.FrameWidth),
-			Y: int(s.FrameOffset.Y + s.FrameHeight - s.FrameTrimBottom),
-		},
-	}
-	subImage := s.image.SubImage(subImageBounds).(*ebiten.Image)
-	if s.Shader.IsNil() {
-		screen.DrawImage(subImage, &drawOptions)
+	shaderEnabled := s.Shader.Enabled && !s.Shader.IsNil()
+	if !shaderEnabled {
+		screen.DrawImage(srcImage, &drawOptions)
 	} else {
-		if s.ColorScale != defaultColorScale {
-			// TODO: add ColorScale support when shaders are used.
-			panic("ColorScale is not supported in combination with shaders")
-		}
+		var drawDest *ebiten.Image
 		var options ebiten.DrawRectShaderOptions
-		options.GeoM = drawOptions.GeoM
+		usesColor := s.colorScale != defaultColorScale || s.hue != 0
+		if usesColor {
+			drawDest = s.imageCache.NewTempImage(srcBounds.Dx(), srcBounds.Dy())
+		} else {
+			drawDest = screen
+			options.GeoM = drawOptions.GeoM
+		}
 		options.CompositeMode = drawOptions.CompositeMode
-		options.Images[0] = subImage
+		options.Images[0] = srcImage
+		options.Images[1] = s.Shader.Texture1.Data
+		options.Images[2] = s.Shader.Texture2.Data
+		options.Images[3] = s.Shader.Texture3.Data
 		options.Uniforms = s.Shader.shaderData
-		screen.DrawRectShader(subImageBounds.Dx(), subImageBounds.Dy(), s.Shader.compiled, &options)
+		drawDest.DrawRectShader(srcBounds.Dx(), srcBounds.Dy(), s.Shader.compiled, &options)
+		if usesColor {
+			screen.DrawImage(drawDest, &drawOptions)
+		}
 	}
 }
+
+var tmpImage = ebiten.NewImage(64, 64)
