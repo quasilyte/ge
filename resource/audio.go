@@ -48,7 +48,7 @@ type audioResource struct {
 
 func (sys *AudioSystem) Init(l *Loader) {
 	sys.loader = l
-	sys.audioContext = audio.NewContext(32000)
+	sys.audioContext = audio.NewContext(44100)
 	sys.resources = make(map[AudioID]*audioResource)
 	sys.soundQueue = make([]AudioID, 0, 4)
 
