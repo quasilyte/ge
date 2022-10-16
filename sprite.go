@@ -43,6 +43,7 @@ func (s *Shader) setFloat32Value(key string, v float32) {
 
 type Sprite struct {
 	image *ebiten.Image
+	id    resource.ImageID
 
 	Pos      Pos
 	Rotation *gemath.Rad
@@ -113,6 +114,18 @@ func (s *Sprite) SetColorScaleRGBA(r, g, b, a uint8) {
 	s.SetColorScale(scale)
 }
 
+func (s *Sprite) GetAlpha() float32 {
+	return s.colorScale.A
+}
+
+func (s *Sprite) SetAlpha(a float32) {
+	if s.colorScale.A == a {
+		return
+	}
+	s.colorScale.A = a
+	s.colorsChanged = true
+}
+
 func (s *Sprite) SetColorScale(colorScale ColorScale) {
 	if s.colorScale == colorScale {
 		return
@@ -140,7 +153,12 @@ func (s *Sprite) recalculateColorM() {
 	s.colorM = colorM
 }
 
+func (s *Sprite) ImageID() resource.ImageID {
+	return s.id
+}
+
 func (s *Sprite) SetImage(img resource.Image) {
+	s.id = img.ID
 	w, h := img.Data.Size()
 	s.imageWidth = float64(w)
 	s.imageHeight = float64(h)
@@ -156,6 +174,7 @@ func (s *Sprite) SetImage(img resource.Image) {
 }
 
 func (s *Sprite) SetRepeatedImage(img resource.Image, width, height float64) {
+	s.id = img.ID
 	w, h := img.Data.Size()
 	s.imageWidth = float64(w)
 	s.imageHeight = float64(h)
@@ -208,7 +227,7 @@ func (s *Sprite) Dispose() {
 }
 
 func (s *Sprite) Draw(screen *ebiten.Image) {
-	if !s.Visible {
+	if !s.Visible || s.image == nil {
 		return
 	}
 
