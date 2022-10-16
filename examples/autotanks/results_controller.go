@@ -75,7 +75,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 	descriptionBg := ge.NewRect(bgWidth, bgHeight)
 	descriptionBg.Centered = false
-	descriptionBg.ColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
+	descriptionBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 	descriptionBg.Pos.Offset.X = baseOffsetX
 	descriptionBg.Pos.Offset.Y = offsetY - 32.0
 	scene.AddGraphics(descriptionBg)

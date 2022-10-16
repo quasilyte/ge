@@ -114,7 +114,7 @@ func (turret *battleTurret) Update(delta float64) {
 	turret.targetSelectDelay = gemath.ClampMin(turret.targetSelectDelay-delta, 0)
 
 	if !turret.ready {
-		turret.sprite.ColorScale.A = 0.5
+		turret.sprite.SetAlpha(0.5)
 		turret.delay = gemath.ClampMin(turret.delay-delta, 0)
 		if turret.delay == 0 {
 			turret.ready = true
@@ -122,7 +122,7 @@ func (turret *battleTurret) Update(delta float64) {
 		return
 	}
 
-	turret.sprite.ColorScale.A = 1.0
+	turret.sprite.SetAlpha(1)
 
 	if turret.target != nil {
 		if turret.target.IsDisposed() || (turret.target.Pos().DistanceTo(*turret.pos) > turret.design.FireRange*1.1) {

@@ -101,7 +101,7 @@ func (popup *popupBuildTank) Init(scene *ge.Scene) {
 	scene.AddGraphics(popup.oilIncome)
 
 	{
-		hullSprite := ge.NewSprite()
+		hullSprite := ge.NewSprite(scene.Context())
 		hullSprite.Pos.Base = &popup.Pos
 		hullSprite.Pos.Offset = gemath.Vec{X: 64, Y: 64}
 		popup.hullSprite = hullSprite
@@ -116,7 +116,7 @@ func (popup *popupBuildTank) Init(scene *ge.Scene) {
 		popup.updateHull()
 	}
 	{
-		turretSprite := ge.NewSprite()
+		turretSprite := ge.NewSprite(scene.Context())
 		turretSprite.Pos.Base = &popup.Pos
 		turretSprite.Pos.Offset = gemath.Vec{X: 64, Y: 64}
 		popup.turretSprite = turretSprite

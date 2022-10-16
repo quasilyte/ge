@@ -24,7 +24,7 @@ func newLabel(text string, pos ge.Pos) *label {
 func (l *label) Init(scene *ge.Scene) {
 	bg := ge.NewRect(128, 64)
 	bg.Pos = l.pos
-	bg.ColorScale.SetRGBA(0x3a, 0x44, 0x66, 200)
+	bg.FillColorScale.SetRGBA(0x3a, 0x44, 0x66, 200)
 	scene.AddGraphics(bg)
 
 	label := scene.NewLabel(FontBig)

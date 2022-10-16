@@ -39,7 +39,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 		pos.Y -= (rowHeight * float64(numRows-1)) / 2
 		for _, d := range turretDesignListNoBuilder {
 			imageBg := ge.NewRect(112, 112)
-			imageBg.ColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
+			imageBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 			imageBg.Pos.SetBase(pos)
 			scene.AddGraphics(imageBg)
 
@@ -50,7 +50,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 
 			descriptionBg := ge.NewRect(384, 112)
 			descriptionBg.Centered = false
-			descriptionBg.ColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
+			descriptionBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 			descriptionBg.Pos.SetBase(pos.Add(gemath.Vec{X: 72, Y: -112 / 2}))
 			scene.AddGraphics(descriptionBg)
 
@@ -82,7 +82,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 		pos.Y -= (rowHeight * float64(numRows-1)) / 2
 		for _, d := range hullDesignList {
 			imageBg := ge.NewRect(112, 112)
-			imageBg.ColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
+			imageBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 			imageBg.Pos.SetBase(pos)
 			scene.AddGraphics(imageBg)
 
@@ -93,7 +93,7 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 
 			descriptionBg := ge.NewRect(384, 112)
 			descriptionBg.Centered = false
-			descriptionBg.ColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
+			descriptionBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 			descriptionBg.Pos.SetBase(pos.Add(gemath.Vec{X: 72, Y: -112 / 2}))
 			scene.AddGraphics(descriptionBg)
 

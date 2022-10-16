@@ -51,14 +51,14 @@ func (s *sector) Init(scene *ge.Scene) {
 	}
 	if s.resourceIcon != nil {
 		s.resourceIcon.Pos.Base = &s.Pos
-		s.resourceIcon.ColorScale.A = 0.6
+		s.resourceIcon.SetAlpha(0.6)
 		s.resourceIcon.Centered = false
 		scene.AddGraphics(s.resourceIcon)
 	}
 
 	s.bordersSprite = scene.NewSprite(ImageGrid)
 	s.bordersSprite.Centered = false
-	s.bordersSprite.ColorScale = ge.ColorScale{A: 0.2}
+	s.bordersSprite.SetColorScale(ge.ColorScale{A: 0.2})
 	s.bordersSprite.Pos.Base = &s.Pos
 	scene.AddGraphics(s.bordersSprite)
 }

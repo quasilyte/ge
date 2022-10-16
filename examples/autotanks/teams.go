@@ -23,10 +23,10 @@ func getPlayerTextColor(playerID int) color.RGBA {
 func applyPlayerColor(playerID int, s *ge.Sprite) {
 	switch playerID {
 	case 1:
-		s.Hue = gemath.DegToRad(50)
+		s.SetHue(gemath.DegToRad(50))
 	case 2:
-		s.Hue = -gemath.DegToRad(180)
+		s.SetHue(-gemath.DegToRad(180))
 	case 3:
-		s.Hue = gemath.DegToRad(135)
+		s.SetHue(gemath.DegToRad(135))
 	}
 }
