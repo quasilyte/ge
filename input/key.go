@@ -31,6 +31,12 @@ var (
 
 	KeyTab Key = Key{code: int(ebiten.KeyTab)}
 
+	Key1 Key = Key{code: int(ebiten.Key1)}
+	Key2 Key = Key{code: int(ebiten.Key2)}
+	Key3 Key = Key{code: int(ebiten.Key3)}
+	Key4 Key = Key{code: int(ebiten.Key4)}
+	Key5 Key = Key{code: int(ebiten.Key5)}
+
 	KeyA Key = Key{code: int(ebiten.KeyA)}
 	KeyW Key = Key{code: int(ebiten.KeyW)}
 	KeyS Key = Key{code: int(ebiten.KeyS)}

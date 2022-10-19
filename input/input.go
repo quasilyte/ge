@@ -120,8 +120,8 @@ func (h *Handler) JustPressedActionInfo(action Action) (EventInfo, bool) {
 		switch k.kind {
 		case keyMouse:
 			info.Pos = h.sys.cursorPos
+			return info, true
 		}
-		return info, true
 	}
 	return info, false
 }
