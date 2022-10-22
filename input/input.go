@@ -1,6 +1,7 @@
 package input
 
 import (
+	"math"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -226,11 +227,57 @@ func (h *Handler) keyIsPressed(k Key) bool {
 			return ebiten.IsStandardGamepadButtonPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(k.code))
 		}
 		return ebiten.IsGamepadButtonPressed(ebiten.GamepadID(h.id), h.mappedGamepadKey(k.code))
+	case keyGamepadLeftStick:
+		return h.gamepadStickIsPressed(stickCode(k.code), ebiten.StandardGamepadAxisLeftStickHorizontal, ebiten.StandardGamepadAxisLeftStickVertical)
+	case keyGamepadRightStick:
+		return h.gamepadStickIsPressed(stickCode(k.code), ebiten.StandardGamepadAxisRightStickHorizontal, ebiten.StandardGamepadAxisRightStickVertical)
 	case keyMouse:
 		return ebiten.IsMouseButtonPressed(ebiten.MouseButton(k.code))
 	default:
 		return ebiten.IsKeyPressed(ebiten.Key(k.code))
 	}
+}
+
+func (h *Handler) gamepadStickIsPressed(code stickCode, axis1, axis2 ebiten.StandardGamepadAxis) bool {
+	if h.gamepadInfo().model == gamepadStandard {
+		switch stickCode(code) {
+		case stickUp:
+			vec := h.leftStickVec(axis1, axis2)
+			if vec.Len() < 0.5 {
+				return false
+			}
+			angle := vec.Angle().Normalized()
+			return angle > (math.Pi+math.Pi/4) && angle <= (2*math.Pi-math.Pi/4)
+		case stickRight:
+			vec := h.leftStickVec(axis1, axis2)
+			if vec.Len() < 0.5 {
+				return false
+			}
+			angle := vec.Angle().Normalized()
+			return angle <= (math.Pi/4) || angle > (2*math.Pi-math.Pi/4)
+		case stickDown:
+			vec := h.leftStickVec(axis1, axis2)
+			if vec.Len() < 0.5 {
+				return false
+			}
+			angle := vec.Angle().Normalized()
+			return angle > (math.Pi/4) && angle <= (math.Pi-math.Pi/4)
+		case stickLeft:
+			vec := h.leftStickVec(axis1, axis2)
+			if vec.Len() < 0.5 {
+				return false
+			}
+			angle := vec.Angle().Normalized()
+			return angle > (math.Pi-math.Pi/4) && angle <= (math.Pi+math.Pi/4)
+		}
+	}
+	return false // TODO
+}
+
+func (h *Handler) leftStickVec(axis1, axis2 ebiten.StandardGamepadAxis) gemath.Vec {
+	x := ebiten.StandardGamepadAxisValue(ebiten.GamepadID(h.id), axis1)
+	y := ebiten.StandardGamepadAxisValue(ebiten.GamepadID(h.id), axis2)
+	return gemath.Vec{X: x, Y: y}
 }
 
 func (h *Handler) gamepadInfo() *gamepadInfo {

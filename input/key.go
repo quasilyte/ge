@@ -7,6 +7,8 @@ type keyKind uint8
 const (
 	keyKeyboard keyKind = iota
 	keyGamepad
+	keyGamepadLeftStick
+	keyGamepadRightStick
 	keyMouse
 	keyTouch
 )
@@ -16,6 +18,16 @@ type touchCode int
 const (
 	touchUnknown touchCode = iota
 	touchTap
+)
+
+type stickCode int
+
+const (
+	stickUnknown stickCode = iota
+	stickUp
+	stickRight
+	stickDown
+	stickLeft
 )
 
 type Key struct {
@@ -75,6 +87,15 @@ var (
 	KeyGamepadRight Key = Key{code: int(ebiten.StandardGamepadButtonLeftRight), kind: keyGamepad}
 	KeyGamepadDown  Key = Key{code: int(ebiten.StandardGamepadButtonLeftBottom), kind: keyGamepad}
 	KeyGamepadLeft  Key = Key{code: int(ebiten.StandardGamepadButtonLeftLeft), kind: keyGamepad}
+
+	KeyGamepadLStickUp    = Key{code: int(stickUp), kind: keyGamepadLeftStick}
+	KeyGamepadLStickRight = Key{code: int(stickRight), kind: keyGamepadLeftStick}
+	KeyGamepadLStickDown  = Key{code: int(stickDown), kind: keyGamepadLeftStick}
+	KeyGamepadLStickLeft  = Key{code: int(stickLeft), kind: keyGamepadLeftStick}
+	KeyGamepadRStickUp    = Key{code: int(stickUp), kind: keyGamepadRightStick}
+	KeyGamepadRStickRight = Key{code: int(stickRight), kind: keyGamepadRightStick}
+	KeyGamepadRStickDown  = Key{code: int(stickDown), kind: keyGamepadRightStick}
+	KeyGamepadRStickLeft  = Key{code: int(stickLeft), kind: keyGamepadRightStick}
 
 	KeyGamepadA Key = Key{code: int(ebiten.StandardGamepadButtonRightBottom), kind: keyGamepad}
 	KeyGamepadB Key = Key{code: int(ebiten.StandardGamepadButtonRightRight), kind: keyGamepad}
