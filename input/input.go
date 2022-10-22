@@ -16,11 +16,24 @@ type System struct {
 	gamepadIDs  []ebiten.GamepadID
 	gamepadInfo []gamepadInfo
 
+	touchesEnabled bool
+	touchIDs       []ebiten.TouchID
+	touchTapID     ebiten.TouchID
+	touchHasTap    bool
+	touchTapPos    gemath.Vec
+
 	cursorPos gemath.Vec
 }
 
-func (sys *System) Init() {
+func (sys *System) Init(touchesEnabled bool) {
+	sys.touchesEnabled = touchesEnabled
+
+	sys.gamepadIDs = make([]ebiten.GamepadID, 0, 8)
 	sys.gamepadInfo = make([]gamepadInfo, 8)
+
+	if sys.touchesEnabled {
+		sys.touchIDs = make([]ebiten.TouchID, 0, 8)
+	}
 }
 
 func (sys *System) Update() {
@@ -36,6 +49,25 @@ func (sys *System) Update() {
 				} else {
 					info.model = guessGamepadModel(modelName)
 				}
+			}
+		}
+	}
+
+	if sys.touchesEnabled {
+		sys.touchHasTap = false
+		for _, id := range sys.touchIDs {
+			if id == sys.touchTapID && inpututil.IsTouchJustReleased(id) {
+				sys.touchHasTap = true
+				break
+			}
+		}
+		if !sys.touchHasTap {
+			sys.touchIDs = inpututil.AppendJustPressedTouchIDs(sys.touchIDs)
+			for _, id := range sys.touchIDs {
+				x, y := ebiten.TouchPosition(id)
+				sys.touchTapPos = gemath.Vec{X: float64(x), Y: float64(y)}
+				sys.touchTapID = id
+				break
 			}
 		}
 	}
@@ -91,8 +123,11 @@ type Handler struct {
 }
 
 type EventInfo struct {
-	Pos gemath.Vec
+	kind keyKind
+	Pos  gemath.Vec
 }
+
+func (e EventInfo) IsTouch() bool { return e.kind == keyTouch }
 
 func (h *Handler) GamepadConnected() bool {
 	for _, id := range h.sys.gamepadIDs {
@@ -101,6 +136,14 @@ func (h *Handler) GamepadConnected() bool {
 		}
 	}
 	return false
+}
+
+func (h *Handler) TouchEventsEnabled() bool {
+	return h.sys.touchesEnabled
+}
+
+func (h *Handler) TapPos() (gemath.Vec, bool) {
+	return h.sys.touchTapPos, h.sys.touchHasTap
 }
 
 func (h *Handler) CursorPos() gemath.Vec {
@@ -117,11 +160,16 @@ func (h *Handler) JustPressedActionInfo(action Action) (EventInfo, bool) {
 		if !h.keyIsJustPressed(k) {
 			continue
 		}
+		info.kind = k.kind
 		switch k.kind {
 		case keyMouse:
 			info.Pos = h.sys.cursorPos
 			return info, true
+		case keyTouch:
+			info.Pos = h.sys.touchTapPos
+			return info, true
 		}
+		break
 	}
 	return info, false
 }
@@ -141,6 +189,11 @@ func (h *Handler) ActionIsJustPressed(action Action) bool {
 
 func (h *Handler) keyIsJustPressed(k Key) bool {
 	switch k.kind {
+	case keyTouch:
+		if k.code == int(touchTap) {
+			return h.sys.touchHasTap
+		}
+		return false
 	case keyGamepad:
 		if h.gamepadInfo().model == gamepadStandard {
 			return inpututil.IsStandardGamepadButtonJustPressed(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(k.code))

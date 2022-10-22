@@ -8,6 +8,14 @@ const (
 	keyKeyboard keyKind = iota
 	keyGamepad
 	keyMouse
+	keyTouch
+)
+
+type touchCode int
+
+const (
+	touchUnknown touchCode = iota
+	touchTap
 )
 
 type Key struct {
@@ -20,6 +28,11 @@ var (
 	KeyMouseLeft   = Key{code: int(ebiten.MouseButtonLeft), kind: keyMouse}
 	KeyMouseRight  = Key{code: int(ebiten.MouseButtonRight), kind: keyMouse}
 	KeyMouseMiddle = Key{code: int(ebiten.MouseButtonMiddle), kind: keyMouse}
+)
+
+// Touch keys.
+var (
+	KeyTouchTap = Key{code: int(touchTap), kind: keyTouch}
 )
 
 // Keyboard keys.
