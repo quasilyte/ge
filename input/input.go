@@ -13,6 +13,17 @@ type Action uint32
 
 type Keymap map[Action][]Key
 
+type InputDeviceKind uint8
+
+const (
+	KeyboardInput InputDeviceKind = 1 << iota
+	GamepadInput
+	MouseInput
+	TouchInput
+)
+
+const AnyInput InputDeviceKind = KeyboardInput | GamepadInput | MouseInput | TouchInput
+
 type System struct {
 	gamepadIDs  []ebiten.GamepadID
 	gamepadInfo []gamepadInfo
@@ -149,6 +160,39 @@ func (h *Handler) TapPos() (gemath.Vec, bool) {
 
 func (h *Handler) CursorPos() gemath.Vec {
 	return h.sys.cursorPos
+}
+
+func (h *Handler) DefaultInputMask() InputDeviceKind {
+	if h.GamepadConnected() {
+		return GamepadInput
+	}
+	return KeyboardInput | MouseInput
+}
+
+func (h *Handler) ActionKeyNames(action Action, mask InputDeviceKind) []string {
+	keys, ok := h.keymap[action]
+	if !ok {
+		return nil
+	}
+	gamepadConnected := h.GamepadConnected()
+	result := make([]string, 0, len(keys))
+	for _, k := range keys {
+		enabled := true
+		switch k.kind {
+		case keyKeyboard:
+			enabled = mask&KeyboardInput != 0
+		case keyMouse:
+			enabled = mask&MouseInput != 0
+		case keyGamepad, keyGamepadLeftStick, keyGamepadRightStick:
+			enabled = gamepadConnected && (mask&GamepadInput != 0)
+		case keyTouch:
+			enabled = h.sys.touchesEnabled && (mask&TouchInput != 0)
+		}
+		if enabled {
+			result = append(result, k.name)
+		}
+	}
+	return result
 }
 
 func (h *Handler) JustPressedActionInfo(action Action) (EventInfo, bool) {
