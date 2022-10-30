@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 // TODO: a static flag for a Body, so we can avoid layer recalculations.
@@ -112,19 +112,19 @@ func (resolver *collisionResolver) checkCircleRotatedRectCollision(circle, rr *B
 		return result, false
 	}
 
-	rectMin := gemath.Vec{
+	rectMin := gmath.Vec{
 		X: rr.Pos.X - rr.RotatedRectWidth()/2,
 		Y: rr.Pos.Y - rr.RotatedRectHeight()/2,
 	}
 
 	cosA := math.Cos(float64(-rr.Rotation))
 	sinA := math.Sin(float64(-rr.Rotation))
-	alignedCirclePos := gemath.Vec{
+	alignedCirclePos := gmath.Vec{
 		X: cosA*(circle.Pos.X-rr.Pos.X) - sinA*(circle.Pos.Y-rr.Pos.Y) + rr.Pos.X,
 		Y: sinA*(circle.Pos.X-rr.Pos.X) + cosA*(circle.Pos.Y-rr.Pos.Y) + rr.Pos.Y,
 	}
 
-	var closestPos gemath.Vec
+	var closestPos gmath.Vec
 	xside := xsideNone
 	yside := ysideNone
 	if alignedCirclePos.X < rectMin.X {
@@ -160,22 +160,22 @@ func (resolver *collisionResolver) checkCircleRotatedRectCollision(circle, rr *B
 	}
 
 	if resolver.needCollisionNormal() {
-		result.Normal = gemath.RadToVec(rr.Rotation + rectRotationDelta[xside][yside])
+		result.Normal = gmath.RadToVec(rr.Rotation + rectRotationDelta[xside][yside])
 		result.Depth = circle.CircleRadius() - distance
 	}
 
 	return result, true
 }
 
-func (resolver *collisionResolver) getAxisOverlap(poly1, poly2 []gemath.Vec) (gemath.Vec, float64) {
-	var minAxis gemath.Vec
+func (resolver *collisionResolver) getAxisOverlap(poly1, poly2 []gmath.Vec) (gmath.Vec, float64) {
+	var minAxis gmath.Vec
 	minOverlap := math.MaxFloat64
 	for i := 0; i < len(poly1); i++ {
 		axis := getAxisNormal(poly1, i)
 		p1 := getPolyProjection(axis, poly1)
 		p2 := getPolyProjection(axis, poly2)
 		if !p1.HasOverlap(p2) {
-			return gemath.Vec{}, 0
+			return gmath.Vec{}, 0
 		}
 		overlap := p1.max - p2.min
 		if overlap < minOverlap {
@@ -217,18 +217,18 @@ func (resolver *collisionResolver) checkRotatedRectsCollision(b1, b2 *Body) (Col
 	return result, true
 }
 
-func getAxisNormal(poly []gemath.Vec, i int) gemath.Vec {
+func getAxisNormal(poly []gmath.Vec, i int) gmath.Vec {
 	pt1 := poly[i]
 	pt2 := poly[0]
 	if i+1 < len(poly) {
 		pt2 = poly[i+1]
 	}
-	axis := gemath.Vec{X: pt2.X - pt1.X, Y: pt2.Y - pt1.Y}
-	normal := gemath.Vec{X: -axis.Y, Y: axis.X}.Normalized()
+	axis := gmath.Vec{X: pt2.X - pt1.X, Y: pt2.Y - pt1.Y}
+	normal := gmath.Vec{X: -axis.Y, Y: axis.X}.Normalized()
 	return normal
 }
 
-func getPolyProjection(axis gemath.Vec, poly []gemath.Vec) projection {
+func getPolyProjection(axis gmath.Vec, poly []gmath.Vec) projection {
 	if len(poly) == 0 {
 		return projection{}
 	}
@@ -251,7 +251,7 @@ func (p *projection) HasOverlap(other projection) bool {
 	return other.min <= p.max && other.max >= p.min
 }
 
-var rectRotationDelta = [3][3]gemath.Rad{
+var rectRotationDelta = [3][3]gmath.Rad{
 	xsideNone: {
 		ysideUpper: -(math.Pi / 2),
 		ysideLower: math.Pi / 2,
@@ -270,10 +270,10 @@ var rectRotationDelta = [3][3]gemath.Rad{
 func unpackRect(b *Body) RectVertices {
 	w2 := b.RotatedRectWidth() / 2
 	h2 := b.RotatedRectHeight() / 2
-	lr := gemath.Vec{X: b.Pos.X + w2, Y: b.Pos.Y + h2}
-	ur := gemath.Vec{X: b.Pos.X + w2, Y: b.Pos.Y - h2}
-	ul := gemath.Vec{X: b.Pos.X - w2, Y: b.Pos.Y - h2}
-	ll := gemath.Vec{X: b.Pos.X - w2, Y: b.Pos.Y + h2}
+	lr := gmath.Vec{X: b.Pos.X + w2, Y: b.Pos.Y + h2}
+	ur := gmath.Vec{X: b.Pos.X + w2, Y: b.Pos.Y - h2}
+	ul := gmath.Vec{X: b.Pos.X - w2, Y: b.Pos.Y - h2}
+	ll := gmath.Vec{X: b.Pos.X - w2, Y: b.Pos.Y + h2}
 	return RectVertices{ur, lr, ll, ul}
 }
 
@@ -288,10 +288,10 @@ func unpackRotatedRect(b *Body) RectVertices {
 	h2cos := h2 * cosA
 	cx := b.Pos.X
 	cy := b.Pos.Y
-	ll := gemath.Vec{X: cx - w2cos - h2sin, Y: cy - w2sin + h2cos}
-	lr := gemath.Vec{X: cx + w2cos - h2sin, Y: cy + w2sin + h2cos}
-	ul := gemath.Vec{X: cx - w2cos + h2sin, Y: cy - w2sin - h2cos}
-	ur := gemath.Vec{X: cx + w2cos + h2sin, Y: cy + w2sin - h2cos}
+	ll := gmath.Vec{X: cx - w2cos - h2sin, Y: cy - w2sin + h2cos}
+	lr := gmath.Vec{X: cx + w2cos - h2sin, Y: cy + w2sin + h2cos}
+	ul := gmath.Vec{X: cx - w2cos + h2sin, Y: cy - w2sin - h2cos}
+	ur := gmath.Vec{X: cx + w2cos + h2sin, Y: cy + w2sin - h2cos}
 	return RectVertices{ur, lr, ll, ul}
 }
 

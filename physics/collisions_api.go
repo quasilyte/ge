@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type CollisionEngine struct {
@@ -16,11 +16,11 @@ type CollisionEngine struct {
 }
 
 type CollisionConfig struct {
-	Offset gemath.Vec
+	Offset gmath.Vec
 
 	// If velocity magnitude is not 0, collisions are calculated
 	// in the dynamics of the movement.
-	Velocity gemath.Vec
+	Velocity gmath.Vec
 
 	// If not 0, this mask will be used instead of the object own mask.
 	// It can be used to both include or exclude some other objects from
@@ -84,7 +84,7 @@ type Collision struct {
 	// Collision normal vector has unit length (it's normalized).
 	//
 	// Note: a normal is computed only when resolving with non-zero velocity.
-	Normal gemath.Vec
+	Normal gmath.Vec
 
 	Depth float64
 }
@@ -92,9 +92,9 @@ type Collision struct {
 type Body struct {
 	Object interface{}
 
-	Rotation gemath.Rad
+	Rotation gmath.Rad
 
-	Pos gemath.Vec
+	Pos gmath.Vec
 
 	LayerMask uint16
 
@@ -148,35 +148,35 @@ func (b *Body) RotatedRectVertices() RectVertices {
 	return unpackRotatedRect(b)
 }
 
-func (b *Body) BoundsRect() gemath.Rect {
+func (b *Body) BoundsRect() gmath.Rect {
 	// TODO: could precompute dx and dy for both min/max points
 	// to make bounds computation in relation to `b.Pos` faster.
 	switch b.kind {
 	case bodyCircle:
-		min := gemath.Vec{
+		min := gmath.Vec{
 			X: b.Pos.X - b.CircleRadius(),
 			Y: b.Pos.Y - b.CircleRadius(),
 		}
-		max := gemath.Vec{
+		max := gmath.Vec{
 			X: b.Pos.X + b.CircleRadius(),
 			Y: b.Pos.Y + b.CircleRadius(),
 		}
-		return gemath.Rect{Min: min, Max: max}
+		return gmath.Rect{Min: min, Max: max}
 
 	case bodyRotatedRect:
 		side := math.Max(b.RotatedRectWidth(), b.RotatedRectHeight())
-		xy1 := gemath.Vec{
+		xy1 := gmath.Vec{
 			X: b.Pos.X - side/2,
 			Y: b.Pos.Y - side/2,
 		}
-		xy2 := gemath.Vec{
+		xy2 := gmath.Vec{
 			X: b.Pos.X + side/2,
 			Y: b.Pos.Y + side/2,
 		}
-		return gemath.Rect{Min: xy1, Max: xy2}
+		return gmath.Rect{Min: xy1, Max: xy2}
 
 	default:
-		return gemath.Rect{}
+		return gmath.Rect{}
 	}
 }
 
@@ -192,9 +192,9 @@ func (b Body) String() string {
 	}
 }
 
-type RectVertices [4]gemath.Vec
+type RectVertices [4]gmath.Vec
 
-func (v *RectVertices) UR() gemath.Vec { return (*v)[0] }
-func (v *RectVertices) LR() gemath.Vec { return (*v)[1] }
-func (v *RectVertices) LL() gemath.Vec { return (*v)[2] }
-func (v *RectVertices) UL() gemath.Vec { return (*v)[3] }
+func (v *RectVertices) UR() gmath.Vec { return (*v)[0] }
+func (v *RectVertices) LR() gmath.Vec { return (*v)[1] }
+func (v *RectVertices) LL() gmath.Vec { return (*v)[2] }
+func (v *RectVertices) UL() gmath.Vec { return (*v)[3] }

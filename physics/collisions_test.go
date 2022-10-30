@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 func BenchmarkRotatedRectsCollision(b *testing.B) {
@@ -15,7 +15,7 @@ func BenchmarkRotatedRectsCollision(b *testing.B) {
 	body1.Rotation = 0.3
 	var body2 Body
 	body2.InitRotatedRect(nil, 40, 30)
-	body2.Pos = gemath.Vec{X: 4, Y: 10}
+	body2.Pos = gmath.Vec{X: 4, Y: 10}
 	e.AddBody(&body1)
 	e.AddBody(&body2)
 	e.CalculateFrame()
@@ -23,18 +23,18 @@ func BenchmarkRotatedRectsCollision(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		e.GetCollisions(&body1, CollisionConfig{
-			Velocity: gemath.Vec{X: 3, Y: 3},
+			Velocity: gmath.Vec{X: 3, Y: 3},
 		})
 	}
 }
 
 func TestCircleCircleCollision(t *testing.T) {
 	type testCircle struct {
-		pos gemath.Vec
+		pos gmath.Vec
 		r   float64
 	}
-	vec := func(x, y float64) gemath.Vec {
-		return gemath.Vec{X: x, Y: y}
+	vec := func(x, y float64) gmath.Vec {
+		return gmath.Vec{X: x, Y: y}
 	}
 
 	tests := []struct {
