@@ -30,12 +30,8 @@ func (resolver *collisionResolver) needCollisionNormal() bool {
 	return !resolver.config.Velocity.IsZero()
 }
 
-func (resolver *collisionResolver) findCollisions(b, translated *Body, layerMask uint16) []Collision {
-	limit := resolver.config.Limit
-	if limit == 0 {
-		limit = math.MaxInt
-	}
-	for _, b2 := range resolver.engine.bodies {
+func (resolver *collisionResolver) collectCollisionsWith(b, translated *Body, limit int, layerMask uint16, bodies []*Body) {
+	for _, b2 := range bodies {
 		if len(resolver.collisions) >= limit {
 			break
 		}
@@ -54,6 +50,17 @@ func (resolver *collisionResolver) findCollisions(b, translated *Body, layerMask
 			collision.LayerMask = intersectedLayers
 			resolver.collisions = append(resolver.collisions, collision)
 		}
+	}
+}
+
+func (resolver *collisionResolver) findCollisions(b, translated *Body, layerMask uint16) []Collision {
+	limit := resolver.config.Limit
+	if limit == 0 {
+		limit = math.MaxInt
+	}
+	resolver.collectCollisionsWith(b, translated, limit, layerMask, resolver.engine.bodies)
+	if !b.static {
+		resolver.collectCollisionsWith(b, translated, limit, layerMask, resolver.engine.staticBodies)
 	}
 	return resolver.collisions
 }

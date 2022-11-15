@@ -8,7 +8,8 @@ import (
 )
 
 type CollisionEngine struct {
-	bodies []*Body
+	bodies       []*Body
+	staticBodies []*Body
 
 	translatedBody Body
 
@@ -34,13 +35,29 @@ type CollisionConfig struct {
 // This function is called from the framework itself in the beginning of each frame.
 func (e *CollisionEngine) CalculateFrame() {
 	live := e.bodies[:0]
+	liveStatic := e.staticBodies[:0]
 	for _, b := range e.bodies {
 		if b.IsDisposed() {
 			continue
 		}
-		live = append(live, b)
+		if b.static {
+			liveStatic = append(liveStatic, b)
+		} else {
+			live = append(live, b)
+		}
+	}
+	for _, b := range e.staticBodies {
+		if b.IsDisposed() {
+			continue
+		}
+		if b.static {
+			liveStatic = append(liveStatic, b)
+		} else {
+			live = append(live, b)
+		}
 	}
 	e.bodies = live
+	e.staticBodies = liveStatic
 }
 
 // AddBody includes the given body into the collision space.
@@ -48,7 +65,11 @@ func (e *CollisionEngine) CalculateFrame() {
 // Note that it will not be ready to register or cause any collisions until
 // the next frame.
 func (e *CollisionEngine) AddBody(b *Body) {
-	e.bodies = append(e.bodies, b)
+	if b.static {
+		e.staticBodies = append(e.staticBodies, b)
+	} else {
+		e.bodies = append(e.bodies, b)
+	}
 }
 
 // GetCollisions returns all colliders for the specified body.
@@ -69,7 +90,8 @@ func (e *CollisionEngine) GetCollisions(b *Body, config CollisionConfig) []Colli
 		engine:     e,
 		collisions: e.collisionPool[:0],
 	}
-	return resolver.findCollisions(b, translated, layerMask)
+	e.collisionPool = resolver.findCollisions(b, translated, layerMask)
+	return e.collisionPool
 }
 
 type Collision struct {
@@ -100,6 +122,7 @@ type Body struct {
 
 	kind     bodyKind
 	disposed bool
+	static   bool
 
 	value1 float64
 	value2 float64
@@ -111,6 +134,11 @@ func (b *Body) IsDisposed() bool {
 
 func (b *Body) Dispose() { b.disposed = true }
 
+func (b *Body) InitStaticCircle(o interface{}, radius float64) {
+	b.InitCircle(o, radius)
+	b.static = true
+}
+
 func (b *Body) InitCircle(o interface{}, radius float64) {
 	*b = Body{
 		Pos:       b.Pos,
@@ -120,6 +148,11 @@ func (b *Body) InitCircle(o interface{}, radius float64) {
 		kind:      bodyCircle,
 		value1:    radius,
 	}
+}
+
+func (b *Body) InitStaticRotatedRect(o interface{}, width, height float64) {
+	b.InitRotatedRect(o, width, height)
+	b.static = true
 }
 
 func (b *Body) InitRotatedRect(o interface{}, width, height float64) {
