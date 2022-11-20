@@ -6,7 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 	"golang.org/x/image/font"
 )
 
@@ -49,7 +49,7 @@ type Label struct {
 
 	ColorScale ColorScale
 
-	Hue gemath.Rad
+	Hue gmath.Rad
 
 	Pos    Pos
 	Width  float64
@@ -103,7 +103,7 @@ func (l *Label) Draw(screen *ebiten.Image) {
 
 	numLines := strings.Count(l.Text, "\n") + 1
 
-	var containerRect gemath.Rect
+	var containerRect gmath.Rect
 	bounds := text.BoundString(l.face, l.Text)
 	boundsWidth := float64(bounds.Dx())
 	boundsHeight := float64(bounds.Dy())
@@ -136,9 +136,9 @@ func (l *Label) Draw(screen *ebiten.Image) {
 			pos.Y -= boundsHeight / 2
 		}
 	} else {
-		containerRect = gemath.Rect{
+		containerRect = gmath.Rect{
 			Min: pos,
-			Max: pos.Add(gemath.Vec{X: l.Width, Y: l.Height}),
+			Max: pos.Add(gmath.Vec{X: l.Width, Y: l.Height}),
 		}
 		if delta := boundsWidth - l.Width; delta > 0 {
 			switch l.GrowHorizontal {
