@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/resource"
+	"github.com/quasilyte/gmath"
 )
 
 type resourceKind int
@@ -46,11 +46,11 @@ func (d damageKind) String() string {
 func (c *resourceContainer) AddOfKind(kind resourceKind, amount int) {
 	switch kind {
 	case resIron:
-		c.Iron = gemath.ClampMax(c.Iron+amount, 99)
+		c.Iron = gmath.ClampMax(c.Iron+amount, 99)
 	case resGold:
-		c.Gold = gemath.ClampMax(c.Gold+amount, 99)
+		c.Gold = gmath.ClampMax(c.Gold+amount, 99)
 	case resOil:
-		c.Oil = gemath.ClampMax(c.Oil+amount, 99)
+		c.Oil = gmath.ClampMax(c.Oil+amount, 99)
 	case resCombined:
 		c.AddOfKind(resIron, amount)
 		c.AddOfKind(resGold, amount)
@@ -59,9 +59,9 @@ func (c *resourceContainer) AddOfKind(kind resourceKind, amount int) {
 }
 
 func (c *resourceContainer) Add(other resourceContainer) {
-	c.Iron = gemath.ClampMax(c.Iron+other.Iron, 99)
-	c.Gold = gemath.ClampMax(c.Gold+other.Gold, 99)
-	c.Oil = gemath.ClampMax(c.Oil+other.Oil, 99)
+	c.Iron = gmath.ClampMax(c.Iron+other.Iron, 99)
+	c.Gold = gmath.ClampMax(c.Gold+other.Gold, 99)
+	c.Oil = gmath.ClampMax(c.Oil+other.Oil, 99)
 }
 
 func (c *resourceContainer) Sub(other resourceContainer) {
@@ -113,7 +113,7 @@ type hullDesign struct {
 	HP float64
 
 	Speed         float64
-	RotationSpeed gemath.Rad
+	RotationSpeed gmath.Rad
 
 	Price      resourceContainer
 	Production float64
@@ -142,7 +142,7 @@ type turretDesign struct {
 
 	ProjectileSpeed float64
 
-	RotationSpeed gemath.Rad
+	RotationSpeed gmath.Rad
 
 	Image     resource.ImageID
 	AmmoImage resource.ImageID

@@ -2,18 +2,18 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type railgunRay struct {
-	from     gemath.Vec
-	to       gemath.Vec
+	from     gmath.Vec
+	to       gmath.Vec
 	line     *ge.Line
 	alpha    float64
 	disposed bool
 }
 
-func newRailgunRay(from, to gemath.Vec) *railgunRay {
+func newRailgunRay(from, to gmath.Vec) *railgunRay {
 	return &railgunRay{from: from, to: to}
 }
 

@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/gmath"
 )
 
 type gameController struct {
@@ -16,9 +16,9 @@ type gameController struct {
 	gameState *gameState
 	config    battleConfig
 
-	focusedRule   gemath.Slider
+	focusedRule   gmath.Slider
 	checkbox      *checkboxButton
-	focusedButton gemath.Slider
+	focusedButton gmath.Slider
 	buttons       []focusToggler // All buttons combined
 	slotSelectors []*selectButton
 	teamsSelector *selectButton

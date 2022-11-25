@@ -73,7 +73,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 	baseOffsetX := 196.0
 
-	descriptionBg := ge.NewRect(bgWidth, bgHeight)
+	descriptionBg := ge.NewRect(scene.Context(), bgWidth, bgHeight)
 	descriptionBg.Centered = false
 	descriptionBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 	descriptionBg.Pos.Offset.X = baseOffsetX

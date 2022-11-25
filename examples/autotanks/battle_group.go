@@ -4,9 +4,9 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/xslices"
+	"github.com/quasilyte/gmath"
 )
 
 type battleGroup struct {
@@ -60,7 +60,7 @@ func (g *battleGroup) IsDisposed() bool {
 
 func (g *battleGroup) Update(delta float64) {}
 
-func (g *battleGroup) setWaypoint(pos gemath.Vec) {
+func (g *battleGroup) setWaypoint(pos gmath.Vec) {
 	if len(g.tanks) == 0 {
 		panic("empty group?")
 	}
@@ -114,7 +114,7 @@ func (g *battleGroup) onTankWaypointReached(bt *battleTank) {
 		g.baseBuilder = nil
 	}
 
-	bt.Waypoint = gemath.Vec{}
+	bt.Waypoint = gmath.Vec{}
 
 	allReady := xslices.All(g.tanks, func(bt *battleTank) bool {
 		return bt.Waypoint.IsZero()
@@ -169,7 +169,7 @@ func (g *battleGroup) pickNewWaypoint() {
 	if len(candidates) == 0 {
 		return
 	}
-	s := gemath.RandElem(g.scene.Rand(), candidates)
+	s := gmath.RandElem(g.scene.Rand(), candidates)
 	g.dstSector = s
 	g.setWaypoint(s.Center())
 }
@@ -196,7 +196,7 @@ func (g *battleGroup) buildBase() {
 	g.checkDisposed()
 }
 
-var sectorLocations = [...]gemath.Vec{
+var sectorLocations = [...]gmath.Vec{
 	{X: -64 * 2, Y: -64},
 	{X: -64 * 1, Y: -64},
 	{X: 0, Y: -64},

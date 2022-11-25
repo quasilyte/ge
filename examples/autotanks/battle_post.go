@@ -4,9 +4,9 @@ import (
 	"strconv"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/gmath"
 )
 
 type battlePost struct {
@@ -41,7 +41,7 @@ type battlePost struct {
 	EventProductionCompleted gesignal.Event[tankDesign]
 }
 
-func newBattlePost(p *playerData, pos gemath.Vec, turret *turretDesign) *battlePost {
+func newBattlePost(p *playerData, pos gmath.Vec, turret *turretDesign) *battlePost {
 	bp := &battlePost{
 		Player:         p,
 		maxHP:          750,
@@ -56,7 +56,8 @@ func (bp *battlePost) Init(scene *ge.Scene) {
 	bp.scene = scene
 
 	// TODO: InitRect.
-	bp.body.InitRotatedRect(bp, 50, 50)
+	bp.body.InitStaticRotatedRect(bp, 50, 50)
+	bp.body.LayerMask = unitLayerMask(bp.Player.Alliance)
 
 	sprite := scene.NewSprite(ImageBattlePost)
 	sprite.FrameWidth = 64
@@ -90,14 +91,14 @@ func (bp *battlePost) Dispose() {
 	bp.progressLabel.Dispose()
 }
 
-func (bp *battlePost) Pos() gemath.Vec {
+func (bp *battlePost) Pos() gmath.Vec {
 	return bp.body.Pos
 }
 
-func (bp *battlePost) Velocity() gemath.Vec { return gemath.Vec{} }
+func (bp *battlePost) Velocity() gmath.Vec { return gmath.Vec{} }
 
 func (bp *battlePost) Update(delta float64) {
-	bp.UnderAttack = gemath.ClampMin(bp.UnderAttack-delta, 0)
+	bp.UnderAttack = gmath.ClampMin(bp.UnderAttack-delta, 0)
 	if !bp.product.IsEmpty() {
 		bp.handleProcution(delta)
 	}
@@ -111,7 +112,7 @@ func (bp *battlePost) installTurret(design *turretDesign, delay float64) {
 	bp.turretHp = design.HP
 	bp.Turret = newBattlePostTurret(bp.Player, &bp.body.Pos, design)
 	bp.Turret.SetDelay(delay)
-	bp.Turret.Rotation = bp.body.Pos.AngleToPoint(gemath.Vec{X: 1920 / 2, Y: 1080 / 2})
+	bp.Turret.Rotation = bp.body.Pos.AngleToPoint(gmath.Vec{X: 1920 / 2, Y: 1080 / 2})
 	bp.scene.AddObject(bp.Turret)
 
 	sprite := bp.Turret.Sprite()
@@ -194,7 +195,7 @@ func (bp *battlePost) handleProcution(delta float64) {
 		bp.progressLabel.Visible = false
 		bp.Player.Stats.UnitsProduced++
 	} else {
-		percent := gemath.Percentage(bp.production, bp.product.ProductionTime())
+		percent := gmath.Percentage(bp.production, bp.product.ProductionTime())
 		bp.progressLabel.Text = strconv.Itoa(int(percent)) + "%"
 	}
 }

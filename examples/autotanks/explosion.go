@@ -2,18 +2,18 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type explosion struct {
 	anim *ge.Animation
-	pos  gemath.Vec
+	pos  gmath.Vec
 
 	Scale          float64
 	AnimationSpeed float64
 }
 
-func newExplosion(pos gemath.Vec) *explosion {
+func newExplosion(pos gmath.Vec) *explosion {
 	return &explosion{
 		pos:            pos,
 		Scale:          1,

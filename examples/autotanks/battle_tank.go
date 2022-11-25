@@ -4,15 +4,15 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/gmath"
 )
 
 type targetedUnit interface {
 	IsDisposed() bool
-	Velocity() gemath.Vec
-	Pos() gemath.Vec
+	Velocity() gmath.Vec
+	Pos() gmath.Vec
 	OnDamage(damage float64, kind damageKind)
 }
 
@@ -28,12 +28,12 @@ type battleTank struct {
 	inCombat         bool
 	leaveCombatDelay float64
 
-	Waypoint gemath.Vec
+	Waypoint gmath.Vec
 
 	Player *playerData
 
 	speed         float64
-	rotationSpeed gemath.Rad
+	rotationSpeed gmath.Rad
 
 	hp float64
 
@@ -81,6 +81,7 @@ func (bt *battleTank) Init(scene *ge.Scene) {
 	case hullLarge:
 		bt.Body.InitRotatedRect(bt, 40, 24)
 	}
+	bt.Body.LayerMask = unitLayerMask(bt.Player.Alliance)
 
 	bt.selectionAura = scene.NewSprite(ImageUnitSelector)
 	bt.selectionAura.Pos.Base = &bt.Body.Pos
@@ -113,7 +114,7 @@ func (bt *battleTank) Dispose() {
 func (bt *battleTank) Update(delta float64) {
 	bt.selectionAura.Visible = bt.Selected
 
-	bt.leaveCombatDelay = gemath.ClampMin(bt.leaveCombatDelay-delta, 0)
+	bt.leaveCombatDelay = gmath.ClampMin(bt.leaveCombatDelay-delta, 0)
 	if bt.leaveCombatDelay == 0 {
 		bt.inCombat = bt.enterCombat()
 		bt.leaveCombatDelay = bt.scene.Rand().FloatRange(0.1, 0.25)
@@ -132,13 +133,13 @@ func (bt *battleTank) enterCombat() bool {
 	return dist < bt.personalRangePreference
 }
 
-func (bt *battleTank) Pos() gemath.Vec { return bt.Body.Pos }
+func (bt *battleTank) Pos() gmath.Vec { return bt.Body.Pos }
 
-func (bt *battleTank) Velocity() gemath.Vec {
+func (bt *battleTank) Velocity() gmath.Vec {
 	if bt.Waypoint.IsZero() || bt.inCombat {
-		return gemath.Vec{}
+		return gmath.Vec{}
 	}
-	return gemath.RadToVec(bt.Body.Rotation).Mulf(bt.speed)
+	return gmath.RadToVec(bt.Body.Rotation).Mulf(bt.speed)
 }
 
 func (bt *battleTank) OnDamage(damage float64, kind damageKind) {
@@ -167,7 +168,7 @@ func (bt *battleTank) Destroy() {
 
 func (bt *battleTank) processMovement(delta float64) {
 	dstAngle := bt.Body.Pos.AngleToPoint(bt.Waypoint)
-	rotationAmount := bt.rotationSpeed * gemath.Rad(delta)
+	rotationAmount := bt.rotationSpeed * gmath.Rad(delta)
 	newRotation := bt.Body.Rotation.RotatedTowards(dstAngle, rotationAmount)
 	bt.Turret.Rotation -= bt.Body.Rotation - newRotation
 	bt.Body.Rotation = newRotation
@@ -182,18 +183,18 @@ func (bt *battleTank) processMovement(delta float64) {
 		return
 	}
 
-	if bt.scene.HasCollisionsAt(&bt.Body, gemath.Vec{}) {
+	if bt.scene.HasCollisionsAt(&bt.Body, gmath.Vec{}) {
 		bt.relocate()
 		return
 	}
 
 	bt.Body.Pos = bt.Waypoint
-	bt.Waypoint = gemath.Vec{}
+	bt.Waypoint = gmath.Vec{}
 	bt.EventWaypointReached.Emit(bt)
 }
 
 func (bt *battleTank) relocate() {
-	locationProbes := [...]gemath.Vec{
+	locationProbes := [...]gmath.Vec{
 		{X: -64, Y: -64},
 		{X: 0, Y: -64},
 		{X: 64, Y: -64},

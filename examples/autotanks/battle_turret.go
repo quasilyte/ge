@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type battleTurret struct {
@@ -13,7 +13,7 @@ type battleTurret struct {
 	player *playerData
 
 	target            targetedUnit
-	snipePos          gemath.Vec
+	snipePos          gmath.Vec
 	targetSelectDelay float64
 	ignoreBases       bool
 
@@ -25,19 +25,19 @@ type battleTurret struct {
 
 	scene *ge.Scene
 
-	Rotation gemath.Rad
-	pos      *gemath.Vec
+	Rotation gmath.Rad
+	pos      *gmath.Vec
 
 	sprite *ge.Sprite
 }
 
-func newBattlePostTurret(p *playerData, pos *gemath.Vec, design *turretDesign) *battleTurret {
+func newBattlePostTurret(p *playerData, pos *gmath.Vec, design *turretDesign) *battleTurret {
 	turret := newBattleTurret(p, pos, design)
 	turret.ignoreBases = true
 	return turret
 }
 
-func newBattleTurret(p *playerData, pos *gemath.Vec, design *turretDesign) *battleTurret {
+func newBattleTurret(p *playerData, pos *gmath.Vec, design *turretDesign) *battleTurret {
 	turret := &battleTurret{
 		pos:    pos,
 		design: design,
@@ -93,7 +93,7 @@ func (turret *battleTurret) calculateSnipePos() {
 	if r.Chance(0.3) {
 		turret.snipePos = pos
 	} else {
-		turret.snipePos = pos.Add(gemath.Vec{X: r.FloatRange(-8, 8), Y: r.FloatRange(-8, 8)})
+		turret.snipePos = pos.Add(gmath.Vec{X: r.FloatRange(-8, 8), Y: r.FloatRange(-8, 8)})
 	}
 }
 
@@ -109,13 +109,13 @@ func (turret *battleTurret) IsReady() bool {
 }
 
 func (turret *battleTurret) Update(delta float64) {
-	turret.reload = gemath.ClampMin(turret.reload-delta, 0)
-	turret.sprite.Pos.Offset.X = gemath.ClampMax(turret.sprite.Pos.Offset.X+delta*20, 0)
-	turret.targetSelectDelay = gemath.ClampMin(turret.targetSelectDelay-delta, 0)
+	turret.reload = gmath.ClampMin(turret.reload-delta, 0)
+	turret.sprite.Pos.Offset.X = gmath.ClampMax(turret.sprite.Pos.Offset.X+delta*20, 0)
+	turret.targetSelectDelay = gmath.ClampMin(turret.targetSelectDelay-delta, 0)
 
 	if !turret.ready {
 		turret.sprite.SetAlpha(0.5)
-		turret.delay = gemath.ClampMin(turret.delay-delta, 0)
+		turret.delay = gmath.ClampMin(turret.delay-delta, 0)
 		if turret.delay == 0 {
 			turret.ready = true
 		}
@@ -126,7 +126,7 @@ func (turret *battleTurret) Update(delta float64) {
 
 	if turret.target != nil {
 		if turret.target.IsDisposed() || (turret.target.Pos().DistanceTo(*turret.pos) > turret.design.FireRange*1.1) {
-			turret.snipePos = gemath.Vec{}
+			turret.snipePos = gmath.Vec{}
 			turret.target = nil
 		}
 	}
@@ -144,7 +144,7 @@ func (turret *battleTurret) Update(delta float64) {
 	}
 
 	dstRotation := turret.pos.AngleToPoint(rotationTarget)
-	rotationAmount := turret.design.RotationSpeed * gemath.Rad(delta)
+	rotationAmount := turret.design.RotationSpeed * gmath.Rad(delta)
 	turret.Rotation = turret.Rotation.RotatedTowards(dstRotation, rotationAmount)
 	if turret.Rotation == dstRotation && turret.reload == 0 {
 		turret.fire(rotationTarget)
@@ -160,7 +160,7 @@ func (turret *battleTurret) IsBuilder() bool {
 	return turret.design.Name == "builder"
 }
 
-func (turret *battleTurret) fire(targetPos gemath.Vec) {
+func (turret *battleTurret) fire(targetPos gmath.Vec) {
 	firePos := turret.pos.MoveInDirection(32, turret.Rotation)
 	turret.reload += turret.design.Reload
 	turret.sprite.Pos.Offset.X = -3
@@ -176,7 +176,7 @@ func (turret *battleTurret) fire(targetPos gemath.Vec) {
 	}
 }
 
-func snipePos(projectileSpeed float64, fireFrom, targetPos, targetVelocity gemath.Vec) gemath.Vec {
+func snipePos(projectileSpeed float64, fireFrom, targetPos, targetVelocity gmath.Vec) gmath.Vec {
 	if targetVelocity.IsZero() || projectileSpeed == 0 {
 		return targetPos
 	}
@@ -186,7 +186,7 @@ func snipePos(projectileSpeed float64, fireFrom, targetPos, targetVelocity gemat
 	return predictedPos
 }
 
-func closestTarget(p *playerData, pos gemath.Vec, ignoreBases bool) (targetedUnit, float64) {
+func closestTarget(p *playerData, pos gmath.Vec, ignoreBases bool) (targetedUnit, float64) {
 	if ignoreBases {
 		return closestTankTarget(p, pos)
 	}
@@ -198,7 +198,7 @@ func closestTarget(p *playerData, pos gemath.Vec, ignoreBases bool) (targetedUni
 	return closestTank, closestTankDist
 }
 
-func closestBaseTarget(p *playerData, pos gemath.Vec) (*battlePost, float64) {
+func closestBaseTarget(p *playerData, pos gmath.Vec) (*battlePost, float64) {
 	closestBaseDist := math.MaxFloat64
 	var closestBase *battlePost
 	for _, sector := range p.BattleState.Sectors {
@@ -214,7 +214,7 @@ func closestBaseTarget(p *playerData, pos gemath.Vec) (*battlePost, float64) {
 	return closestBase, closestBaseDist
 }
 
-func closestTankTarget(p *playerData, pos gemath.Vec) (*battleTank, float64) {
+func closestTankTarget(p *playerData, pos gmath.Vec) (*battleTank, float64) {
 	var closestTank *battleTank
 	closestTankDist := math.MaxFloat64
 	for _, other := range p.BattleState.Players {

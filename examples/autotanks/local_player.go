@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/gmath"
 )
 
 type localPlayer struct {
@@ -42,8 +42,8 @@ func (p *localPlayer) Init(scene *ge.Scene) {
 		Hull:   hullDesigns["fighter"],
 		Turret: turretDesigns["builder"],
 	})
-	firstBuilder.Body.Pos = p.sector().Center().Add(gemath.Vec{Y: 64})
-	firstBuilder.Body.Rotation = firstBuilder.Body.Pos.AngleToPoint(gemath.Vec{X: 1920 / 2, Y: 1080 / 2})
+	firstBuilder.Body.Pos = p.sector().Center().Add(gmath.Vec{Y: 64})
+	firstBuilder.Body.Rotation = firstBuilder.Body.Pos.AngleToPoint(gmath.Vec{X: 1920 / 2, Y: 1080 / 2})
 	p.sector().AddTank(firstBuilder)
 	scene.AddObject(firstBuilder)
 
@@ -102,7 +102,7 @@ func (p *localPlayer) handleControls() {
 	if p.input.ActionIsJustPressed(ActionOpenMenu) {
 		if base != nil && base.Player.ID == p.ID && !base.IsBusy() {
 			p.buildTank.SetVisibility(true)
-			p.buildTank.Pos = p.sector().Pos.Add(gemath.Vec{X: 10, Y: 40})
+			p.buildTank.Pos = p.sector().Pos.Add(gmath.Vec{X: 10, Y: 40})
 			if p.selectedSector != nil {
 				p.selectedSector.UnselectUnits()
 				p.selectedSector = nil

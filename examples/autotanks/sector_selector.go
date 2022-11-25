@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type sectorSelector struct {
 	playerID int
 	sprite   *ge.Sprite
 	sector   *sector
-	pos      gemath.Vec
+	pos      gmath.Vec
 }
 
 func newSectorSelector(playerID int) *sectorSelector {
@@ -28,7 +28,7 @@ func (selector *sectorSelector) Init(scene *ge.Scene) {
 func (selector *sectorSelector) IsDisposed() bool { return false }
 
 func (selector *sectorSelector) Update(delta float64) {
-	*selector.sprite.Rotation += gemath.Rad(delta) * 0.3
+	*selector.sprite.Rotation += gmath.Rad(delta) * 0.3
 }
 
 func (selector *sectorSelector) SetSector(s *sector) {

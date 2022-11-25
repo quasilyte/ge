@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/xslices"
+	"github.com/quasilyte/gmath"
 )
 
 type sector struct {
@@ -16,7 +16,7 @@ type sector struct {
 
 	scene *ge.Scene
 
-	Pos gemath.Vec
+	Pos gmath.Vec
 
 	defenders []*battleTank
 
@@ -32,7 +32,7 @@ func newSector(resource resourceKind, id, x, y int) *sector {
 		X:        x,
 		Y:        y,
 		Resource: resource,
-		Pos:      gemath.Vec{X: float64(x) * 320, Y: float64(y) * 270},
+		Pos:      gmath.Vec{X: float64(x) * 320, Y: float64(y) * 270},
 	}
 }
 
@@ -67,8 +67,8 @@ func (s *sector) IsDisposed() bool { return false }
 
 func (s *sector) Update(delta float64) {}
 
-func (s *sector) Center() gemath.Vec {
-	return s.Pos.Add(gemath.Vec{X: 320 / 2, Y: 270 / 2})
+func (s *sector) Center() gmath.Vec {
+	return s.Pos.Add(gmath.Vec{X: 320 / 2, Y: 270 / 2})
 }
 
 func (s *sector) AddTank(bt *battleTank) {
@@ -128,8 +128,8 @@ func (s *sector) onBaseDestroyed(bp *battlePost) {
 func (s *sector) onProductionCompleted(design tankDesign) {
 	st := s.Base.Player.BattleState
 	bt := st.NewBattleTank(s.Base.Player, design)
-	bt.Body.Pos = s.Center().Add(gemath.Vec{Y: 48})
-	bt.Waypoint = s.Center().Add(gemath.Vec{Y: 64})
+	bt.Body.Pos = s.Center().Add(gmath.Vec{Y: 48})
+	bt.Waypoint = s.Center().Add(gmath.Vec{Y: 64})
 	s.AddTank(bt)
 	s.scene.AddObjectAbove(bt, 1)
 	if st.SingleLocalPlayer == s.Base.Player {

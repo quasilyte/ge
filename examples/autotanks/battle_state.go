@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/quasilyte/ge/gemath"
-)
+import "github.com/quasilyte/gmath"
 
 const maxPlayers = 4
 
@@ -55,7 +53,7 @@ func (state *battleState) onGroupDisposed(g *battleGroup) {
 	delete(state.Groups, g)
 }
 
-func (state *battleState) NewBattlePost(p *playerData, pos gemath.Vec, turret *turretDesign) *battlePost {
+func (state *battleState) NewBattlePost(p *playerData, pos gmath.Vec, turret *turretDesign) *battlePost {
 	bp := newBattlePost(p, pos, turret)
 	bp.EventDestroyed.Connect(nil, state.onBaseDestroyed)
 	bp.Player.NumBases++
@@ -73,7 +71,7 @@ func (state *battleState) addTank(bt *battleTank) {
 	bt.EventDestroyed.Connect(nil, state.onTankDestroyed)
 }
 
-func (state *battleState) DeploySectors(r *gemath.Rand, balanced bool) {
+func (state *battleState) DeploySectors(r *gmath.Rand, balanced bool) {
 	if !balanced {
 		// Random resources distribution.
 		for y := 0; y < state.numRows; y++ {
@@ -110,7 +108,7 @@ func (state *battleState) DeploySectors(r *gemath.Rand, balanced bool) {
 			resGold, resGold,
 			resOil, resOil,
 		}
-		gemath.Shuffle(r, zoneResources[i])
+		gmath.Shuffle(r, zoneResources[i])
 	}
 	for y := 0; y < state.numRows; y++ {
 		for x := 0; x < state.numCols; x++ {
@@ -164,7 +162,7 @@ func (state *battleState) WalkNeighbours(s *sector, visit func(*sector) bool) {
 			if y < 0 || y >= state.numRows {
 				continue
 			}
-			if dx == 0 && dx == 0 {
+			if dx == 0 && dy == 0 {
 				continue
 			}
 			if !visit(state.GetSector(x, y)) {

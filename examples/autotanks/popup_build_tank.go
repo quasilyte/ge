@@ -4,11 +4,11 @@ import (
 	"strconv"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type popupBuildTank struct {
-	Pos     gemath.Vec
+	Pos     gmath.Vec
 	visible bool
 
 	player *playerData
@@ -103,7 +103,7 @@ func (popup *popupBuildTank) Init(scene *ge.Scene) {
 	{
 		hullSprite := ge.NewSprite(scene.Context())
 		hullSprite.Pos.Base = &popup.Pos
-		hullSprite.Pos.Offset = gemath.Vec{X: 64, Y: 64}
+		hullSprite.Pos.Offset = gmath.Vec{X: 64, Y: 64}
 		popup.hullSprite = hullSprite
 		applyPlayerColor(popup.player.ID, popup.hullSprite)
 		scene.AddGraphics(hullSprite)
@@ -118,7 +118,7 @@ func (popup *popupBuildTank) Init(scene *ge.Scene) {
 	{
 		turretSprite := ge.NewSprite(scene.Context())
 		turretSprite.Pos.Base = &popup.Pos
-		turretSprite.Pos.Offset = gemath.Vec{X: 64, Y: 64}
+		turretSprite.Pos.Offset = gmath.Vec{X: 64, Y: 64}
 		popup.turretSprite = turretSprite
 		applyPlayerColor(popup.player.ID, popup.turretSprite)
 		scene.AddGraphics(popup.turretSprite)

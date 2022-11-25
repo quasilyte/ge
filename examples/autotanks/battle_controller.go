@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/gmath"
 )
 
 const harvestDelaySeconds = 5.0
@@ -126,7 +126,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 
 	bg := ge.NewTiledBackground()
 	if c.battleState.MudTerrain {
-		bg.Hue = gemath.DegToRad(160)
+		bg.Hue = gmath.DegToRad(160)
 	}
 	bg.LoadTileset(scene.Context(), 1920, 1080, ImageBackgroundTiles, RawTilesJSON)
 	scene.AddGraphicsBelow(bg, 1)
@@ -186,8 +186,8 @@ func (c *battleController) Init(scene *ge.Scene) {
 				Hull:   hullDesigns["scout"],
 				Turret: turretDesigns["gatling_gun"],
 			})
-			guard.Body.Pos = s.Center().Add(gemath.Vec{Y: 64})
-			guard.Body.Rotation = guard.Body.Pos.AngleToPoint(gemath.Vec{X: 1920 / 2, Y: 1080 / 2})
+			guard.Body.Pos = s.Center().Add(gmath.Vec{Y: 64})
+			guard.Body.Rotation = guard.Body.Pos.AngleToPoint(gmath.Vec{X: 1920 / 2, Y: 1080 / 2})
 			s.AddTank(guard)
 			scene.AddObject(guard)
 		}
@@ -303,7 +303,7 @@ func (c *battleController) Update(delta float64) {
 	}
 
 	if c.battleState.DynamicAlliances {
-		c.reallianceDelay = gemath.ClampMin(c.reallianceDelay-delta, 0)
+		c.reallianceDelay = gmath.ClampMin(c.reallianceDelay-delta, 0)
 		if c.reallianceDelay == 0 {
 			c.recalculateAlliances()
 			c.reallianceDelay = c.scene.Rand().FloatRange(15, 30)

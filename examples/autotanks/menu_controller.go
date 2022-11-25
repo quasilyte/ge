@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/gmath"
 )
 
 type menuController struct {
@@ -14,7 +14,7 @@ type menuController struct {
 	gameState *gameState
 
 	buttons        []*button
-	selectedButton gemath.Slider
+	selectedButton gmath.Slider
 }
 
 func newMenuController(state *gameState) *menuController {
@@ -32,7 +32,7 @@ func (c *menuController) Init(scene *ge.Scene) {
 
 	versionLabel := scene.NewLabel(FontBig)
 	versionLabel.Text = gameBuildVersion
-	versionLabel.Pos = ge.MakePos(gemath.Vec{X: 16, Y: 1080 - 32})
+	versionLabel.Pos = ge.MakePos(gmath.Vec{X: 16, Y: 1080 - 32})
 	scene.AddGraphics(versionLabel)
 
 	buttons := []string{

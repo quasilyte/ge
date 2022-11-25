@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type computerPlayer struct {
@@ -52,8 +52,8 @@ func (p *computerPlayer) Init(scene *ge.Scene) {
 		Hull:   hullDesigns["fighter"],
 		Turret: turretDesigns["builder"],
 	})
-	firstBuilder.Body.Pos = p.startingSector.Center().Add(gemath.Vec{Y: 64})
-	firstBuilder.Body.Rotation = firstBuilder.Body.Pos.AngleToPoint(gemath.Vec{X: 1920 / 2, Y: 1080 / 2})
+	firstBuilder.Body.Pos = p.startingSector.Center().Add(gmath.Vec{Y: 64})
+	firstBuilder.Body.Rotation = firstBuilder.Body.Pos.AngleToPoint(gmath.Vec{X: 1920 / 2, Y: 1080 / 2})
 	p.startingSector.AddTank(firstBuilder)
 	scene.AddObject(firstBuilder)
 }
@@ -61,9 +61,9 @@ func (p *computerPlayer) Init(scene *ge.Scene) {
 func (p *computerPlayer) IsDisposed() bool { return false }
 
 func (p *computerPlayer) Update(delta float64) {
-	p.actionDelay = gemath.ClampMin(p.actionDelay-delta, 0)
-	p.orderBuilderDelay = gemath.ClampMin(p.orderBuilderDelay-delta, 0)
-	p.orderTankDelay = gemath.ClampMin(p.orderTankDelay-delta, 0)
+	p.actionDelay = gmath.ClampMin(p.actionDelay-delta, 0)
+	p.orderBuilderDelay = gmath.ClampMin(p.orderBuilderDelay-delta, 0)
+	p.orderTankDelay = gmath.ClampMin(p.orderTankDelay-delta, 0)
 	if p.actionDelay != 0 {
 		return
 	}
@@ -259,7 +259,7 @@ func (p *computerPlayer) sendUnits() {
 		}
 	} else {
 		// Choose a random target.
-		attackTarget = gemath.RandElem(p.scene.Rand(), p.enemySectors)
+		attackTarget = gmath.RandElem(p.scene.Rand(), p.enemySectors)
 	}
 	if attackTarget == nil {
 		return
@@ -392,7 +392,7 @@ func (p *computerPlayer) orderProduction() {
 
 	// Pick a base where a new unit will be produced.
 	var s *sector
-	pick := gemath.RandIndex(p.scene.Rand(), p.ownSectors)
+	pick := gmath.RandIndex(p.scene.Rand(), p.ownSectors)
 	for i := 0; i < len(p.ownSectors); i++ {
 		if !p.ownSectors[pick].Base.IsBusy() && p.ownSectors[pick].NumDefenders() < 4 {
 			s = p.ownSectors[pick]
@@ -476,8 +476,8 @@ func (p *computerPlayer) orderProduction() {
 	if selectedDesign.IsEmpty() {
 		for i := 0; i < 4; i++ {
 			var turret *turretDesign
-			turret = gemath.RandElem(p.scene.Rand(), turretDesignListNoBuilder)
-			hull := gemath.RandElem(p.scene.Rand(), hullDesignList)
+			turret = gmath.RandElem(p.scene.Rand(), turretDesignListNoBuilder)
+			hull := gmath.RandElem(p.scene.Rand(), hullDesignList)
 			design := tankDesign{Hull: hull, Turret: turret}
 			if p.Resources.Contains(design.Price()) {
 				selectedDesign = design
@@ -491,7 +491,7 @@ func (p *computerPlayer) orderProduction() {
 			// Consider preserving resources for a while and/or order a builder sooner.
 			p.orderTankDelay = p.scene.Rand().FloatRange(0.5, 3)
 			if len(p.ownSectors) < 8 {
-				p.orderBuilderDelay = gemath.ClampMin(p.orderBuilderDelay*0.8, 0)
+				p.orderBuilderDelay = gmath.ClampMin(p.orderBuilderDelay*0.8, 0)
 			}
 			return
 		}
@@ -508,7 +508,7 @@ func (p *computerPlayer) updateBuilderDelay() {
 		// This calculation method is more complicated than it should be really...
 		delay := float64((len(p.ownSectors)-1)*5 + 5)
 		p.orderBuilderDelay = p.scene.Rand().FloatRange(delay, delay*1.05)
-		p.orderBuilderDelay = gemath.ClampMax(p.orderBuilderDelay, 30)
+		p.orderBuilderDelay = gmath.ClampMax(p.orderBuilderDelay, 30)
 		p.orderBuilderDelay += 10
 		p.orderBuilderDelay *= 2
 		return
@@ -695,7 +695,7 @@ func (p *computerPlayer) initFavDesigns() {
 
 func (p *computerPlayer) selectFavDesign() tankDesign {
 	for i := 0; i < 3; i++ {
-		option := gemath.RandElem(p.scene.Rand(), p.favDesigns)
+		option := gmath.RandElem(p.scene.Rand(), p.favDesigns)
 		if option.cond != nil && !option.cond() {
 			continue
 		}
@@ -734,7 +734,7 @@ func (p *computerPlayer) pickCheapDesign() tankDesign {
 }
 
 func (p *computerPlayer) selectOwnedSector(pred func(*sector) bool) *sector {
-	pick := gemath.RandIndex(p.scene.Rand(), p.ownSectors)
+	pick := gmath.RandIndex(p.scene.Rand(), p.ownSectors)
 	for i := 0; i < len(p.ownSectors); i++ {
 		if pred(p.ownSectors[pick]) {
 			return p.ownSectors[pick]

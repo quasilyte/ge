@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/gmath"
 )
 
 type unitStatsController struct {
@@ -38,20 +38,20 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 		pos.X -= 464
 		pos.Y -= (rowHeight * float64(numRows-1)) / 2
 		for _, d := range turretDesignListNoBuilder {
-			imageBg := ge.NewRect(112, 112)
+			imageBg := ge.NewRect(scene.Context(), 112, 112)
 			imageBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 			imageBg.Pos.SetBase(pos)
 			scene.AddGraphics(imageBg)
 
 			image := scene.NewSprite(d.Image)
 			image.Scale = 1.5
-			image.Pos.SetBase(pos.Sub(gemath.Vec{X: 8}))
+			image.Pos.SetBase(pos.Sub(gmath.Vec{X: 8}))
 			scene.AddGraphics(image)
 
-			descriptionBg := ge.NewRect(384, 112)
+			descriptionBg := ge.NewRect(scene.Context(), 384, 112)
 			descriptionBg.Centered = false
 			descriptionBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
-			descriptionBg.Pos.SetBase(pos.Add(gemath.Vec{X: 72, Y: -112 / 2}))
+			descriptionBg.Pos.SetBase(pos.Add(gmath.Vec{X: 72, Y: -112 / 2}))
 			scene.AddGraphics(descriptionBg)
 
 			price := newPriceDisplay()
@@ -81,20 +81,20 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 		pos.X += 64
 		pos.Y -= (rowHeight * float64(numRows-1)) / 2
 		for _, d := range hullDesignList {
-			imageBg := ge.NewRect(112, 112)
+			imageBg := ge.NewRect(scene.Context(), 112, 112)
 			imageBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
 			imageBg.Pos.SetBase(pos)
 			scene.AddGraphics(imageBg)
 
 			image := scene.NewSprite(d.Image)
 			image.Scale = 1.5
-			image.Pos.SetBase(pos.Sub(gemath.Vec{X: 4}))
+			image.Pos.SetBase(pos.Sub(gmath.Vec{X: 4}))
 			scene.AddGraphics(image)
 
-			descriptionBg := ge.NewRect(384, 112)
+			descriptionBg := ge.NewRect(scene.Context(), 384, 112)
 			descriptionBg.Centered = false
 			descriptionBg.FillColorScale.SetRGBA(0x26, 0x2b, 0x44, 255)
-			descriptionBg.Pos.SetBase(pos.Add(gemath.Vec{X: 72, Y: -112 / 2}))
+			descriptionBg.Pos.SetBase(pos.Add(gmath.Vec{X: 72, Y: -112 / 2}))
 			scene.AddGraphics(descriptionBg)
 
 			price := newPriceDisplay()

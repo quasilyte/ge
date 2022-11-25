@@ -4,8 +4,16 @@ import (
 	"image/color"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
+
+func unitLayerMask(alliance int) uint16 {
+	return 1 << uint16(alliance)
+}
+
+func projectileLayerMask(alliance int) uint16 {
+	return 0b1111 ^ unitLayerMask(alliance)
+}
 
 func getPlayerTextColor(playerID int) color.RGBA {
 	switch playerID {
@@ -23,10 +31,10 @@ func getPlayerTextColor(playerID int) color.RGBA {
 func applyPlayerColor(playerID int, s *ge.Sprite) {
 	switch playerID {
 	case 1:
-		s.SetHue(gemath.DegToRad(50))
+		s.SetHue(gmath.DegToRad(50))
 	case 2:
-		s.SetHue(-gemath.DegToRad(180))
+		s.SetHue(-gmath.DegToRad(180))
 	case 3:
-		s.SetHue(gemath.DegToRad(135))
+		s.SetHue(gmath.DegToRad(135))
 	}
 }

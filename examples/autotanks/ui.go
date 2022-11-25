@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/xslices"
+	"github.com/quasilyte/gmath"
 )
 
 type focusToggler interface {
@@ -22,7 +22,7 @@ func newLabel(text string, pos ge.Pos) *label {
 }
 
 func (l *label) Init(scene *ge.Scene) {
-	bg := ge.NewRect(128, 64)
+	bg := ge.NewRect(scene.Context(), 128, 64)
 	bg.Pos = l.pos
 	bg.FillColorScale.SetRGBA(0x3a, 0x44, 0x66, 200)
 	scene.AddGraphics(bg)
@@ -114,7 +114,7 @@ type selectButton struct {
 	label    *ge.Label
 	options  []string
 	Focused  bool
-	selected gemath.Slider
+	selected gmath.Slider
 	pos      ge.Pos
 }
 
