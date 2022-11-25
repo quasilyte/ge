@@ -203,6 +203,7 @@ func (l *Loader) LoadImage(id ImageID) Image {
 		}
 		data := ebiten.NewImageFromImage(rawImage)
 		img = Image{
+			ID:                 id,
 			Data:               data,
 			DefaultFrameWidth:  imageInfo.FrameWidth,
 			DefaultFrameHeight: imageInfo.FrameHeight,

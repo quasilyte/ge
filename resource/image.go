@@ -3,6 +3,7 @@ package resource
 import "github.com/hajimehoshi/ebiten/v2"
 
 type Image struct {
+	ID   ImageID
 	Data *ebiten.Image
 
 	DefaultFrameWidth  float64

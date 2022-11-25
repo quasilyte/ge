@@ -11,10 +11,18 @@ type imageCacheKey struct {
 
 type imageCache struct {
 	m map[imageCacheKey]*ebiten.Image
+
+	tmp unsafeImage
+}
+
+func (cache *imageCache) UnsafeImageForSubImage() *unsafeImage {
+	return &cache.tmp
 }
 
 func (cache *imageCache) Init() {
 	cache.m = make(map[imageCacheKey]*ebiten.Image)
+
+	cache.tmp.addr = &cache.tmp
 }
 
 func (cache *imageCache) NewTempImage(width, height int) *ebiten.Image {
