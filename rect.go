@@ -2,13 +2,13 @@ package ge
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/internal/primitives"
+	"github.com/quasilyte/gmath"
 )
 
 type Rect struct {
 	Pos      Pos
-	Rotation *gemath.Rad
+	Rotation *gmath.Rad
 
 	Width  float64
 	Height float64
@@ -17,21 +17,28 @@ type Rect struct {
 
 	Centered bool
 
-	ColorScale ColorScale
+	OutlineColorScale ColorScale
+	FillColorScale    ColorScale
+
+	OutlineWidth float64
 
 	Visible bool
+
+	imageCache *imageCache
 
 	disposed bool
 }
 
-func NewRect(width, height float64) *Rect {
+func NewRect(ctx *Context, width, height float64) *Rect {
 	return &Rect{
-		Visible:    true,
-		Centered:   true,
-		ColorScale: defaultColorScale,
-		Scale:      1,
-		Width:      width,
-		Height:     height,
+		Visible:           true,
+		Centered:          true,
+		FillColorScale:    defaultColorScale,
+		OutlineColorScale: transparentColor,
+		Scale:             1,
+		Width:             width,
+		Height:            height,
+		imageCache:        &ctx.imageCache,
 	}
 }
 
@@ -53,36 +60,88 @@ func (rect *Rect) AnchorPos() Pos {
 	return rect.Pos
 }
 
+func (rect *Rect) calculateGeom(w, h float64) ebiten.GeoM {
+	var origin gmath.Vec
+	if rect.Centered {
+		origin = gmath.Vec{X: rect.Width / 2, Y: rect.Height / 2}
+	}
+	origin = origin.Sub(rect.Pos.Offset)
+
+	var geom ebiten.GeoM
+	geom.Scale(w, h)
+
+	geom.Translate(-origin.X, -origin.Y)
+	if rect.Rotation != nil {
+		geom.Rotate(float64(*rect.Rotation))
+	}
+	if rect.Scale != 1 {
+		geom.Scale(rect.Scale, rect.Scale)
+	}
+	geom.Translate(origin.X, origin.Y)
+
+	if rect.Pos.Base != nil {
+		geom.Translate(rect.Pos.Base.X-origin.X, rect.Pos.Base.Y-origin.Y)
+	} else if !origin.IsZero() {
+		geom.Translate(0-origin.X, 0-origin.Y)
+	}
+
+	return geom
+}
+
 func (rect *Rect) Draw(screen *ebiten.Image) {
 	if !rect.Visible {
 		return
 	}
+	if rect.OutlineColorScale.A == 0 && rect.FillColorScale.A == 0 {
+		return
+	}
 
-	var origin gemath.Vec
+	var origin gmath.Vec
 	if rect.Centered {
-		origin = gemath.Vec{X: rect.Width / 2, Y: rect.Height / 2}
+		origin = gmath.Vec{X: rect.Width / 2, Y: rect.Height / 2}
 	}
 	origin = origin.Sub(rect.Pos.Offset)
 
+	if rect.OutlineColorScale.A == 0 || rect.OutlineWidth < 1 {
+		// Fill-only mode.
+		var drawOptions ebiten.DrawImageOptions
+		drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height)
+		applyColorScale(rect.FillColorScale, &drawOptions)
+		screen.DrawImage(primitives.WhitePixel, &drawOptions)
+		return
+	}
+
+	if rect.FillColorScale.A == 0 && rect.OutlineWidth >= 1 {
+		// Outline-only mode.
+		var tmpDrawOptions ebiten.DrawImageOptions
+		dst := rect.imageCache.NewTempImage(int(rect.Width), int(rect.Height))
+		applyColorScale(rect.OutlineColorScale, &tmpDrawOptions)
+		tmpDrawOptions.GeoM.Scale(rect.Width, rect.Height)
+		dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
+
+		var geom ebiten.GeoM
+		geom.Scale(rect.Width-rect.OutlineWidth*2, rect.Height-rect.OutlineWidth*2)
+		geom.Translate(rect.OutlineWidth, rect.OutlineWidth)
+		tmpDrawOptions.GeoM = geom
+		tmpDrawOptions.CompositeMode = ebiten.CompositeModeClear
+		dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
+
+		var drawOptions ebiten.DrawImageOptions
+		drawOptions.GeoM = rect.calculateGeom(1, 1)
+		screen.DrawImage(dst, &drawOptions)
+		return
+	}
+
+	// TODO: it doesn't work with a fill color with alpha not equal to 1.
 	var drawOptions ebiten.DrawImageOptions
-	drawOptions.GeoM.Scale(rect.Width, rect.Height)
-
-	drawOptions.GeoM.Translate(-origin.X, -origin.Y)
-	if rect.Rotation != nil {
-		drawOptions.GeoM.Rotate(float64(*rect.Rotation))
-	}
-	if rect.Scale != 1 {
-		drawOptions.GeoM.Scale(rect.Scale, rect.Scale)
-	}
-	drawOptions.GeoM.Translate(origin.X, origin.Y)
-
-	if rect.Pos.Base != nil {
-		drawOptions.GeoM.Translate(rect.Pos.Base.X-origin.X, rect.Pos.Base.Y-origin.Y)
-	} else if !origin.IsZero() {
-		drawOptions.GeoM.Translate(0-origin.X, 0-origin.Y)
-	}
-
-	applyColorScale(rect.ColorScale, &drawOptions)
-
+	drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height)
+	applyColorScale(rect.OutlineColorScale, &drawOptions)
 	screen.DrawImage(primitives.WhitePixel, &drawOptions)
+	outlineDrawOptions := drawOptions
+	outlineDrawOptions.ColorM.Reset()
+	applyColorScale(rect.FillColorScale, &outlineDrawOptions)
+	outlineDrawOptions.GeoM = rect.calculateGeom(rect.Width-rect.OutlineWidth*2, rect.Height-rect.OutlineWidth*2)
+	outlineDrawOptions.GeoM.Translate(rect.OutlineWidth, rect.OutlineWidth)
+	outlineDrawOptions.CompositeMode = ebiten.CompositeModeCopy
+	screen.DrawImage(primitives.WhitePixel, &outlineDrawOptions)
 }

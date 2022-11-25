@@ -2,10 +2,10 @@ package ge
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/physics"
 	"github.com/quasilyte/ge/resource"
+	"github.com/quasilyte/gmath"
 )
 
 type SceneController interface {
@@ -62,7 +62,7 @@ func (s *Scene) Audio() *resource.AudioSystem {
 	return &s.root.context.Audio
 }
 
-func (s *Scene) Rand() *gemath.Rand {
+func (s *Scene) Rand() *gmath.Rand {
 	return &s.root.context.Rand
 }
 
@@ -70,14 +70,29 @@ func (s *Scene) LoadImage(imageID resource.ImageID) resource.Image {
 	return s.root.context.Loader.LoadImage(imageID)
 }
 
+func (s *Scene) LoadRaw(rawID resource.RawID) []byte {
+	return s.root.context.Loader.LoadRaw(rawID)
+}
+
+func (s *Scene) NewParticleEmitter(imageID resource.ImageID) *ParticleEmitter {
+	emitter := NewParticleEmitter()
+	emitter.SetImage(s.LoadImage(imageID))
+	return emitter
+}
+
+func (s *Scene) NewShader(shaderID resource.ShaderID) Shader {
+	compiled := s.Context().Loader.LoadShader(shaderID)
+	return Shader{Enabled: true, compiled: compiled}
+}
+
 func (s *Scene) NewSprite(imageID resource.ImageID) *Sprite {
-	sprite := NewSprite()
+	sprite := NewSprite(s.root.context)
 	sprite.SetImage(s.LoadImage(imageID))
 	return sprite
 }
 
 func (s *Scene) NewRepeatedSprite(imageID resource.ImageID, width, height float64) *Sprite {
-	sprite := NewSprite()
+	sprite := NewSprite(s.root.context)
 	sprite.SetRepeatedImage(s.LoadImage(imageID), width, height)
 	return sprite
 }
@@ -137,7 +152,7 @@ func (s *Scene) GetCollisions(b *physics.Body) []physics.Collision {
 	return s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{})
 }
 
-func (s *Scene) HasCollisionsAt(b *physics.Body, offset gemath.Vec) bool {
+func (s *Scene) HasCollisionsAt(b *physics.Body, offset gmath.Vec) bool {
 	collisions := s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{
 		Offset: offset,
 		Limit:  1,
@@ -145,7 +160,23 @@ func (s *Scene) HasCollisionsAt(b *physics.Body, offset gemath.Vec) bool {
 	return len(collisions) != 0
 }
 
-func (s *Scene) GetMovementCollision(b *physics.Body, velocity gemath.Vec) *physics.Collision {
+func (s *Scene) GetCollisionsAtLayer(b *physics.Body, offset gmath.Vec, layerMask uint16) []physics.Collision {
+	return s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{
+		Offset:    offset,
+		LayerMask: layerMask,
+	})
+}
+
+func (s *Scene) HasCollisionsAtLayer(b *physics.Body, offset gmath.Vec, layerMask uint16) bool {
+	collisions := s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{
+		Offset:    offset,
+		Limit:     1,
+		LayerMask: layerMask,
+	})
+	return len(collisions) != 0
+}
+
+func (s *Scene) GetMovementCollision(b *physics.Body, velocity gmath.Vec) *physics.Collision {
 	collisions := s.root.collisionEngine.GetCollisions(b, physics.CollisionConfig{
 		Velocity: velocity,
 		Limit:    1,

@@ -2,11 +2,11 @@ package ge
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type PolyLine struct {
-	Points []gemath.Vec
+	Points []gmath.Vec
 
 	ColorScale ColorScale
 
@@ -29,11 +29,11 @@ func (l *PolyLine) ResetPoints() {
 	l.Points = l.Points[:0]
 }
 
-func (l *PolyLine) PushPoint(pt gemath.Vec) {
+func (l *PolyLine) PushPoint(pt gmath.Vec) {
 	l.Points = append(l.Points, pt)
 }
 
-func (l *PolyLine) PopPoint() gemath.Vec {
+func (l *PolyLine) PopPoint() gmath.Vec {
 	pt := l.Points[len(l.Points)-1]
 	l.Points = l.Points[:len(l.Points)-1]
 	return pt

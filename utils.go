@@ -3,15 +3,15 @@ package ge
 import (
 	"image/color"
 
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
-func NewVec(x, y float64) *gemath.Vec {
-	return &gemath.Vec{X: x, Y: y}
+func NewVec(x, y float64) *gmath.Vec {
+	return &gmath.Vec{X: x, Y: y}
 }
 
-func NewRotation(deg float64) *gemath.Rad {
-	rad := gemath.DegToRad(deg)
+func NewRotation(deg float64) *gmath.Rad {
+	rad := gmath.DegToRad(deg)
 	return &rad
 }
 

@@ -5,8 +5,8 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/resource"
+	"github.com/quasilyte/gmath"
 )
 
 type Shader struct {
@@ -46,11 +46,11 @@ type Sprite struct {
 	id    resource.ImageID
 
 	Pos      Pos
-	Rotation *gemath.Rad
+	Rotation *gmath.Rad
 
 	colorsChanged bool
 	colorScale    ColorScale
-	hue           gemath.Rad
+	hue           gmath.Rad
 	colorM        ebiten.ColorM
 
 	Scale float64
@@ -60,7 +60,7 @@ type Sprite struct {
 	Visible        bool
 	Centered       bool
 
-	FrameOffset     gemath.Vec
+	FrameOffset     gmath.Vec
 	FrameWidth      float64
 	FrameHeight     float64
 	FrameTrimTop    float64
@@ -134,7 +134,7 @@ func (s *Sprite) SetColorScale(colorScale ColorScale) {
 	s.colorsChanged = true
 }
 
-func (s *Sprite) SetHue(hue gemath.Rad) {
+func (s *Sprite) SetHue(hue gmath.Rad) {
 	if s.hue == hue {
 		return
 	}
@@ -233,20 +233,11 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 
 	var drawOptions ebiten.DrawImageOptions
 
-	var origin gemath.Vec
+	var origin gmath.Vec
 	if s.Centered {
-		origin = gemath.Vec{X: s.FrameWidth / 2, Y: s.FrameHeight / 2}
+		origin = gmath.Vec{X: s.FrameWidth / 2, Y: s.FrameHeight / 2}
 	}
 	origin = origin.Sub(s.Pos.Offset)
-
-	drawOptions.GeoM.Translate(-origin.X, -origin.Y)
-	if s.Rotation != nil {
-		drawOptions.GeoM.Rotate(float64(*s.Rotation))
-	}
-	if s.Scale != 1 {
-		drawOptions.GeoM.Scale(s.Scale, s.Scale)
-	}
-	drawOptions.GeoM.Translate(origin.X, origin.Y)
 
 	if s.FlipHorizontal {
 		drawOptions.GeoM.Scale(-1, 1)
@@ -256,6 +247,15 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 		drawOptions.GeoM.Scale(1, -1)
 		drawOptions.GeoM.Translate(0, s.FrameHeight)
 	}
+
+	drawOptions.GeoM.Translate(-origin.X, -origin.Y)
+	if s.Rotation != nil {
+		drawOptions.GeoM.Rotate(float64(*s.Rotation))
+	}
+	if s.Scale != 1 {
+		drawOptions.GeoM.Scale(s.Scale, s.Scale)
+	}
+	drawOptions.GeoM.Translate(origin.X, origin.Y)
 
 	if s.Pos.Base != nil {
 		drawOptions.GeoM.Translate(s.Pos.Base.X-origin.X, s.Pos.Base.Y-origin.Y)
@@ -271,7 +271,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 
 	var srcImage *ebiten.Image
 	var srcBounds image.Rectangle
-	needSubImage := (s.FrameOffset != gemath.Vec{}) ||
+	needSubImage := (s.FrameOffset != gmath.Vec{}) ||
 		s.FrameTrimTop != 0 ||
 		s.FrameTrimBottom != 0 ||
 		s.FrameWidth != s.imageWidth ||
@@ -287,8 +287,15 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 				Y: int(s.FrameOffset.Y + s.FrameHeight - s.FrameTrimBottom),
 			},
 		}
-		srcImage = s.image.SubImage(srcBounds).(*ebiten.Image)
-
+		// Basically, we're doing this:
+		// > srcImage = s.image.SubImage(srcBounds)
+		// But without redundant allocation.
+		unsafeSrc := toUnsafeImage(s.image)
+		unsafeSubImage := s.imageCache.UnsafeImageForSubImage()
+		unsafeSubImage.original = unsafeSrc
+		unsafeSubImage.bounds = srcBounds
+		unsafeSubImage.image = unsafeSrc.image
+		srcImage = toEbitenImage(unsafeSubImage)
 	} else {
 		srcImage = s.image
 		srcBounds = s.image.Bounds()

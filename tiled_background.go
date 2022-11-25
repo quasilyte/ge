@@ -4,9 +4,9 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/resource"
 	"github.com/quasilyte/ge/tiled"
+	"github.com/quasilyte/gmath"
 )
 
 type TiledBackground struct {
@@ -16,7 +16,7 @@ type TiledBackground struct {
 
 	ColorScale ColorScale
 
-	Hue gemath.Rad
+	Hue gmath.Rad
 
 	disposed bool
 
@@ -25,7 +25,7 @@ type TiledBackground struct {
 }
 
 type tileInfo struct {
-	offset gemath.Vec
+	offset gmath.Vec
 	frame  int
 }
 
@@ -51,15 +51,15 @@ func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, sour
 		bg.frames = append(bg.frames, frameImage)
 	}
 
-	framePicker := gemath.NewRandPicker[int](&ctx.Rand)
+	framePicker := gmath.NewRandPicker[int](&ctx.Rand)
 	for i := 0; i < ts.NumTiles; i++ {
-		framePicker.AddOption(i, ts.Tiles[i].Probability)
+		framePicker.AddOption(i, *ts.Tiles[i].Probability)
 	}
 
 	bg.tiles = bg.tiles[:0]
 	for y := float64(0); y < height; y += ts.TileHeight {
 		for x := float64(0); x < width; x += ts.TileWidth {
-			offset := gemath.Vec{X: x, Y: y}
+			offset := gmath.Vec{X: x, Y: y}
 			frame := framePicker.Pick()
 			bg.tiles = append(bg.tiles, tileInfo{
 				offset: offset,
