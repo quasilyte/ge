@@ -4,13 +4,13 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/internal/primitives"
+	"github.com/quasilyte/gmath"
 )
 
 type Line struct {
-	BeginPos *gemath.Vec
-	EndPos   *gemath.Vec
+	BeginPos *gmath.Vec
+	EndPos   *gmath.Vec
 
 	ColorScale ColorScale
 
@@ -21,7 +21,7 @@ type Line struct {
 	disposed bool
 }
 
-func NewLine(begin, end *gemath.Vec) *Line {
+func NewLine(begin, end *gmath.Vec) *Line {
 	return &Line{
 		Visible:    true,
 		ColorScale: defaultColorScale,
@@ -46,7 +46,7 @@ func (l *Line) Draw(screen *ebiten.Image) {
 	drawLine(screen, *l.BeginPos, *l.EndPos, l.Width, l.ColorScale)
 }
 
-func drawLine(dst *ebiten.Image, pos1, pos2 gemath.Vec, width float64, c ColorScale) {
+func drawLine(dst *ebiten.Image, pos1, pos2 gmath.Vec, width float64, c ColorScale) {
 	x1 := pos1.X
 	y1 := pos1.Y
 	x2 := pos2.X
