@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/internal/gamedata"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/resource"
+	"github.com/quasilyte/gmath"
 )
 
 type Context struct {
@@ -21,7 +21,7 @@ type Context struct {
 
 	Dict *langs.Dictionary
 
-	Rand gemath.Rand
+	Rand gmath.Rand
 
 	CurrentScene *RootScene
 
@@ -48,7 +48,7 @@ func NewContext() *Context {
 	ctx.Rand.SetSeed(0)
 	ctx.Audio.Init(ctx.Loader)
 	// TODO: some platforms don't need touches
-	ctx.Input.Init(input.SystemConfig{TouchesEnabled: true})
+	ctx.Input.Init(input.SystemConfig{DevicesEnabled: input.AnyInput})
 	ctx.OnCriticalError = func(err error) {
 		panic(err)
 	}
@@ -76,9 +76,9 @@ func (ctx *Context) Draw(screen *ebiten.Image) {
 	ctx.Renderer.Draw(screen, &ctx.CurrentScene.graphics)
 }
 
-func (ctx *Context) WindowRect() gemath.Rect {
-	return gemath.Rect{
-		Max: gemath.Vec{X: ctx.WindowWidth, Y: ctx.WindowHeight},
+func (ctx *Context) WindowRect() gmath.Rect {
+	return gmath.Rect{
+		Max: gmath.Vec{X: ctx.WindowWidth, Y: ctx.WindowHeight},
 	}
 }
 
