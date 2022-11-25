@@ -16,9 +16,7 @@ func RunGame(ctx *Context, controller SceneController) error {
 		ctx:      ctx,
 		prevTime: time.Now(),
 	}
-	if ctx.FullScreen {
-		ebiten.SetFullscreen(true)
-	}
+	ebiten.SetFullscreen(ctx.FullScreen)
 	ctx.firstController = controller
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
