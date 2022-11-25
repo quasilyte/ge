@@ -1,8 +1,19 @@
 package tiled
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // https://doc.mapeditor.org/en/latest/reference/json-map-format/
+
+const (
+	flippedHorizontallyFlag = 0x80000000
+	flippedVerticallyFlag   = 0x40000000
+	flippedDiagonallyFlag   = 0x20000000
+	rotatedHexagonal120Flag = 0x10000000
+	numGIDFlagBits          = 4
+	flagsShift              = (32 - numGIDFlagBits)
+)
 
 type Tileset struct {
 	Type string `json:"type"`
@@ -36,6 +47,7 @@ func UnmarshalTileset(jsonData []byte) (*Tileset, error) {
 		// IDs go from 0 to N-1.
 		tiles := make([]Tile, tileset.NumTiles)
 		for i := range tiles {
+			tiles[i].Index = i
 			tiles[i].ID = i
 			tiles[i].Probability = &always
 		}
@@ -45,10 +57,20 @@ func UnmarshalTileset(jsonData []byte) (*Tileset, error) {
 			if tileset.Tiles[i].Probability == nil {
 				tileset.Tiles[i].Probability = &always
 			}
+			tileset.Tiles[i].Index = i
 		}
 	}
 
 	return &tileset, nil
+}
+
+func (tileset *Tileset) TileByClass(class string) *Tile {
+	for i := range tileset.Tiles {
+		if tileset.Tiles[i].Class == class {
+			return &tileset.Tiles[i]
+		}
+	}
+	return nil
 }
 
 func (tileset *Tileset) TileByID(id int) *Tile {
@@ -61,6 +83,8 @@ func (tileset *Tileset) TileByID(id int) *Tile {
 }
 
 type Tile struct {
+	Index int
+
 	ID int `json:"id"`
 
 	Class string `json:"class"`
@@ -88,6 +112,15 @@ type Object struct {
 	Y        int          `json:"y"`
 	Rotation int          `json:"rotation"`
 	Props    []ObjectProp `json:"properties"`
+	flags    uint8
+}
+
+func (o *Object) FlippedHorizontally() bool {
+	return o.flags&(flippedHorizontallyFlag>>flagsShift) != 0
+}
+
+func (o *Object) FlippedVertically() bool {
+	return o.flags&(flippedVerticallyFlag>>flagsShift) != 0
 }
 
 func (o *Object) GetProp(name string) *ObjectProp {
@@ -121,6 +154,17 @@ func (o *Object) GetStringProp(name string, defaultValue string) string {
 	return p.Value.(string)
 }
 
+func (o *Object) GetFloatProp(name string, defaultValue float64) float64 {
+	p := o.GetProp(name)
+	if p == nil {
+		return defaultValue
+	}
+	if p.Type != "float" {
+		return defaultValue
+	}
+	return p.Value.(float64)
+}
+
 type ObjectProp struct {
 	Name  string `json:"name"`
 	Type  string
@@ -136,6 +180,15 @@ func UnmarshalMap(jsonData []byte) (*Map, error) {
 	var m Map
 	if err := json.Unmarshal(jsonData, &m); err != nil {
 		return nil, err
+	}
+
+	const flagsMask = 0xF0000000
+	for _, l := range m.Layers {
+		for i := range l.Objects {
+			o := &l.Objects[i]
+			o.flags = uint8((o.GID & flagsMask) >> flagsShift)
+			o.GID &^= flagsMask
+		}
 	}
 	return &m, nil
 }
