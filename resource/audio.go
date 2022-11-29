@@ -11,6 +11,12 @@ import (
 type Audio struct {
 	Path string
 
+	// Group is a sound group ID.
+	// Groups are used to apply group-wide operations like
+	// volume adjustments.
+	// Conventionally, group 0 is "sound effect", 1 is "music", 2 is "voice".
+	Group uint
+
 	// Volume adjust how loud this sound will be.
 	// The default value of 0 means "unadjusted".
 	// Value greated than 0 increases the volume, negative values decrease it.
@@ -39,10 +45,13 @@ type AudioSystem struct {
 
 	currentQueueSound *audioResource
 	soundQueue        []AudioID
+
+	groupVolume [4]float64
 }
 
 type audioResource struct {
 	player *audio.Player
+	group  uint
 	volume float64
 }
 
@@ -51,6 +60,10 @@ func (sys *AudioSystem) Init(l *Loader) {
 	sys.audioContext = audio.NewContext(44100)
 	sys.resources = make(map[AudioID]*audioResource)
 	sys.soundQueue = make([]AudioID, 0, 4)
+
+	for i := range sys.groupVolume {
+		sys.groupVolume[i] = 1.0
+	}
 
 	// Audio player factory has lazy initialization that may lead
 	// to a ~0.2s delay before the first sound can be played.
@@ -80,6 +93,13 @@ func (sys *AudioSystem) Update() {
 	}
 }
 
+func (sys *AudioSystem) SetGroupVolume(groupID uint, multiplier float64) {
+	if groupID >= uint(len(sys.groupVolume)) {
+		panic("invalid group ID")
+	}
+	sys.groupVolume[groupID] = multiplier
+}
+
 func (sys *AudioSystem) DecodeWAV(r io.Reader) (*wav.Stream, error) {
 	return wav.Decode(sys.audioContext, r)
 }
@@ -104,6 +124,7 @@ func (sys *AudioSystem) getOGGResource(id AudioID) *audioResource {
 	resource = &audioResource{
 		player: player,
 		volume: volume,
+		group:  oggInfo.Group,
 	}
 	sys.resources[id] = resource
 	return resource
@@ -120,7 +141,7 @@ func (sys *AudioSystem) ContinueCurrentMusic() {
 	if sys.currentMusic == nil || sys.currentMusic.player.IsPlaying() {
 		return
 	}
-	sys.currentMusic.player.SetVolume(sys.currentMusic.volume)
+	sys.currentMusic.player.SetVolume(sys.currentMusic.volume * sys.groupVolume[sys.currentMusic.group])
 	sys.currentMusic.player.Play()
 }
 
@@ -133,7 +154,7 @@ func (sys *AudioSystem) continueMusic(res *audioResource) {
 		return
 	}
 	sys.currentMusic = res
-	res.player.SetVolume(res.volume)
+	res.player.SetVolume(res.volume * sys.groupVolume[res.group])
 	res.player.Play()
 }
 
@@ -143,7 +164,7 @@ func (sys *AudioSystem) PlayMusic(id AudioID) {
 		return
 	}
 	sys.currentMusic = res
-	res.player.SetVolume(res.volume)
+	res.player.SetVolume(res.volume * sys.groupVolume[res.group])
 	res.player.Rewind()
 	res.player.Play()
 }
@@ -173,10 +194,11 @@ func (sys *AudioSystem) playSound(id AudioID) *audioResource {
 		resource = &audioResource{
 			player: player,
 			volume: volume,
+			group:  wavInfo.Group,
 		}
 		sys.resources[id] = resource
 	}
-	resource.player.SetVolume(resource.volume)
+	resource.player.SetVolume(resource.volume * sys.groupVolume[resource.group])
 	resource.player.Rewind()
 	resource.player.Play()
 	return resource
