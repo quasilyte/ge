@@ -140,3 +140,9 @@ func All[T any](slice []T, pred func(T) bool) bool {
 	}
 	return true
 }
+
+func Prepend[T any](slice []T, elems ...T) []T {
+	result := make([]T, len(elems))
+	copy(result, elems)
+	return append(result, elems...)
+}
