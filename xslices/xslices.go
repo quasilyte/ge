@@ -142,7 +142,7 @@ func All[T any](slice []T, pred func(T) bool) bool {
 }
 
 func Prepend[T any](slice []T, elems ...T) []T {
-	result := make([]T, len(elems))
+	result := make([]T, len(elems), len(slice)+len(elems))
 	copy(result, elems)
-	return append(result, elems...)
+	return append(result, slice...)
 }
