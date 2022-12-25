@@ -19,6 +19,7 @@ type KeyModifier uint8
 const (
 	ModControl KeyModifier = iota
 	ModShift
+	ModControlShift
 )
 
 // KeyWithModifier turns k into a combined modifier+k key.
@@ -32,6 +33,8 @@ func KeyWithModifier(k Key, mod KeyModifier) Key {
 			k.kind = keyKeyboardWithCtrl
 		case ModShift:
 			k.kind = keyKeyboardWithShift
+		case ModControlShift:
+			k.kind = keyKeyboardWithCtrlShift
 		default:
 			panic("unexpected key modifier")
 		}
@@ -41,6 +44,8 @@ func KeyWithModifier(k Key, mod KeyModifier) Key {
 			k.kind = keyMouseWithCtrl
 		case ModShift:
 			k.kind = keyMouseWithShift
+		case ModControlShift:
+			k.kind = keyMouseWithCtrlShift
 		default:
 			panic("unexpected key modifier")
 		}
@@ -49,6 +54,13 @@ func KeyWithModifier(k Key, mod KeyModifier) Key {
 	}
 	return k
 }
+
+// Wheel keys.
+var (
+	KeyWheelUp       = Key{code: int(wheelUp), kind: keyWheel, name: "wheel_up"}
+	KeyWheelDown     = Key{code: int(wheelDown), kind: keyWheel, name: "wheel_down"}
+	KeyWheelVertical = Key{code: int(wheelVertical), kind: keyWheel, name: "wheel_vertical"}
+)
 
 // Mouse keys.
 var (

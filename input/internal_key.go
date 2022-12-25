@@ -6,13 +6,16 @@ const (
 	keyKeyboard keyKind = iota
 	keyKeyboardWithCtrl
 	keyKeyboardWithShift
+	keyKeyboardWithCtrlShift
 	keyGamepad
 	keyGamepadLeftStick
 	keyGamepadRightStick
 	keyMouse
 	keyMouseWithCtrl
 	keyMouseWithShift
+	keyMouseWithCtrlShift
 	keyTouch
+	keyWheel
 )
 
 type touchCode int
@@ -20,6 +23,15 @@ type touchCode int
 const (
 	touchUnknown touchCode = iota
 	touchTap
+)
+
+type wheelCode int
+
+const (
+	wheelUnknown wheelCode = iota
+	wheelUp
+	wheelDown
+	wheelVertical
 )
 
 type stickCode int
