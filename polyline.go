@@ -16,8 +16,8 @@ type PolyLine struct {
 }
 
 type LinePoint struct {
-	Pos   gmath.Vec
-	Color ColorScale
+	Pos        gmath.Vec
+	ColorScale ColorScale
 }
 
 func NewPolyLine() *PolyLine {
@@ -33,15 +33,15 @@ func (l *PolyLine) ResetPoints() {
 
 func (l *PolyLine) PushColorPoint(pt gmath.Vec, c ColorScale) {
 	l.Points = append(l.Points, LinePoint{
-		Color: c,
-		Pos:   pt,
+		ColorScale: c,
+		Pos:        pt,
 	})
 }
 
 func (l *PolyLine) PushPoint(pt gmath.Vec) {
 	l.Points = append(l.Points, LinePoint{
-		Color: defaultColorScale,
-		Pos:   pt,
+		ColorScale: defaultColorScale,
+		Pos:        pt,
 	})
 }
 
@@ -71,6 +71,6 @@ func (l *PolyLine) Draw(screen *ebiten.Image) {
 	for i := 0; i < len(points)-1; i++ {
 		pt1 := points[i]
 		pt2 := points[i+1]
-		drawLine(screen, pt1.Pos, pt2.Pos, l.Width, pt2.Color)
+		drawLine(screen, pt1.Pos, pt2.Pos, l.Width, pt2.ColorScale)
 	}
 }
