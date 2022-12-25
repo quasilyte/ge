@@ -6,9 +6,7 @@ import (
 )
 
 type PolyLine struct {
-	Points []gmath.Vec
-
-	ColorScale ColorScale
+	Points []LinePoint
 
 	Width float64
 
@@ -17,11 +15,15 @@ type PolyLine struct {
 	disposed bool
 }
 
+type LinePoint struct {
+	Pos   gmath.Vec
+	Color ColorScale
+}
+
 func NewPolyLine() *PolyLine {
 	return &PolyLine{
-		Visible:    true,
-		ColorScale: defaultColorScale,
-		Width:      1,
+		Visible: true,
+		Width:   1,
 	}
 }
 
@@ -29,14 +31,24 @@ func (l *PolyLine) ResetPoints() {
 	l.Points = l.Points[:0]
 }
 
+func (l *PolyLine) PushColorPoint(pt gmath.Vec, c ColorScale) {
+	l.Points = append(l.Points, LinePoint{
+		Color: c,
+		Pos:   pt,
+	})
+}
+
 func (l *PolyLine) PushPoint(pt gmath.Vec) {
-	l.Points = append(l.Points, pt)
+	l.Points = append(l.Points, LinePoint{
+		Color: defaultColorScale,
+		Pos:   pt,
+	})
 }
 
 func (l *PolyLine) PopPoint() gmath.Vec {
 	pt := l.Points[len(l.Points)-1]
 	l.Points = l.Points[:len(l.Points)-1]
-	return pt
+	return pt.Pos
 }
 
 func (l *PolyLine) IsDisposed() bool {
@@ -59,6 +71,6 @@ func (l *PolyLine) Draw(screen *ebiten.Image) {
 	for i := 0; i < len(points)-1; i++ {
 		pt1 := points[i]
 		pt2 := points[i+1]
-		drawLine(screen, pt1, pt2, l.Width, l.ColorScale)
+		drawLine(screen, pt1.Pos, pt2.Pos, l.Width, pt2.Color)
 	}
 }
