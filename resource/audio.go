@@ -184,12 +184,9 @@ func (sys *AudioSystem) PlaySound(id AudioID) {
 func (sys *AudioSystem) playSound(id AudioID) *audioResource {
 	resource, ok := sys.resources[id]
 	if !ok {
-		stream := sys.loader.LoadWAV(id)
+		wavData := sys.loader.LoadWAV(id)
 		wavInfo := sys.loader.GetAudioInfo(id)
-		player, err := sys.audioContext.NewPlayer(stream)
-		if err != nil {
-			panic(err.Error())
-		}
+		player := sys.audioContext.NewPlayerFromBytes(wavData)
 		volume := (wavInfo.Volume / 2) + 0.5
 		resource = &audioResource{
 			player: player,

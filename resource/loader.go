@@ -32,7 +32,7 @@ type Loader struct {
 
 	images  map[ImageID]Image
 	shaders map[ShaderID]*ebiten.Shader
-	wavs    map[AudioID]*wav.Stream
+	wavs    map[AudioID][]byte
 	oggs    map[AudioID]*vorbis.Stream
 	fonts   map[FontID]font.Face
 	raws    map[RawID][]byte
@@ -50,7 +50,7 @@ func NewLoader(wd wavDecoder, od oggDecoder) *Loader {
 	l := &Loader{
 		images:     make(map[ImageID]Image),
 		shaders:    make(map[ShaderID]*ebiten.Shader),
-		wavs:       make(map[AudioID]*wav.Stream),
+		wavs:       make(map[AudioID][]byte),
 		oggs:       make(map[AudioID]*vorbis.Stream),
 		fonts:      make(map[FontID]font.Face),
 		raws:       make(map[RawID][]byte),
@@ -98,8 +98,8 @@ func (l *Loader) PreloadRaw(id RawID) {
 	l.LoadRaw(id)
 }
 
-func (l *Loader) LoadWAV(id AudioID) *wav.Stream {
-	stream, ok := l.wavs[id]
+func (l *Loader) LoadWAV(id AudioID) []byte {
+	data, ok := l.wavs[id]
 	if !ok {
 		wavInfo := l.GetAudioInfo(id)
 		r := l.OpenAssetFunc(wavInfo.Path)
@@ -108,14 +108,17 @@ func (l *Loader) LoadWAV(id AudioID) *wav.Stream {
 				panic(fmt.Sprintf("closing %q wav reader: %v", wavInfo.Path, err))
 			}
 		}()
-		var err error
-		stream, err = l.wavDecoder.DecodeWAV(r)
+		stream, err := l.wavDecoder.DecodeWAV(r)
 		if err != nil {
 			panic(fmt.Sprintf("decode %q wav: %v", wavInfo.Path, err))
 		}
-		l.wavs[id] = stream
+		data, err := io.ReadAll(stream)
+		if err != nil {
+			panic(fmt.Sprintf("read %q wav: %v", wavInfo.Path, err))
+		}
+		l.wavs[id] = data
 	}
-	return stream
+	return data
 }
 
 func (l *Loader) GetAudioInfo(id AudioID) Audio {
