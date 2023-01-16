@@ -6,18 +6,29 @@ import (
 )
 
 type Dictionary struct {
-	Name       string
+	Name string
+
 	entries    map[string]string
 	titleWords map[string]string
+	keyBuf     []byte
 }
 
-func ParseDictionary(name string, data []byte) (*Dictionary, error) {
-	dict := &Dictionary{
+func NewDictionary(name string) *Dictionary {
+	return &Dictionary{
 		Name:       name,
 		entries:    make(map[string]string, 64),
 		titleWords: make(map[string]string, 16),
+		keyBuf:     make([]byte, 256),
 	}
+}
 
+func ParseDictionary(name string, data []byte) (*Dictionary, error) {
+	dict := NewDictionary(name)
+	err := dict.Load("", data)
+	return dict, err
+}
+
+func (d *Dictionary) Load(prefix string, data []byte) error {
 	offset := 0
 	sectionBodyBegin := 0
 	sectionBodyEnd := 0
@@ -51,8 +62,11 @@ func ParseDictionary(name string, data []byte) (*Dictionary, error) {
 		}
 		if flush {
 			if sectionKey != "" {
+				if prefix != "" {
+					sectionKey = prefix + "." + sectionKey
+				}
 				s := strings.TrimSpace(string(data[sectionBodyBegin:sectionBodyEnd]))
-				dict.entries[sectionKey] = s
+				d.entries[sectionKey] = s
 			}
 			sectionKey = nextSectionKey
 			sectionBodyBegin = nextSectionBodyBegin
@@ -62,7 +76,7 @@ func ParseDictionary(name string, data []byte) (*Dictionary, error) {
 		}
 	}
 
-	return dict, nil
+	return nil
 }
 
 func (d *Dictionary) GetTitleCase(key string) string {
@@ -74,6 +88,24 @@ func (d *Dictionary) GetTitleCase(key string) string {
 		}
 		s = strings.Title(s2)
 		d.titleWords[key] = s
+	}
+	return s
+}
+
+func (d *Dictionary) GetFromSection(prefix, key string) string {
+	if len(prefix) == 0 {
+		return d.Get(key)
+	}
+
+	buf := d.keyBuf
+	copy(buf, prefix)
+	buf[len(prefix)] = '.'
+	copy(buf[len(prefix)+1:], key)
+	buf = buf[:len(prefix)+1+len(key)]
+
+	s, ok := d.entries[string(buf)]
+	if !ok {
+		return "{{" + key + "}}"
 	}
 	return s
 }
