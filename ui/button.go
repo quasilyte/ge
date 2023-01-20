@@ -91,6 +91,7 @@ func (b *Button) Init(scene *ge.Scene) {
 	b.rect.OutlineWidth = b.style.BorderWidth
 	b.rect.Pos = b.Pos
 	b.rect.Centered = false
+	b.rect.Visible = b.Visible
 	scene.AddGraphics(b.rect)
 
 	b.label = scene.NewLabel(b.style.Font)
@@ -100,6 +101,7 @@ func (b *Button) Init(scene *ge.Scene) {
 	b.label.AlignVertical = ge.AlignVerticalCenter
 	b.label.Pos = b.Pos
 	b.label.ColorScale = b.style.TextColor
+	b.label.Visible = b.Visible
 	scene.AddGraphics(b.label)
 }
 
