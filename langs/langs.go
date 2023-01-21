@@ -92,28 +92,39 @@ func (d *Dictionary) GetTitleCase(key string) string {
 	return s
 }
 
-func (d *Dictionary) GetFromSection(prefix, key string) string {
-	if len(prefix) == 0 {
-		return d.Get(key)
-	}
-
-	buf := d.keyBuf
-	copy(buf, prefix)
-	buf[len(prefix)] = '.'
-	copy(buf[len(prefix)+1:], key)
-	buf = buf[:len(prefix)+1+len(key)]
-
-	s, ok := d.entries[string(buf)]
-	if !ok {
-		return "{{" + key + "}}"
-	}
+func (d *Dictionary) Get(keyParts ...string) string {
+	s, _ := d.get(d.entries, keyParts...)
 	return s
 }
 
-func (d *Dictionary) Get(key string) string {
-	s, ok := d.entries[key]
-	if !ok {
-		return "{{" + key + "}}"
+func (d *Dictionary) get(m map[string]string, keyParts ...string) (string, bool) {
+	if len(keyParts) == 1 {
+		return d.getSimple(d.entries, keyParts[0])
 	}
-	return s
+
+	buf := d.keyBuf
+	offset := 0
+	for i, p := range keyParts {
+		copy(buf[offset:], p)
+		offset += len(p)
+		if i != len(keyParts)-1 {
+			buf[offset] = '.'
+			offset++
+		}
+	}
+	buf = buf[:offset]
+
+	s, ok := m[string(buf)]
+	if !ok {
+		return "{{" + string(buf) + "}}", false
+	}
+	return s, true
+}
+
+func (d *Dictionary) getSimple(m map[string]string, key string) (string, bool) {
+	s, ok := m[key]
+	if !ok {
+		return "{{" + key + "}}", false
+	}
+	return s, true
 }
