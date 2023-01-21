@@ -3,7 +3,7 @@ package langs
 import "testing"
 
 func BenchmarkDictGet(b *testing.B) {
-	d := NewDictionary("en")
+	d := NewDictionary("en", 2)
 	err := d.Load("", []byte(`
 ##first_part : example
 ##first_part.second_part : example

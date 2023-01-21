@@ -8,22 +8,25 @@ import (
 type Dictionary struct {
 	Name string
 
+	tabSpaces string
+
 	entries    map[string]string
 	titleWords map[string]string
 	keyBuf     []byte
 }
 
-func NewDictionary(name string) *Dictionary {
+func NewDictionary(name string, tabSpaces int) *Dictionary {
 	return &Dictionary{
 		Name:       name,
 		entries:    make(map[string]string, 64),
 		titleWords: make(map[string]string, 16),
 		keyBuf:     make([]byte, 256),
+		tabSpaces:  strings.Repeat(" ", tabSpaces),
 	}
 }
 
-func ParseDictionary(name string, data []byte) (*Dictionary, error) {
-	dict := NewDictionary(name)
+func ParseDictionary(name string, tabSpaces int, data []byte) (*Dictionary, error) {
+	dict := NewDictionary(name, tabSpaces)
 	err := dict.Load("", data)
 	return dict, err
 }
@@ -66,6 +69,7 @@ func (d *Dictionary) Load(prefix string, data []byte) error {
 					sectionKey = prefix + "." + sectionKey
 				}
 				s := strings.TrimSpace(string(data[sectionBodyBegin:sectionBodyEnd]))
+				s = strings.ReplaceAll(s, `\t`, d.tabSpaces)
 				d.entries[sectionKey] = s
 			}
 			sectionKey = nextSectionKey
