@@ -1,9 +1,9 @@
 package ui
 
 import (
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
-	"github.com/quasilyte/ge/resource"
 	"github.com/quasilyte/gmath"
 )
 

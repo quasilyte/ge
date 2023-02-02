@@ -2,9 +2,9 @@ package ge
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/physics"
-	"github.com/quasilyte/ge/resource"
 	"github.com/quasilyte/gmath"
 )
 
@@ -58,7 +58,7 @@ func (s *Scene) Dict() *langs.Dictionary {
 	return s.root.context.Dict
 }
 
-func (s *Scene) Audio() *resource.AudioSystem {
+func (s *Scene) Audio() *AudioSystem {
 	return &s.root.context.Audio
 }
 
@@ -70,7 +70,7 @@ func (s *Scene) LoadImage(imageID resource.ImageID) resource.Image {
 	return s.root.context.Loader.LoadImage(imageID)
 }
 
-func (s *Scene) LoadRaw(rawID resource.RawID) []byte {
+func (s *Scene) LoadRaw(rawID resource.RawID) resource.Raw {
 	return s.root.context.Loader.LoadRaw(rawID)
 }
 
@@ -82,7 +82,7 @@ func (s *Scene) NewParticleEmitter(imageID resource.ImageID) *ParticleEmitter {
 
 func (s *Scene) NewShader(shaderID resource.ShaderID) Shader {
 	compiled := s.Context().Loader.LoadShader(shaderID)
-	return Shader{Enabled: true, compiled: compiled}
+	return Shader{Enabled: true, compiled: compiled.Data}
 }
 
 func (s *Scene) NewSprite(imageID resource.ImageID) *Sprite {
@@ -98,7 +98,7 @@ func (s *Scene) NewRepeatedSprite(imageID resource.ImageID, width, height float6
 }
 
 func (s *Scene) NewLabel(fontID resource.FontID) *Label {
-	return NewLabel(s.root.context.Loader.LoadFont(fontID))
+	return NewLabel(s.root.context.Loader.LoadFont(fontID).Face)
 }
 
 func (s *Scene) AddBody(b *physics.Body) {

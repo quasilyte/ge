@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/resource"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge/tiled"
 	"github.com/quasilyte/gmath"
 )
@@ -37,7 +37,7 @@ func NewTiledBackground() *TiledBackground {
 }
 
 func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, source resource.ImageID, tileset resource.RawID) {
-	ts, err := tiled.UnmarshalTileset(ctx.Loader.LoadRaw(tileset))
+	ts, err := tiled.UnmarshalTileset(ctx.Loader.LoadRaw(tileset).Data)
 	if err != nil {
 		panic(err)
 	}

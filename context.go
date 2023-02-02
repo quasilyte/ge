@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/internal/gamedata"
 	"github.com/quasilyte/ge/langs"
-	"github.com/quasilyte/ge/resource"
 	"github.com/quasilyte/gmath"
 )
 
@@ -17,7 +18,7 @@ type Context struct {
 	Renderer *Renderer
 
 	Input input.System
-	Audio resource.AudioSystem
+	Audio AudioSystem
 
 	Dict *langs.Dictionary
 
@@ -43,10 +44,11 @@ func NewContext() *Context {
 	ctx := &Context{
 		WindowTitle: "GE Game",
 	}
-	ctx.Loader = resource.NewLoader(&ctx.Audio, &ctx.Audio)
+	audioContext := audio.NewContext(44100)
+	ctx.Loader = resource.NewLoader(audioContext)
+	ctx.Audio.init(audioContext, ctx.Loader)
 	ctx.Renderer = NewRenderer()
 	ctx.Rand.SetSeed(0)
-	ctx.Audio.Init(ctx.Loader)
 	// TODO: some platforms don't need touches
 	ctx.Input.Init(input.SystemConfig{DevicesEnabled: input.AnyInput})
 	ctx.OnCriticalError = func(err error) {

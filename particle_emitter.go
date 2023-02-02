@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/resource"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/gmath"
 )
 
