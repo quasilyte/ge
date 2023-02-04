@@ -4,7 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func applyColorScale(c ColorScale, opts *ebiten.DrawImageOptions) {
+func applyColorScale(c ColorScale, colorM *ebiten.ColorM) {
 	if c == defaultColorScale {
 		return
 	}
@@ -12,7 +12,7 @@ func applyColorScale(c ColorScale, opts *ebiten.DrawImageOptions) {
 	g := float64(c.G)
 	b := float64(c.B)
 	a := float64(c.A)
-	opts.ColorM.Scale(r, g, b, a)
+	colorM.Scale(r, g, b, a)
 }
 
 func assignColors(vertices []ebiten.Vertex, c ColorScale) {

@@ -180,7 +180,7 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	}
 
 	var drawOptions ebiten.DrawImageOptions
-	applyColorScale(l.ColorScale, &drawOptions)
+	applyColorScale(l.ColorScale, &drawOptions.ColorM)
 	if l.Hue != 0 {
 		drawOptions.ColorM.RotateHue(float64(l.Hue))
 	}

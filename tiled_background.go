@@ -83,7 +83,7 @@ func (bg *TiledBackground) Draw(screen *ebiten.Image) {
 	}
 
 	var op ebiten.DrawImageOptions
-	applyColorScale(bg.ColorScale, &op)
+	applyColorScale(bg.ColorScale, &op.ColorM)
 	if bg.Hue != 0 {
 		op.ColorM.RotateHue(float64(bg.Hue))
 	}
