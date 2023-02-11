@@ -54,7 +54,7 @@ func newExampleGame() *exampleGame {
 	g := &exampleGame{}
 
 	g.inputSystem.Init(input.SystemConfig{
-		DevicesEnabled: input.AnyInput,
+		DevicesEnabled: input.AnyDevice,
 	})
 
 	return g
@@ -80,14 +80,14 @@ func (g *exampleGame) Draw(screen *ebiten.Image) {
 
 func (g *exampleGame) init() {
 	keymap := input.Keymap{
-		// ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyGamepadLStickLeft},
-		// ActionMoveRight: {input.KeyGamepadRight, input.KeyGamepadLStickRight},
-		ActionDebug: {input.KeyGamepadLeft},
+		ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyGamepadLStickLeft},
+		ActionMoveRight: {input.KeyGamepadRight, input.KeyGamepadLStickRight},
+		ActionDebug:     {input.KeyGamepadLeft},
 	}
 
 	g.state.inputHandlers = make([]*input.Handler, 4)
 	for i := range g.state.inputHandlers {
-		g.state.inputHandlers[i] = g.inputSystem.NewHandler(i, keymap)
+		g.state.inputHandlers[i] = g.inputSystem.NewHandler(uint8(i), keymap)
 	}
 
 	g.currentScene = &lobbyScene{
@@ -107,7 +107,6 @@ func (s *lobbyScene) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "connect gamepads, press buttons", 200, 160)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("the scene changes in %.1f seconds", s.secondsLeft), 200, 200)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("gamepads detected: %d", s.gamepads), 240, 240)
-
 }
 
 func (s *lobbyScene) Update() scene {

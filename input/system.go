@@ -11,9 +11,9 @@ import (
 //
 // Store System object (by value) inside your game context/state object like this:
 //
-//    struct GameState {
-//        InputSystem input.System
-//    }
+//	struct GameState {
+//	    InputSystem input.System
+//	}
 //
 // When ebitengine game is executed, call gameState.InputSystem.Init() once.
 //
@@ -24,6 +24,11 @@ import (
 type System struct {
 	gamepadIDs  []ebiten.GamepadID
 	gamepadInfo []gamepadInfo
+
+	pendingEvents       []simulatedEvent
+	prevSimulatedEvents []simulatedEvent
+	simulatedEvents     []simulatedEvent
+	hasSimulatedActions bool
 
 	touchEnabled bool
 	touchIDs     []ebiten.TouchID
@@ -40,13 +45,13 @@ type System struct {
 // This configuration can't be changed once created.
 type SystemConfig struct {
 	// DevicesEnabled selects the input devices that should be handled.
-	// For the most cases, AnyInput value is a good option.
-	DevicesEnabled InputDeviceKind
+	// For the most cases, AnyDevice value is a good option.
+	DevicesEnabled DeviceKind
 }
 
 func (sys *System) Init(config SystemConfig) {
-	sys.touchEnabled = config.DevicesEnabled&TouchInput != 0
-	sys.mouseEnabled = config.DevicesEnabled&MouseInput != 0
+	sys.touchEnabled = config.DevicesEnabled&TouchDevice != 0
+	sys.mouseEnabled = config.DevicesEnabled&MouseDevice != 0
 
 	sys.gamepadIDs = make([]ebiten.GamepadID, 0, 8)
 	sys.gamepadInfo = make([]gamepadInfo, 8)
@@ -57,6 +62,23 @@ func (sys *System) Init(config SystemConfig) {
 }
 
 func (sys *System) Update() {
+	// Rotate the events slices.
+	// Pending events become simulated in this frame.
+	// Re-use the other slice capacity to push new events.
+	//	prev simulated <- simulated
+	//	pending <- prev simulated
+	//	simulated <- pending
+	sys.prevSimulatedEvents, sys.pendingEvents, sys.simulatedEvents =
+		sys.simulatedEvents, sys.prevSimulatedEvents, sys.pendingEvents
+	sys.pendingEvents = sys.pendingEvents[:0]
+	sys.hasSimulatedActions = false
+	for i := range sys.simulatedEvents {
+		if sys.simulatedEvents[i].keyKind == keySimulated {
+			sys.hasSimulatedActions = true
+			break
+		}
+	}
+
 	sys.gamepadIDs = ebiten.AppendGamepadIDs(sys.gamepadIDs[:0])
 	if len(sys.gamepadIDs) != 0 {
 		for i, id := range sys.gamepadIDs {
@@ -111,7 +133,7 @@ func (sys *System) updateGamepadInfo(id ebiten.GamepadID, info *gamepadInfo) {
 	switch info.model {
 	case gamepadStandard:
 		copy(info.prevAxisValues[:], info.axisValues[:])
-		for axis := ebiten.StandardGamepadAxisLeftStickHorizontal; axis < ebiten.StandardGamepadAxisMax; axis++ {
+		for axis := ebiten.StandardGamepadAxisLeftStickHorizontal; axis <= ebiten.StandardGamepadAxisMax; axis++ {
 			v := ebiten.StandardGamepadAxisValue(id, axis)
 			info.axisValues[int(axis)] = v
 		}
@@ -138,14 +160,10 @@ func (sys *System) updateGamepadInfo(id ebiten.GamepadID, info *gamepadInfo) {
 // NewHandler creates a handler associated with player/device ID.
 // IDs should start with 0 with a step of 1.
 // So, NewHandler(0, ...) then NewHandler(1, ...).
-func (sys *System) NewHandler(playerID int, keymap Keymap) *Handler {
+func (sys *System) NewHandler(playerID uint8, keymap Keymap) *Handler {
 	return &Handler{
 		id:     playerID,
 		keymap: keymap,
 		sys:    sys,
 	}
-}
-
-func (sys *System) NewMultiHandler() *MultiHandler {
-	return &MultiHandler{}
 }

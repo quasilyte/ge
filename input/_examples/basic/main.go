@@ -59,7 +59,7 @@ func newExampleGame() *exampleGame {
 
 	// The System.Init() should be called exactly once.
 	g.inputSystem.Init(input.SystemConfig{
-		DevicesEnabled: input.AnyInput,
+		DevicesEnabled: input.AnyDevice,
 	})
 
 	return g
@@ -127,7 +127,7 @@ func (g *exampleGame) Init() {
 		if i == 0 {
 			m = keymap0
 		}
-		h := g.inputSystem.NewHandler(i, m)
+		h := g.inputSystem.NewHandler(uint8(i), m)
 		if h.GamepadConnected() {
 			numGamepads++
 		}
@@ -137,9 +137,9 @@ func (g *exampleGame) Init() {
 	// There can be only one player with keyboard.
 	// There can be up to 4 players with gamepads.
 	numPlayers := 1
-	inputDevice := input.KeyboardInput
+	inputDevice := input.KeyboardDevice
 	if numGamepads != 0 {
-		inputDevice = input.GamepadInput
+		inputDevice = input.GamepadDevice
 		numPlayers = numGamepads
 	}
 

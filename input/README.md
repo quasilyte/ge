@@ -1,5 +1,8 @@
 ## Ebitengine input library
 
+![Build Status](https://github.com/quasilyte/ebitengine-input/workflows/Go/badge.svg)
+[![PkgGoDev](https://pkg.go.dev/badge/mod/github.com/quasilyte/ebitengine-input)](https://pkg.go.dev/mod/github.com/quasilyte/ebitengine-input)
+
 ### Overview
 
 A [Godot](https://godotengine.org/)-inspired action input handling system for [Ebitengine](https://github.com/hajimehoshi/ebiten).
@@ -11,10 +14,22 @@ A [Godot](https://godotengine.org/)-inspired action input handling system for [E
 * Bind more than one key to a single action
 * Bind keys with modifiers to a single action (like `ctrl+c`)
 * Simplified multi-input handling (like multiple gamepads)
+* Simplified keymap loading from a file (see [configfile](_examples/configfile/main.go) example)
+* Implements simulated/virtual input events (see [simulateinput](_examples/simulateinput/main.go) example)
 * No extra dependencies (apart from the [Ebitengine](https://github.com/hajimehoshi/ebiten) of course)
 * Solves some issues related to gamepads in browsers
 * Wheel/scroll as action events
+* Motion-style events, like "gamepad stick just moved" (see [smooth_movement](_examples/smooth_movement/main.go) example)
 * Can be used without extra deps or with [gmath](https://github.com/quasilyte/gmath) integration
+
+This library may require some extra docs, code comments and examples. You can significantly help me by providing those. Pointing out what is currently missing is helpful too!
+
+Some games that were built with this library:
+
+* [Decipherism](https://quasilyte.itch.io/decipherism)
+* [Retrowave City](https://quasilyte.itch.io/retrowave-city)
+* [Autotanks](https://quasilyte.itch.io/autotanks)
+* [Learn Georgian](https://quasilyte.itch.io/georgian-trainer)
 
 ### Installation
 
@@ -64,7 +79,7 @@ type exampleGame struct {
 func newExampleGame() *exampleGame {
 	g := &exampleGame{}
 	g.inputSystem.Init(input.SystemConfig{
-		DevicesEnabled: input.AnyInput,
+		DevicesEnabled: input.AnyDevice,
 	})
 	keymap := input.Keymap{
 		ActionMoveLeft:  {input.KeyGamepadLeft, input.KeyLeft, input.KeyA},
@@ -187,7 +202,7 @@ You'll need to call the `input.System.Init()` once before calling its `Update()`
 func newMyGame() *myGame {
     g := &myGame{}
     g.inputSystem.Init(input.SystemConfig{
-		DevicesEnabled: input.AnyInput,
+		DevicesEnabled: input.AnyDevice,
 	})
     // ... rest of the game object initialization
     return g
@@ -212,7 +227,7 @@ Another benefit of this system is that we can get a list of relevant key events 
 // Otherwise show only keyboard-related keys.
 inputDeviceMask := input.KeyboardInput
 if h.GamepadConnected() {
-    inputDeviceMask = GamepadInput
+    inputDeviceMask = input.GamepadInput
 }
 keyNames := h.ActionKeyNames(ActionMoveLeft, inputDeviceMask)
 ```
@@ -233,3 +248,12 @@ input.KeyWithModifier(input.KeyC, input.ModControl)
 ```
 
 See an [example](_examples/basic/main.go) for a complete source code.
+
+### Thread Safety Notice
+
+This library never does any synchronization on its own. It's implied that you don't do a concurrent access to the input devices.
+
+Therefore, keep in mind:
+
+* Emitting a simulated input event from several goroutines is a data race
+* Using any `Handler` APIs while `System.Update` is in process is a data race
