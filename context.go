@@ -50,7 +50,7 @@ func NewContext() *Context {
 	ctx.Renderer = NewRenderer()
 	ctx.Rand.SetSeed(0)
 	// TODO: some platforms don't need touches
-	ctx.Input.Init(input.SystemConfig{DevicesEnabled: input.AnyInput})
+	ctx.Input.Init(input.SystemConfig{DevicesEnabled: input.AnyDevice})
 	ctx.OnCriticalError = func(err error) {
 		panic(err)
 	}
