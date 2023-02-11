@@ -20,8 +20,7 @@ type TiledBackground struct {
 
 	disposed bool
 
-	tiles  []tileInfo
-	frames []*ebiten.Image
+	combined *ebiten.Image
 }
 
 type tileInfo struct {
@@ -43,12 +42,12 @@ func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, sour
 	}
 
 	spriteSheet := ctx.Loader.LoadImage(source)
-	bg.frames = bg.frames[:0]
+	frames := make([]*ebiten.Image, 0, ts.NumTiles)
 	for i := 0; i < ts.NumTiles; i++ {
 		x := i * int(ts.TileWidth)
 		frameRect := image.Rect(x, 0, x+int(ts.TileWidth), int(ts.TileHeight))
 		frameImage := spriteSheet.Data.SubImage(frameRect).(*ebiten.Image)
-		bg.frames = append(bg.frames, frameImage)
+		frames = append(frames, frameImage)
 	}
 
 	framePicker := gmath.NewRandPicker[int](&ctx.Rand)
@@ -56,17 +55,23 @@ func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, sour
 		framePicker.AddOption(i, *ts.Tiles[i].Probability)
 	}
 
-	bg.tiles = bg.tiles[:0]
+	combined := ebiten.NewImage(int(width), int(height))
+	var op ebiten.DrawImageOptions
+	applyColorScale(bg.ColorScale, &op.ColorM)
+	if bg.Hue != 0 {
+		op.ColorM.RotateHue(float64(bg.Hue))
+	}
 	for y := float64(0); y < height; y += ts.TileHeight {
 		for x := float64(0); x < width; x += ts.TileWidth {
 			offset := gmath.Vec{X: x, Y: y}
-			frame := framePicker.Pick()
-			bg.tiles = append(bg.tiles, tileInfo{
-				offset: offset,
-				frame:  frame,
-			})
+			frameIndex := framePicker.Pick()
+			img := frames[frameIndex]
+			op.GeoM.Reset()
+			op.GeoM.Translate(offset.X, offset.Y)
+			combined.DrawImage(img, &op)
 		}
 	}
+	bg.combined = combined
 }
 
 func (bg *TiledBackground) IsDisposed() bool {
@@ -83,14 +88,5 @@ func (bg *TiledBackground) Draw(screen *ebiten.Image) {
 	}
 
 	var op ebiten.DrawImageOptions
-	applyColorScale(bg.ColorScale, &op.ColorM)
-	if bg.Hue != 0 {
-		op.ColorM.RotateHue(float64(bg.Hue))
-	}
-	for _, t := range bg.tiles {
-		img := bg.frames[t.frame]
-		op.GeoM.Reset()
-		op.GeoM.Translate(t.offset.X, t.offset.Y)
-		screen.DrawImage(img, &op)
-	}
+	screen.DrawImage(bg.combined, &op)
 }
