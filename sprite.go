@@ -218,6 +218,15 @@ func (s *Sprite) ImageHeight() float64 {
 	return float64(h)
 }
 
+func (s *Sprite) BoundsRect() gmath.Rect {
+	pos := s.Pos.Resolve()
+	offset := gmath.Vec{X: s.FrameWidth * 0.5, Y: s.FrameHeight * 0.5}
+	return gmath.Rect{
+		Min: pos.Sub(offset),
+		Max: pos.Add(offset),
+	}
+}
+
 func (s *Sprite) IsDisposed() bool {
 	return s.disposed
 }

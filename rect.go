@@ -42,6 +42,15 @@ func NewRect(ctx *Context, width, height float64) *Rect {
 	}
 }
 
+func (rect *Rect) BoundsRect() gmath.Rect {
+	pos := rect.Pos.Resolve()
+	offset := gmath.Vec{X: rect.Width * 0.5, Y: rect.Height * 0.5}
+	return gmath.Rect{
+		Min: pos.Sub(offset),
+		Max: pos.Add(offset),
+	}
+}
+
 func (rect *Rect) IsDisposed() bool {
 	return rect.disposed
 }
