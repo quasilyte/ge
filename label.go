@@ -187,7 +187,7 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	drawOptions.Filter = ebiten.FilterLinear
 
 	if l.AlignHorizontal == AlignHorizontalLeft {
-		drawOptions.GeoM.Translate(pos.X, pos.Y)
+		drawOptions.GeoM.Translate(math.Round(pos.X), math.Round(pos.Y))
 		text.DrawWithOptions(screen, l.Text, l.face, &drawOptions)
 		return
 	}
@@ -211,7 +211,7 @@ func (l *Label) Draw(screen *ebiten.Image) {
 			offsetX = containerRect.Width() - lineBoundsWidth
 		}
 		drawOptions.GeoM.Reset()
-		drawOptions.GeoM.Translate(pos.X+offsetX, pos.Y+offsetY)
+		drawOptions.GeoM.Translate(math.Round(pos.X+offsetX), math.Round(pos.Y+offsetY))
 		text.DrawWithOptions(screen, lineText, l.face, &drawOptions)
 		if nextLine == -1 {
 			break
