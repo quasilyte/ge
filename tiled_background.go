@@ -2,6 +2,7 @@ package ge
 
 import (
 	"image"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
@@ -20,6 +21,8 @@ type TiledBackground struct {
 
 	disposed bool
 
+	imageCache *imageCache
+
 	combined *ebiten.Image
 }
 
@@ -28,10 +31,11 @@ type tileInfo struct {
 	frame  int
 }
 
-func NewTiledBackground() *TiledBackground {
+func NewTiledBackground(ctx *Context) *TiledBackground {
 	return &TiledBackground{
 		Visible:    true,
 		ColorScale: defaultColorScale,
+		imageCache: &ctx.imageCache,
 	}
 }
 
@@ -80,6 +84,27 @@ func (bg *TiledBackground) IsDisposed() bool {
 
 func (bg *TiledBackground) Dispose() {
 	bg.disposed = true
+}
+
+func (bg *TiledBackground) DrawPartial(screen *ebiten.Image, section gmath.Rect) {
+	if !bg.Visible {
+		return
+	}
+
+	min := gmath.Vec{X: math.Round(section.Min.X), Y: math.Round(section.Min.Y)}
+	max := gmath.Vec{X: math.Round(section.Max.X), Y: math.Round(section.Max.Y)}
+	unsafeSrc := toUnsafeImage(bg.combined)
+	unsafeSubImage := bg.imageCache.UnsafeImageForSubImage()
+	unsafeSubImage.original = unsafeSrc
+	unsafeSubImage.bounds = image.Rectangle{
+		Min: image.Point{X: int(min.X), Y: int(min.Y)},
+		Max: image.Point{X: int(max.X), Y: int(max.Y)},
+	}
+	unsafeSubImage.image = unsafeSrc.image
+	srcImage := toEbitenImage(unsafeSubImage)
+	var op ebiten.DrawImageOptions
+	op.GeoM.Translate(min.X, min.Y)
+	screen.DrawImage(srcImage, &op)
 }
 
 func (bg *TiledBackground) Draw(screen *ebiten.Image) {
