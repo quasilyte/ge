@@ -30,6 +30,8 @@ github.com/quasilyte/ebitengine-input v0.0.0-20221029182132-f7a0f779fa80 h1:u4FR
 github.com/quasilyte/ebitengine-input v0.0.0-20221029182132-f7a0f779fa80/go.mod h1:9Cj8egSl6CuIiY7INmjW6YxqvIBNSQUeXI00XyO0W0M=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230131121810-c18be064e3ae h1:cZxrlvZ9WoizDbqQUka7NCfPCNkPaqyIewyo+vNmgSs=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230131121810-c18be064e3ae/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
+github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8 h1:pboonUte8ELejyq83hP1zH0sfvcwRsYgX2OWJC9fSHU=
+github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/gmath v0.0.0-20221030122701-1db3eacefb88 h1:PLHF6vz9o/NLGgDBoFC2flm2SIjV9sHyd6Bti0xlkIQ=
 github.com/quasilyte/gmath v0.0.0-20221030122701-1db3eacefb88/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gmath v0.0.0-20221030161443-c87c79f8cacf h1:DFogsSPKcPVkoR9IZvC1QbLd8j4uDF0rHVgm4sW7xks=
