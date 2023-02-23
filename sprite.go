@@ -114,6 +114,10 @@ func (s *Sprite) SetColorScaleRGBA(r, g, b, a uint8) {
 	s.SetColorScale(scale)
 }
 
+func (s *Sprite) GetColorScale() ColorScale {
+	return s.colorScale
+}
+
 func (s *Sprite) GetAlpha() float32 {
 	return s.colorScale.A
 }
