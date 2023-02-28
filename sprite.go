@@ -224,10 +224,16 @@ func (s *Sprite) ImageHeight() float64 {
 
 func (s *Sprite) BoundsRect() gmath.Rect {
 	pos := s.Pos.Resolve()
-	offset := gmath.Vec{X: s.FrameWidth * 0.5, Y: s.FrameHeight * 0.5}
+	if s.Centered {
+		offset := gmath.Vec{X: s.FrameWidth * 0.5, Y: s.FrameHeight * 0.5}
+		return gmath.Rect{
+			Min: pos.Sub(offset),
+			Max: pos.Add(offset),
+		}
+	}
 	return gmath.Rect{
-		Min: pos.Sub(offset),
-		Max: pos.Add(offset),
+		Min: pos,
+		Max: pos.Add(gmath.Vec{X: s.FrameWidth, Y: s.FrameHeight}),
 	}
 }
 
