@@ -107,7 +107,7 @@ type MapLayer struct {
 }
 
 type Object struct {
-	GID      int          `json:"gid"`
+	GID      int64        `json:"gid"`
 	X        int          `json:"x"`
 	Y        int          `json:"y"`
 	Rotation int          `json:"rotation"`
