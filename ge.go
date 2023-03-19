@@ -1,9 +1,11 @@
 package ge
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/quasilyte/ge/internal/locales"
 )
 
@@ -16,7 +18,9 @@ func RunGame(ctx *Context, controller SceneController) error {
 		ctx:      ctx,
 		prevTime: time.Now(),
 	}
-	ebiten.SetFullscreen(ctx.FullScreen)
+	if runtime.GOARCH != "wasm" {
+		ebiten.SetFullscreen(ctx.FullScreen)
+	}
 	ctx.firstController = controller
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
