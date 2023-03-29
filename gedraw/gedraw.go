@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/quasilyte/ge/internal/primitives"
+	"github.com/quasilyte/gmath"
 )
 
 func DrawRect(dst *ebiten.Image, rect gmath.Rect, c color.RGBA) {
