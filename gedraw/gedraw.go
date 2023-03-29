@@ -6,11 +6,10 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/internal/primitives"
 )
 
-func DrawRect(dst *ebiten.Image, rect gemath.Rect, c color.RGBA) {
+func DrawRect(dst *ebiten.Image, rect gmath.Rect, c color.RGBA) {
 	var drawOptions ebiten.DrawImageOptions
 	drawOptions.GeoM.Scale(rect.Width(), rect.Height())
 	drawOptions.GeoM.Translate(rect.Min.X, rect.Min.Y)
@@ -18,7 +17,7 @@ func DrawRect(dst *ebiten.Image, rect gemath.Rect, c color.RGBA) {
 	dst.DrawImage(primitives.WhitePixel, &drawOptions)
 }
 
-func DrawPath(dst *ebiten.Image, points []gemath.Vec, c color.RGBA) {
+func DrawPath(dst *ebiten.Image, points []gmath.Vec, c color.RGBA) {
 	if len(points) == 0 {
 		return
 	}
@@ -38,7 +37,7 @@ func DrawPath(dst *ebiten.Image, points []gemath.Vec, c color.RGBA) {
 	dst.DrawTriangles(vertices, indices, primitives.WhitePixel, &drawOptions)
 }
 
-func DrawArc(dst *ebiten.Image, pos gemath.Vec, radius float64, startAngle, endAngle gemath.Rad, c color.RGBA) {
+func DrawArc(dst *ebiten.Image, pos gmath.Vec, radius float64, startAngle, endAngle gmath.Rad, c color.RGBA) {
 	var drawOptions ebiten.DrawTrianglesOptions
 
 	var p vector.Path
@@ -50,7 +49,7 @@ func DrawArc(dst *ebiten.Image, pos gemath.Vec, radius float64, startAngle, endA
 	dst.DrawTriangles(vertices, indices, primitives.WhitePixel, &drawOptions)
 }
 
-func DrawCircle(dst *ebiten.Image, pos gemath.Vec, radius float64, c color.RGBA) {
+func DrawCircle(dst *ebiten.Image, pos gmath.Vec, radius float64, c color.RGBA) {
 	DrawArc(dst, pos, radius, 0, 2*math.Pi, c)
 }
 
