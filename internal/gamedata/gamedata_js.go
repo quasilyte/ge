@@ -4,8 +4,12 @@ import (
 	"syscall/js"
 )
 
+func dataPath(appName, itemKey string) string {
+	return "ge_game_" + appName + "_" + itemKey
+}
+
 func dataExists(appName, itemKey string) (bool, error) {
-	result := js.Global().Get("localStorage").Call("getItem", "ge_game_"+appName+"_"+itemKey)
+	result := js.Global().Get("localStorage").Call("getItem", dataPath(appName, itemKey))
 	return !result.IsNull(), nil
 }
 

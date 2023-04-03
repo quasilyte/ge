@@ -3,9 +3,18 @@
 package gamedata
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
+
+func dataPath(appName, itemKey string) string {
+	itemPath, err := getUnixItemFolder(appName, itemKey)
+	if err != nil {
+		return ""
+	}
+	return itemPath
+}
 
 func getUnixItemFolder(appName, itemKey string) (string, error) {
 	home, err := os.UserHomeDir()
@@ -37,6 +46,7 @@ func saveData(appName, itemKey string, data []byte) error {
 
 func loadData(appName, itemKey string) ([]byte, error) {
 	itemPath, err := getUnixItemFolder(appName, itemKey)
+	fmt.Println(itemPath)
 	if err != nil {
 		return nil, err
 	}

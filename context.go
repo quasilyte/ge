@@ -84,6 +84,10 @@ func (ctx *Context) WindowRect() gmath.Rect {
 	}
 }
 
+func (ctx *Context) LocateGameData(key string) string {
+	return gamedata.Locate(ctx.GameName, key)
+}
+
 func (ctx *Context) SaveGameData(key string, data any) {
 	if ctx.GameName == "" {
 		panic("can't save game data with empty Context.GameName")

@@ -11,3 +11,7 @@ func Load(appName, itemKey string) ([]byte, error) {
 func Exists(appName, itemKey string) (bool, error) {
 	return dataExists(appName, itemKey)
 }
+
+func Locate(appName, itemKey string) string {
+	return dataPath(appName, itemKey)
+}

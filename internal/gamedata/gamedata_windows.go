@@ -6,6 +6,14 @@ import (
 	"path/filepath"
 )
 
+func dataPath(appName, itemKey string) string {
+	itemPath, err := getWindowsItemFolder(appName, itemKey)
+	if err != nil {
+		return ""
+	}
+	return itemPath
+}
+
 func getWindowsItemFolder(appName, itemKey string) (string, error) {
 	appData := os.Getenv("AppData")
 	if appData == "" {
