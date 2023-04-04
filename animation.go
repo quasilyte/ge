@@ -8,6 +8,13 @@ import (
 
 // TODO: change animation speed to FPS instead of seconds per frame.
 
+type AnimationMode int
+
+const (
+	AnimationForward AnimationMode = iota
+	AnimationBackward
+)
+
 type Animation struct {
 	sprite     *Sprite
 	frameWidth float64
@@ -19,6 +26,7 @@ type Animation struct {
 	deltaPerFrame float64
 
 	repeated bool
+	Mode     AnimationMode
 
 	frame       int
 	frameTicker float64
@@ -74,6 +82,11 @@ func (a *Animation) IsDisposed() bool {
 func (a *Animation) Rewind() {
 	a.frameTicker = 0
 	a.frame = 0
+	if a.Mode == AnimationForward {
+		a.sprite.FrameOffset.X = 0
+	} else {
+		a.sprite.FrameOffset.X = a.frameWidth * float64(a.numFrames-1)
+	}
 }
 
 func (a *Animation) RewindTo(value float64) {
@@ -89,6 +102,7 @@ func (a *Animation) Tick(delta float64) bool {
 		}
 	}
 
+	// TODO: remove this Y axis overwrite?
 	a.sprite.FrameOffset.Y = a.offsetY
 
 	finished := false
@@ -106,6 +120,10 @@ func (a *Animation) Tick(delta float64) bool {
 		}
 	} else {
 		frame = int(a.frameTicker / a.deltaPerFrame)
+	}
+
+	if a.Mode == AnimationBackward {
+		frame = (a.numFrames - 1) - frame
 	}
 
 	framesDelta := frame - a.frame
