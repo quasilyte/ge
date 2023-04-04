@@ -40,10 +40,10 @@ func NewAnimation(s *Sprite, numFrames int) *Animation {
 }
 
 func (a *Animation) SetSprite(s *Sprite, numFrames int) {
+	a.sprite = s
 	if numFrames < 0 {
 		numFrames = int(s.ImageWidth() / s.FrameWidth)
 	}
-	a.sprite = s
 	a.frameWidth = s.FrameWidth
 	a.numFrames = numFrames
 }
