@@ -46,7 +46,7 @@ func (a *Animation) SetSprite(s *Sprite, numFrames int) {
 	}
 	a.frameWidth = s.FrameWidth
 	a.numFrames = numFrames
-	a.SetAnimationSpan(a.animationSpan)
+	a.SetSecondsPerFrame(a.deltaPerFrame)
 }
 
 func (a *Animation) SetOffsetY(offset float64) {
