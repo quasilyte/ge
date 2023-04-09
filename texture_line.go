@@ -12,6 +12,8 @@ type TextureLine struct {
 	BeginPos Pos
 	EndPos   Pos
 
+	Shader Shader
+
 	texture    *Texture
 	imageCache *imageCache
 
@@ -99,7 +101,7 @@ func (l *TextureLine) Draw(screen *ebiten.Image) {
 	}
 	subImage := l.imageCache.UnsafeSubImage(l.texture.image, bounds)
 
-	shaderEnabled := l.texture.Shader.Enabled && !l.texture.Shader.IsNil()
+	shaderEnabled := l.Shader.Enabled && !l.Shader.IsNil()
 	if !shaderEnabled {
 		screen.DrawImage(subImage, &drawOptions)
 	} else {
@@ -114,11 +116,11 @@ func (l *TextureLine) Draw(screen *ebiten.Image) {
 		}
 		options.CompositeMode = drawOptions.CompositeMode
 		options.Images[0] = subImage
-		options.Images[1] = l.texture.Shader.Texture1.Data
-		options.Images[2] = l.texture.Shader.Texture2.Data
-		options.Images[3] = l.texture.Shader.Texture3.Data
-		options.Uniforms = l.texture.Shader.shaderData
-		drawDest.DrawRectShader(bounds.Dx(), bounds.Dy(), l.texture.Shader.compiled, &options)
+		options.Images[1] = l.Shader.Texture1.Data
+		options.Images[2] = l.Shader.Texture2.Data
+		options.Images[3] = l.Shader.Texture3.Data
+		options.Uniforms = l.Shader.shaderData
+		drawDest.DrawRectShader(bounds.Dx(), bounds.Dy(), l.Shader.compiled, &options)
 		if usesColor {
 			screen.DrawImage(drawDest, &drawOptions)
 		}
