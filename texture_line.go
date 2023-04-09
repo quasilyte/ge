@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/gmath"
 )
 
@@ -13,11 +12,8 @@ type TextureLine struct {
 	BeginPos Pos
 	EndPos   Pos
 
-	image      *ebiten.Image
+	texture    *Texture
 	imageCache *imageCache
-
-	maxLen      float64
-	imageHeight float64
 
 	colorScale    ColorScale
 	colorM        ebiten.ColorM
@@ -38,30 +34,8 @@ func NewTextureLine(ctx *Context, begin, end Pos) *TextureLine {
 	}
 }
 
-func (l *TextureLine) SetImage(img resource.Image, maxLen float64) {
-	w, h := img.Data.Size()
-	imageWidth := float64(w)
-	l.imageHeight = float64(h)
-
-	texture := ebiten.NewImage(int(math.Round(maxLen)), h)
-	x := 0.0
-	var drawOptions ebiten.DrawImageOptions
-	for x < maxLen {
-		segmentWidth := imageWidth
-		srcImage := img.Data
-		if x+imageWidth > maxLen {
-			segmentWidth = maxLen - x
-			srcImage = img.Data.SubImage(image.Rectangle{
-				Max: image.Point{X: int(math.Round(segmentWidth)), Y: h},
-			}).(*ebiten.Image)
-		}
-		texture.DrawImage(srcImage, &drawOptions)
-		drawOptions.GeoM.Translate(segmentWidth, 0)
-		x += segmentWidth
-	}
-
-	l.image = texture
-	l.maxLen = maxLen
+func (l *TextureLine) SetTexture(tex *Texture) {
+	l.texture = tex
 }
 
 func (l *TextureLine) IsDisposed() bool {
@@ -101,13 +75,13 @@ func (l *TextureLine) Draw(screen *ebiten.Image) {
 	pos1 := l.BeginPos.Resolve()
 	pos2 := l.EndPos.Resolve()
 
-	origin := gmath.Vec{Y: l.imageHeight * 0.5}
+	origin := gmath.Vec{Y: l.texture.height * 0.5}
 
 	angle := pos1.AngleToPoint(pos2)
 
 	// Maybe use sin+cos to compute the length?
 	// TODO: compare sin+cos vs sqrt performance.
-	length := gmath.ClampMax(math.Round(pos1.DistanceTo(pos2)), l.maxLen)
+	length := gmath.ClampMax(math.Round(pos1.DistanceTo(pos2)), l.texture.width)
 
 	var drawOptions ebiten.DrawImageOptions
 	drawOptions.GeoM.Translate(-origin.X, -origin.Y)
@@ -117,9 +91,9 @@ func (l *TextureLine) Draw(screen *ebiten.Image) {
 	drawOptions.ColorM = l.colorM
 
 	bounds := image.Rectangle{
-		Max: image.Point{X: int(length), Y: int(l.imageHeight)},
+		Max: image.Point{X: int(length), Y: int(l.texture.height)},
 	}
-	subImage := l.imageCache.UnsafeSubImage(l.image, bounds)
+	subImage := l.imageCache.UnsafeSubImage(l.texture.image, bounds)
 	screen.DrawImage(subImage, &drawOptions)
 }
 
