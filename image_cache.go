@@ -1,6 +1,8 @@
 package ge
 
 import (
+	"image"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -13,6 +15,18 @@ type imageCache struct {
 	m map[imageCacheKey]*ebiten.Image
 
 	tmp unsafeImage
+}
+
+func (cache *imageCache) UnsafeSubImage(i *ebiten.Image, bounds image.Rectangle) *ebiten.Image {
+	// Basically, we're doing this:
+	// > subImage = i.SubImage(bounds)
+	// But without redundant allocation.
+	unsafeImg := toUnsafeImage(i)
+	unsafeSubImage := cache.UnsafeImageForSubImage()
+	unsafeSubImage.original = unsafeImg
+	unsafeSubImage.bounds = bounds
+	unsafeSubImage.image = unsafeImg.image
+	return toEbitenImage(unsafeSubImage)
 }
 
 func (cache *imageCache) UnsafeImageForSubImage() *unsafeImage {

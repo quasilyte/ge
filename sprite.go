@@ -306,15 +306,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 				Y: int(s.FrameOffset.Y + s.FrameHeight - s.FrameTrimBottom),
 			},
 		}
-		// Basically, we're doing this:
-		// > srcImage = s.image.SubImage(srcBounds)
-		// But without redundant allocation.
-		unsafeSrc := toUnsafeImage(s.image)
-		unsafeSubImage := s.imageCache.UnsafeImageForSubImage()
-		unsafeSubImage.original = unsafeSrc
-		unsafeSubImage.bounds = srcBounds
-		unsafeSubImage.image = unsafeSrc.image
-		srcImage = toEbitenImage(unsafeSubImage)
+		srcImage = s.imageCache.UnsafeSubImage(s.image, srcBounds)
 	} else {
 		srcImage = s.image
 		srcBounds = s.image.Bounds()
