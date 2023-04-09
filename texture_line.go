@@ -15,6 +15,8 @@ type TextureLine struct {
 	texture    *Texture
 	imageCache *imageCache
 
+	Shader Shader
+
 	colorScale    ColorScale
 	colorM        ebiten.ColorM
 	colorsChanged bool
@@ -94,7 +96,31 @@ func (l *TextureLine) Draw(screen *ebiten.Image) {
 		Max: image.Point{X: int(length), Y: int(l.texture.height)},
 	}
 	subImage := l.imageCache.UnsafeSubImage(l.texture.image, bounds)
-	screen.DrawImage(subImage, &drawOptions)
+
+	shaderEnabled := l.Shader.Enabled && !l.Shader.IsNil()
+	if !shaderEnabled {
+		screen.DrawImage(subImage, &drawOptions)
+	} else {
+		var drawDest *ebiten.Image
+		var options ebiten.DrawRectShaderOptions
+		usesColor := l.colorScale != defaultColorScale
+		if usesColor {
+			drawDest = l.imageCache.NewTempImage(bounds.Dx(), bounds.Dy())
+		} else {
+			drawDest = screen
+			options.GeoM = drawOptions.GeoM
+		}
+		options.CompositeMode = drawOptions.CompositeMode
+		options.Images[0] = subImage
+		options.Images[1] = l.Shader.Texture1.Data
+		options.Images[2] = l.Shader.Texture2.Data
+		options.Images[3] = l.Shader.Texture3.Data
+		options.Uniforms = l.Shader.shaderData
+		drawDest.DrawRectShader(bounds.Dx(), bounds.Dy(), l.Shader.compiled, &options)
+		if usesColor {
+			screen.DrawImage(drawDest, &drawOptions)
+		}
+	}
 }
 
 func (l *TextureLine) GetAlpha() float32 {
