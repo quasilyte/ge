@@ -18,16 +18,16 @@ func NewHorizontallyRepeatedTexture(img resource.Image, maxLen float64) *Texture
 	tex := &Texture{}
 
 	w, h := img.Data.Size()
-	tex.width = float64(w)
+	tex.width = math.Round(maxLen)
 	tex.height = float64(h)
 
-	repeatedImage := ebiten.NewImage(int(math.Round(maxLen)), h)
+	repeatedImage := ebiten.NewImage(int(tex.width), h)
 	x := 0.0
 	var drawOptions ebiten.DrawImageOptions
 	for x < maxLen {
-		segmentWidth := tex.width
+		segmentWidth := float64(w)
 		srcImage := img.Data
-		if x+tex.width > maxLen {
+		if x+segmentWidth > maxLen {
 			segmentWidth = maxLen - x
 			srcImage = img.Data.SubImage(image.Rectangle{
 				Max: image.Point{X: int(math.Round(segmentWidth)), Y: h},
