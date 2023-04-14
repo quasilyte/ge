@@ -101,6 +101,17 @@ func (d *Dictionary) Get(keyParts ...string) string {
 	return s
 }
 
+func (d *Dictionary) Has(keyParts ...string) bool {
+	_, ok := d.get(d.entries, keyParts...)
+	return ok
+}
+
+func (d *Dictionary) WalkKeys(f func(k string)) {
+	for k := range d.entries {
+		f(k)
+	}
+}
+
 func (d *Dictionary) get(m map[string]string, keyParts ...string) (string, bool) {
 	if len(keyParts) == 1 {
 		return d.getSimple(d.entries, keyParts[0])
