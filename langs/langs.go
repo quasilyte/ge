@@ -73,7 +73,7 @@ func (d *Dictionary) Load(prefix string, data []byte) error {
 				}
 				if !d.OverwriteAllowed {
 					if _, ok := d.entries[sectionKey]; ok {
-						return fmt.Errorf("%q key is already loaded", sectionBodyBegin)
+						return fmt.Errorf("%q key is already loaded", sectionKey)
 					}
 				}
 				s := strings.TrimSpace(string(data[sectionBodyBegin:sectionBodyEnd]))
