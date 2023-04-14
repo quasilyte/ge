@@ -3,7 +3,7 @@ module github.com/quasilyte/ge
 go 1.18
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.4.18
+	github.com/hajimehoshi/ebiten/v2 v2.4.16
 	golang.org/x/exp v0.0.0-20221023144134-a1e5550cf13e
 	golang.org/x/image v0.6.0
 )
