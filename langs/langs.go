@@ -2,11 +2,14 @@ package langs
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 )
 
 type Dictionary struct {
 	Name string
+
+	OverwriteAllowed bool
 
 	tabSpaces string
 
@@ -67,6 +70,11 @@ func (d *Dictionary) Load(prefix string, data []byte) error {
 			if sectionKey != "" {
 				if prefix != "" {
 					sectionKey = prefix + "." + sectionKey
+				}
+				if !d.OverwriteAllowed {
+					if _, ok := d.entries[sectionKey]; ok {
+						return fmt.Errorf("%q key is already loaded", sectionBodyBegin)
+					}
 				}
 				s := strings.TrimSpace(string(data[sectionBodyBegin:sectionBodyEnd]))
 				s = strings.ReplaceAll(s, `\t`, d.tabSpaces)
