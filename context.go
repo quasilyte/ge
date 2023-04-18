@@ -102,7 +102,7 @@ func (ctx *Context) SaveGameData(key string, data any) {
 	}
 }
 
-func (ctx *Context) LoadGameData(key string, dst any) {
+func (ctx *Context) LoadGameData(key string, dst any) error {
 	if ctx.GameName == "" {
 		panic("can't load game data with empty Context.GameName")
 	}
@@ -112,14 +112,11 @@ func (ctx *Context) LoadGameData(key string, dst any) {
 	}
 	if !exists {
 		ctx.SaveGameData(key, dst)
-		return
+		return nil
 	}
 	jsonData, err := gamedata.Load(ctx.GameName, key)
 	if err != nil {
 		panic(fmt.Sprintf("can't load game data with key %q: %v", key, err))
 	}
-	err = json.Unmarshal(jsonData, dst)
-	if err != nil {
-		panic(fmt.Sprintf("can't load game data with key %q: %v", key, err))
-	}
+	return json.Unmarshal(jsonData, dst)
 }
