@@ -12,10 +12,11 @@ type unsafeImage struct {
 
 	image *byte
 
-	bounds   image.Rectangle
 	original *unsafeImage
+	bounds   image.Rectangle
 
-	setVerticesCache map[[2]int][4]byte
+	tmpVertices []float32
+	tmpUniforms []uint32
 }
 
 func toUnsafeImage(img *ebiten.Image) *unsafeImage {
