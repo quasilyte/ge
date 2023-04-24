@@ -26,6 +26,10 @@ type SimulationRunner struct {
 	root *RootScene
 }
 
+func (r *SimulationRunner) Update(delta float64) {
+	r.root.update(delta)
+}
+
 func NewSimulatedScene(ctx *Context, controller SceneController) (*SimulationRunner, *Scene) {
 	root := newRootScene()
 	root.context = ctx
