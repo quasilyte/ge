@@ -20,6 +20,8 @@ type AudioSystem struct {
 	soundQueue        []resource.AudioID
 
 	groupVolume [4]float64
+
+	muted bool
 }
 
 type audioResource struct {
@@ -81,6 +83,9 @@ func (sys *AudioSystem) DecodeOGG(r io.Reader) (*vorbis.Stream, error) {
 }
 
 func (sys *AudioSystem) PauseCurrentMusic() {
+	if sys.muted {
+		return
+	}
 	if sys.currentMusic.Player == nil {
 		return
 	}
@@ -88,6 +93,9 @@ func (sys *AudioSystem) PauseCurrentMusic() {
 }
 
 func (sys *AudioSystem) ContinueCurrentMusic() {
+	if sys.muted {
+		return
+	}
 	if sys.currentMusic.Player == nil || sys.currentMusic.Player.IsPlaying() {
 		return
 	}
@@ -96,6 +104,9 @@ func (sys *AudioSystem) ContinueCurrentMusic() {
 }
 
 func (sys *AudioSystem) ContinueMusic(id resource.AudioID) {
+	if sys.muted {
+		return
+	}
 	sys.continueMusic(sys.loader.LoadAudio(id))
 }
 
@@ -109,6 +120,9 @@ func (sys *AudioSystem) continueMusic(res resource.Audio) {
 }
 
 func (sys *AudioSystem) PlayMusic(id resource.AudioID) {
+	if sys.muted {
+		return
+	}
 	res := sys.loader.LoadOGG(id)
 	if sys.currentMusic.Player != nil && res.Player == sys.currentMusic.Player && res.Player.IsPlaying() {
 		return
@@ -124,10 +138,16 @@ func (sys *AudioSystem) ResetQueue() {
 }
 
 func (sys *AudioSystem) EnqueueSound(id resource.AudioID) {
+	if sys.muted {
+		return
+	}
 	sys.soundQueue = append(sys.soundQueue, id)
 }
 
 func (sys *AudioSystem) PlaySound(id resource.AudioID) {
+	if sys.muted {
+		return
+	}
 	sys.playSound(id)
 }
 

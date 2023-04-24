@@ -50,7 +50,9 @@ func NewContext(config ContextConfig) *Context {
 	}
 	audioContext := audio.NewContext(44100)
 	ctx.Loader = resource.NewLoader(audioContext)
-	if !config.Mute {
+	if config.Mute {
+		ctx.Audio.muted = true
+	} else {
 		ctx.Audio.init(audioContext, ctx.Loader)
 	}
 	ctx.Renderer = NewRenderer()
