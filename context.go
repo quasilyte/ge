@@ -40,13 +40,19 @@ type Context struct {
 	imageCache imageCache
 }
 
-func NewContext() *Context {
+type ContextConfig struct {
+	Mute bool
+}
+
+func NewContext(config ContextConfig) *Context {
 	ctx := &Context{
 		WindowTitle: "GE Game",
 	}
 	audioContext := audio.NewContext(44100)
 	ctx.Loader = resource.NewLoader(audioContext)
-	ctx.Audio.init(audioContext, ctx.Loader)
+	if !config.Mute {
+		ctx.Audio.init(audioContext, ctx.Loader)
+	}
 	ctx.Renderer = NewRenderer()
 	ctx.Rand.SetSeed(0)
 	// TODO: some platforms don't need touches
