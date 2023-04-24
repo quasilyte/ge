@@ -22,6 +22,18 @@ type RootScene struct {
 	subSceneArray [zindexMax]Scene
 }
 
+type SimulationRunner struct {
+	root *RootScene
+}
+
+func NewSimulatedScene(ctx *Context, controller SceneController) (*SimulationRunner, *Scene) {
+	root := newRootScene()
+	root.context = ctx
+	root.controller = controller
+	scene := &root.subSceneArray[1]
+	return &SimulationRunner{root: root}, scene
+}
+
 func newRootScene() *RootScene {
 	root := &RootScene{
 		objects:      make([]SceneObject, 0, 32),
