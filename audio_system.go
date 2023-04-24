@@ -133,8 +133,11 @@ func (sys *AudioSystem) PlaySound(id resource.AudioID) {
 
 func (sys *AudioSystem) playSound(id resource.AudioID) resource.Audio {
 	res := sys.loader.LoadAudio(id)
-	res.Player.SetVolume(res.Volume * sys.groupVolume[res.Group])
-	res.Player.Rewind()
-	res.Player.Play()
+	volume := sys.groupVolume[res.Group]
+	if volume != 0 {
+		res.Player.SetVolume(res.Volume * sys.groupVolume[res.Group])
+		res.Player.Rewind()
+		res.Player.Play()
+	}
 	return res
 }
