@@ -37,11 +37,16 @@ func (g *gameRunner) Update() error {
 		g.ctx.firstController = nil
 	}
 
-	now := time.Now()
-	timeDelta := now.Sub(g.prevTime).Seconds()
-	g.prevTime = now
+	var delta float64
+	if g.ctx.fixedDelta {
+		delta = 1.0 / 60.0
+	} else {
+		now := time.Now()
+		delta = now.Sub(g.prevTime).Seconds()
+		g.prevTime = now
+	}
 
-	g.ctx.CurrentScene.update(timeDelta)
+	g.ctx.CurrentScene.update(delta)
 	return nil
 }
 
