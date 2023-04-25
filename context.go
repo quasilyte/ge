@@ -37,16 +37,20 @@ type Context struct {
 
 	firstController SceneController
 
+	fixedDelta bool
+
 	imageCache imageCache
 }
 
 type ContextConfig struct {
-	Mute bool
+	Mute       bool
+	FixedDelta bool
 }
 
 func NewContext(config ContextConfig) *Context {
 	ctx := &Context{
 		WindowTitle: "GE Game",
+		fixedDelta:  config.FixedDelta,
 	}
 	audioContext := audio.NewContext(44100)
 	ctx.Loader = resource.NewLoader(audioContext)
