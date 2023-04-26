@@ -39,7 +39,7 @@ func NewTiledBackground(ctx *Context) *TiledBackground {
 	}
 }
 
-func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, source resource.ImageID, tileset resource.RawID) {
+func (bg *TiledBackground) LoadTilesetWithRand(ctx *Context, rand *gmath.Rand, width, height float64, source resource.ImageID, tileset resource.RawID) {
 	ts, err := tiled.UnmarshalTileset(ctx.Loader.LoadRaw(tileset).Data)
 	if err != nil {
 		panic(err)
@@ -54,7 +54,7 @@ func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, sour
 		frames = append(frames, frameImage)
 	}
 
-	framePicker := gmath.NewRandPicker[int](&ctx.Rand)
+	framePicker := gmath.NewRandPicker[int](rand)
 	for i := 0; i < ts.NumTiles; i++ {
 		framePicker.AddOption(i, *ts.Tiles[i].Probability)
 	}
@@ -76,6 +76,10 @@ func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, sour
 		}
 	}
 	bg.combined = combined
+}
+
+func (bg *TiledBackground) LoadTileset(ctx *Context, width, height float64, source resource.ImageID, tileset resource.RawID) {
+	bg.LoadTilesetWithRand(ctx, &ctx.Rand, width, height, source, tileset)
 }
 
 func (bg *TiledBackground) IsDisposed() bool {
