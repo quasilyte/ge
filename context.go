@@ -114,6 +114,11 @@ func (ctx *Context) SaveGameData(key string, data any) {
 	}
 }
 
+func (ctx *Context) CheckGameData(key string) bool {
+	exists, err := gamedata.Exists(ctx.GameName, key)
+	return exists && err == nil
+}
+
 func (ctx *Context) LoadGameData(key string, dst any) error {
 	if ctx.GameName == "" {
 		panic("can't load game data with empty Context.GameName")
