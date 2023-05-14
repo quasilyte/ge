@@ -119,3 +119,7 @@ func (bg *TiledBackground) Draw(screen *ebiten.Image) {
 	var op ebiten.DrawImageOptions
 	screen.DrawImage(bg.combined, &op)
 }
+
+func (bg *TiledBackground) DrawImage(img *ebiten.Image, options *ebiten.DrawImageOptions) {
+	bg.combined.DrawImage(img, options)
+}
