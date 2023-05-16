@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gedebug"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/gmath"
 
 	"image/color"
 	_ "image/png"
@@ -21,13 +21,12 @@ const (
 )
 
 func main() {
-	ctx := ge.NewContext()
+	ctx := ge.NewContext(ge.ContextConfig{})
 	ctx.WindowTitle = "Collisions"
 	ctx.WindowWidth = 800
 	ctx.WindowHeight = 640
 
 	// Bind controls.
-
 	keymap := input.Keymap{
 		ActionLeft:        {input.KeyA},
 		ActionRight:       {input.KeyD},
@@ -49,7 +48,7 @@ type controller struct {
 
 func (c *controller) Init(scene *ge.Scene) {
 	p := &player{input: c.input}
-	p.body.Pos = gemath.Vec{X: 400, Y: 320}
+	p.body.Pos = gmath.Vec{X: 400, Y: 320}
 	scene.AddObject(p)
 
 	{
@@ -57,7 +56,7 @@ func (c *controller) Init(scene *ge.Scene) {
 		o := &obstacle{}
 		b.InitCircle(o, 20)
 		o.body = b
-		o.body.Pos = gemath.Vec{X: 300, Y: 200}
+		o.body.Pos = gmath.Vec{X: 300, Y: 200}
 		scene.AddObject(o)
 	}
 
@@ -66,7 +65,7 @@ func (c *controller) Init(scene *ge.Scene) {
 		o := &obstacle{}
 		b.InitRotatedRect(o, 100, 20)
 		o.body = b
-		o.body.Pos = gemath.Vec{X: 450, Y: 400}
+		o.body.Pos = gmath.Vec{X: 450, Y: 400}
 		scene.AddObject(o)
 	}
 	{
@@ -74,7 +73,7 @@ func (c *controller) Init(scene *ge.Scene) {
 		o := &obstacle{}
 		b.InitRotatedRect(o, 20, 100)
 		o.body = b
-		o.body.Pos = gemath.Vec{X: 650, Y: 400}
+		o.body.Pos = gmath.Vec{X: 650, Y: 400}
 		scene.AddObject(o)
 	}
 	{
@@ -82,7 +81,7 @@ func (c *controller) Init(scene *ge.Scene) {
 		o := &obstacle{rotates: true}
 		b.InitRotatedRect(o, 160, 60)
 		o.body = b
-		o.body.Pos = gemath.Vec{X: 500, Y: 200}
+		o.body.Pos = gmath.Vec{X: 500, Y: 200}
 		scene.AddObject(o)
 	}
 }
@@ -124,13 +123,13 @@ func (p *player) Update(delta float64) {
 
 	const movementSpeed = 128
 	const rotationSpeed = 2
-	var velocity gemath.Vec
+	var velocity gmath.Vec
 	if p.input.ActionIsPressed(ActionLeft) {
 		switch {
 		case p.body.IsCircle():
 			velocity.X = -movementSpeed * delta
 		case p.body.IsRotatedRect():
-			p.body.Rotation -= rotationSpeed * gemath.Rad(delta)
+			p.body.Rotation -= rotationSpeed * gmath.Rad(delta)
 		}
 	}
 	if p.input.ActionIsPressed(ActionRight) {
@@ -138,7 +137,7 @@ func (p *player) Update(delta float64) {
 		case p.body.IsCircle():
 			velocity.X = movementSpeed * delta
 		case p.body.IsRotatedRect():
-			p.body.Rotation += rotationSpeed * gemath.Rad(delta)
+			p.body.Rotation += rotationSpeed * gmath.Rad(delta)
 		}
 	}
 	if p.input.ActionIsPressed(ActionUp) {
@@ -146,7 +145,7 @@ func (p *player) Update(delta float64) {
 		case p.body.IsCircle():
 			velocity.Y = -movementSpeed * delta
 		case p.body.IsRotatedRect():
-			velocity = gemath.RadToVec(p.body.Rotation).Mulf(movementSpeed * delta)
+			velocity = gmath.RadToVec(p.body.Rotation).Mulf(movementSpeed * delta)
 		}
 	}
 	if p.input.ActionIsPressed(ActionDown) {
@@ -154,7 +153,7 @@ func (p *player) Update(delta float64) {
 		case p.body.IsCircle():
 			velocity.Y = movementSpeed * delta
 		case p.body.IsRotatedRect():
-			velocity = gemath.RadToVec(p.body.Rotation).Mulf(-movementSpeed * delta)
+			velocity = gmath.RadToVec(p.body.Rotation).Mulf(-movementSpeed * delta)
 		}
 	}
 
@@ -190,6 +189,6 @@ func (o *obstacle) IsDisposed() bool { return o.body.IsDisposed() }
 
 func (o *obstacle) Update(delta float64) {
 	if o.rotates {
-		o.body.Rotation += gemath.Rad(delta / 2)
+		o.body.Rotation += gmath.Rad(delta / 2)
 	}
 }
