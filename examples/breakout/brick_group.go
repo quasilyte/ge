@@ -1,12 +1,10 @@
 package main
 
-import (
-	"github.com/quasilyte/ge/gemath"
-)
+import "github.com/quasilyte/gmath"
 
 type brickGroup struct {
 	bricks    []*brick
-	rotate    gemath.Rad
+	rotate    gmath.Rad
 	dx        float64
 	slideTime float64
 	slide     float64
@@ -17,7 +15,7 @@ func (g *brickGroup) Update(delta float64) {
 		if b.IsDisposed() {
 			continue
 		}
-		b.body.Rotation += g.rotate * gemath.Rad(delta)
+		b.body.Rotation += g.rotate * gmath.Rad(delta)
 		b.body.Pos.X += g.dx * delta
 		if g.slide >= g.slideTime {
 			g.dx = -g.dx

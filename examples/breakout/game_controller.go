@@ -1,11 +1,11 @@
 package main
 
 import (
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/input"
-	"github.com/quasilyte/ge/resource"
+	"github.com/quasilyte/gmath"
 )
 
 type gameController struct {
@@ -38,7 +38,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 		ImagePlatform,
 	}
 	for _, p := range preloadImages {
-		ctx.Loader.PreloadImage(p)
+		ctx.Loader.LoadImage(p)
 	}
 	preloadAudio := []resource.AudioID{
 		AudioBrickDestroyed,
@@ -46,7 +46,7 @@ func (c *gameController) Init(scene *ge.Scene) {
 		AudioMusic,
 	}
 	for _, p := range preloadAudio {
-		ctx.Loader.PreloadAudio(p)
+		ctx.Loader.LoadAudio(p)
 	}
 
 	ctx.Audio.PlayMusic(AudioMusic)
@@ -60,25 +60,25 @@ func (c *gameController) Init(scene *ge.Scene) {
 	// Deploy the initial objects of the scene.
 	c.platform = newPlatform(c.input)
 	c.platform.EventBallLost.Connect(nil, c.onBallLost)
-	c.platform.body.Pos = gemath.Vec{X: 400, Y: 600}
+	c.platform.body.Pos = gmath.Vec{X: 400, Y: 600}
 	scene.AddObject(c.platform)
 
 	for i := 0; i < c.platform.numLives; i++ {
-		pos := gemath.Vec{X: 32, Y: float64(i*32) + 64}
+		pos := gmath.Vec{X: 32, Y: float64(i*32) + 64}
 		lifeSphere := scene.NewSprite(ImageBall)
 		lifeSphere.Pos.Base = &pos
 		c.lifeSpheres = append(c.lifeSpheres, lifeSphere)
 		scene.AddGraphics(lifeSphere)
 	}
 
-	leftWall := newWall(800, 16, gemath.DegToRad(100))
-	leftWall.body.Pos = gemath.Vec{X: 40, Y: 320}
+	leftWall := newWall(800, 16, gmath.DegToRad(100))
+	leftWall.body.Pos = gmath.Vec{X: 40, Y: 320}
 	scene.AddObject(leftWall)
-	rightWall := newWall(800, 16, gemath.DegToRad(-100))
-	rightWall.body.Pos = gemath.Vec{X: 760, Y: 320}
+	rightWall := newWall(800, 16, gmath.DegToRad(-100))
+	rightWall.body.Pos = gmath.Vec{X: 760, Y: 320}
 	scene.AddObject(rightWall)
 	topWall := newWall(800, 16, 0)
-	topWall.body.Pos = gemath.Vec{X: 400, Y: 6}
+	topWall.body.Pos = gmath.Vec{X: 400, Y: 6}
 	scene.AddObject(topWall)
 
 	c.initLevel()
@@ -90,14 +90,14 @@ func (c *gameController) Update(delta float64) {
 	c.slidingRightBricks.Update(delta)
 }
 
-func (c *gameController) newCircleBrick(scale float64, pos gemath.Vec) *brick {
+func (c *gameController) newCircleBrick(scale float64, pos gmath.Vec) *brick {
 	c.numBricks++
 	b := newCircleBrick(scale, pos)
 	b.EventDestroyed.Connect(b, c.onBrickDestroyed)
 	return b
 }
 
-func (c *gameController) newBrick(scale float64, rotation gemath.Rad, pos gemath.Vec) *brick {
+func (c *gameController) newBrick(scale float64, rotation gmath.Rad, pos gmath.Vec) *brick {
 	c.numBricks++
 	b := newBrick(scale, rotation, pos)
 	b.EventDestroyed.Connect(b, c.onBrickDestroyed)
@@ -139,8 +139,8 @@ func (c *gameController) initLevel() {
 	c.slidingRightBricks.slideTime = 4
 
 	{
-		pos := gemath.Vec{X: 544, Y: 64}
-		rotation := gemath.Rad(0)
+		pos := gmath.Vec{X: 544, Y: 64}
+		rotation := gmath.Rad(0)
 		for i := 0; i < 14; i++ {
 			b := c.newBrick(1, rotation, pos)
 			rotation += 0.45
@@ -152,7 +152,7 @@ func (c *gameController) initLevel() {
 
 	for i := 0; i < 5; i++ {
 		x := float64(144)
-		b := c.newBrick(1.2, 0, gemath.Vec{X: x, Y: float64(i*96 + 64)})
+		b := c.newBrick(1.2, 0, gmath.Vec{X: x, Y: float64(i*96 + 64)})
 		if i%2 == 0 {
 			b.body.Pos.X += 96
 			c.slidingLeftBricks.bricks = append(c.slidingLeftBricks.bricks, b)
@@ -162,11 +162,11 @@ func (c *gameController) initLevel() {
 		c.scene.AddObject(b)
 	}
 
-	c.scene.AddObject(c.newCircleBrick(1, gemath.Vec{X: 512, Y: 240}))
-	c.scene.AddObject(c.newCircleBrick(0.8, gemath.Vec{X: 512 - 64, Y: 240 - 64}))
-	c.scene.AddObject(c.newCircleBrick(0.8, gemath.Vec{X: 512 + 64, Y: 240 - 64}))
-	c.scene.AddObject(c.newCircleBrick(0.8, gemath.Vec{X: 512 - 64, Y: 240 + 64}))
-	c.scene.AddObject(c.newCircleBrick(0.8, gemath.Vec{X: 512 + 64, Y: 240 + 64}))
+	c.scene.AddObject(c.newCircleBrick(1, gmath.Vec{X: 512, Y: 240}))
+	c.scene.AddObject(c.newCircleBrick(0.8, gmath.Vec{X: 512 - 64, Y: 240 - 64}))
+	c.scene.AddObject(c.newCircleBrick(0.8, gmath.Vec{X: 512 + 64, Y: 240 - 64}))
+	c.scene.AddObject(c.newCircleBrick(0.8, gmath.Vec{X: 512 - 64, Y: 240 + 64}))
+	c.scene.AddObject(c.newCircleBrick(0.8, gmath.Vec{X: 512 + 64, Y: 240 + 64}))
 }
 
 func (c *gameController) initWave2() {
@@ -175,11 +175,11 @@ func (c *gameController) initWave2() {
 	c.slidingRightBricks.Reset()
 	for i := 0; i < 6; i++ {
 		for j := 0; j < 3; j++ {
-			angle := gemath.Rad(0.2)
+			angle := gmath.Rad(0.2)
 			if i%2 == 0 {
 				angle = -angle
 			}
-			pos := gemath.Vec{X: float64(i*96) + 160, Y: float64(j*96) + 64}
+			pos := gmath.Vec{X: float64(i*96) + 160, Y: float64(j*96) + 64}
 			b := c.newBrick(1, angle, pos)
 			c.scene.AddObject(b)
 			if j%2 != 0 {

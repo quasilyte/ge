@@ -2,22 +2,22 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
+	"github.com/quasilyte/gmath"
 )
 
 type brickShard struct {
-	pos      gemath.Vec
-	velocity gemath.Vec
+	pos      gmath.Vec
+	velocity gmath.Vec
 	sprite   *ge.Sprite
 }
 
-func newBrickShard(pos gemath.Vec) *brickShard {
+func newBrickShard(pos gmath.Vec) *brickShard {
 	return &brickShard{pos: pos}
 }
 
 func (shard *brickShard) Init(scene *ge.Scene) {
 	angle := scene.Rand().Rad()
-	shard.velocity = gemath.RadToVec(angle).Mulf(100)
+	shard.velocity = gmath.RadToVec(angle).Mulf(100)
 	shard.sprite = scene.NewSprite(ImageBrickShard)
 	shard.sprite.Pos.Base = &shard.pos
 	scene.AddGraphics(shard.sprite)
@@ -32,8 +32,8 @@ func (shard *brickShard) Dispose() {
 func (shard *brickShard) Update(delta float64) {
 	shard.pos = shard.pos.Add(shard.velocity.Mulf(delta))
 
-	shard.sprite.ColorScale.A -= float32(delta)
-	if shard.sprite.ColorScale.A < 0.2 {
+	shard.sprite.SetAlpha(shard.sprite.GetAlpha() - float32(delta))
+	if shard.sprite.GetAlpha() < 0.2 {
 		shard.Dispose()
 	}
 }

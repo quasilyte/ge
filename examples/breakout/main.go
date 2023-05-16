@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
-	"github.com/quasilyte/ge/resource"
 
 	_ "image/png"
 )
@@ -37,7 +37,7 @@ const (
 )
 
 func main() {
-	ctx := ge.NewContext()
+	ctx := ge.NewContext(ge.ContextConfig{})
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.WindowTitle = "Breakout"
 	ctx.WindowWidth = 800
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// Associate audio resources.
-	audioResources := map[resource.AudioID]resource.Audio{
+	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioBrickHit:       {Path: "brick_hit.wav", Volume: -0.3},
 		AudioBrickDestroyed: {Path: "brick_destroyed.wav", Volume: -0.1},
 		AudioMusic:          {Path: "music.ogg"},

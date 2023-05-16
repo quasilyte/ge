@@ -4,16 +4,16 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/gmath"
 )
 
 type ball struct {
 	scene    *ge.Scene
 	body     physics.Body
 	sprite   *ge.Sprite
-	velocity gemath.Vec
+	velocity gmath.Vec
 
 	EventDestroyed gesignal.Event[gesignal.Void]
 }
@@ -79,7 +79,7 @@ func (b *ball) handleMovement(delta float64) {
 		}
 		if bounced {
 			b.body.Pos = b.body.Pos.Add(collision.Normal.Mulf(collision.Depth + 6))
-			b.velocity = b.reflect(collision.Normal.Rotated(gemath.Rad(extraRotation)))
+			b.velocity = b.reflect(collision.Normal.Rotated(gmath.Rad(extraRotation)))
 			return
 		}
 	}
@@ -87,7 +87,7 @@ func (b *ball) handleMovement(delta float64) {
 	b.body.Pos = b.body.Pos.Add(b.velocity.Mulf(delta))
 }
 
-func (b *ball) reflect(n gemath.Vec) gemath.Vec {
+func (b *ball) reflect(n gmath.Vec) gmath.Vec {
 	v := b.velocity
 	return v.Sub(n.Mulf(2 * v.Dot(n)))
 }

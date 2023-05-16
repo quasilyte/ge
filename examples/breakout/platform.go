@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/gmath"
 )
 
 type platform struct {
@@ -50,17 +50,17 @@ func (p *platform) Update(delta float64) {
 	if p.input.ActionIsPressed(ActionLeft) {
 		moving = true
 		p.body.Pos.X -= 250 * delta
-		p.body.Rotation = gemath.Rad(gemath.ClampMin(float64(p.body.Rotation)-1.5*delta, -0.3))
+		p.body.Rotation = gmath.Rad(gmath.ClampMin(float64(p.body.Rotation)-1.5*delta, -0.3))
 	} else if p.input.ActionIsPressed(ActionRight) {
 		moving = true
 		p.body.Pos.X += 250 * delta
-		p.body.Rotation = gemath.Rad(gemath.ClampMax(float64(p.body.Rotation)+1.5*delta, 0.3))
+		p.body.Rotation = gmath.Rad(gmath.ClampMax(float64(p.body.Rotation)+1.5*delta, 0.3))
 	}
 	if !moving {
 		if p.body.Rotation < 0 {
-			p.body.Rotation = gemath.Rad(gemath.ClampMax(float64(p.body.Rotation)+1.1*delta, 0))
+			p.body.Rotation = gmath.Rad(gmath.ClampMax(float64(p.body.Rotation)+1.1*delta, 0))
 		} else if p.body.Rotation > 0 {
-			p.body.Rotation = gemath.Rad(gemath.ClampMin(float64(p.body.Rotation)-1.1*delta, 0))
+			p.body.Rotation = gmath.Rad(gmath.ClampMin(float64(p.body.Rotation)-1.1*delta, 0))
 		}
 	}
 
@@ -71,8 +71,8 @@ func (p *platform) Update(delta float64) {
 		b := newBall()
 		b.EventDestroyed.Connect(p, p.onBallDestroyed)
 		p.ball = b
-		b.velocity = gemath.Vec{X: 0, Y: -300}
-		b.body.Pos = gemath.Vec{X: p.body.Pos.X, Y: p.body.Pos.Y - 40}
+		b.velocity = gmath.Vec{X: 0, Y: -300}
+		b.body.Pos = gmath.Vec{X: p.body.Pos.X, Y: p.body.Pos.Y - 40}
 		p.scene.AddObject(b)
 	}
 }

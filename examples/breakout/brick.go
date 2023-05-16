@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
+	"github.com/quasilyte/gmath"
 )
 
 const brickDefaultWidth float64 = 64
@@ -23,7 +23,7 @@ type brick struct {
 	EventDestroyed gesignal.Event[gesignal.Void]
 }
 
-func newBrick(scale float64, rotation gemath.Rad, pos gemath.Vec) *brick {
+func newBrick(scale float64, rotation gmath.Rad, pos gmath.Vec) *brick {
 	b := &brick{hp: 4, scale: scale, shapeHeight: 32}
 	b.body.InitRotatedRect(b, brickDefaultWidth*scale, 32*scale)
 	b.body.Rotation = rotation
@@ -31,7 +31,7 @@ func newBrick(scale float64, rotation gemath.Rad, pos gemath.Vec) *brick {
 	return b
 }
 
-func newCircleBrick(scale float64, pos gemath.Vec) *brick {
+func newCircleBrick(scale float64, pos gmath.Vec) *brick {
 	b := &brick{
 		hp:          3,
 		scale:       scale,
@@ -57,7 +57,7 @@ func (b *brick) Init(scene *ge.Scene) {
 	scene.AddBody(&b.body)
 }
 
-func (b *brick) Hit(hitPos gemath.Vec) bool {
+func (b *brick) Hit(hitPos gmath.Vec) bool {
 	b.hp--
 	b.sprite.FrameOffset.X += brickDefaultWidth
 
@@ -68,7 +68,7 @@ func (b *brick) Hit(hitPos gemath.Vec) bool {
 	}
 
 	for i := 0; i < 3; i++ {
-		shardPos := hitPos.Add(gemath.Vec{X: float64(i*8) - 8})
+		shardPos := hitPos.Add(gmath.Vec{X: float64(i*8) - 8})
 		shard := newBrickShard(shardPos)
 		b.scene.AddObject(shard)
 	}
@@ -89,7 +89,7 @@ func (b *brick) Dispose() {
 func (b *brick) Destroy() {
 	width := brickDefaultWidth * b.scale
 	height := b.shapeHeight * b.scale
-	offset := gemath.Vec{
+	offset := gmath.Vec{
 		X: b.body.Pos.X - width/2,
 		Y: b.body.Pos.Y - height/2,
 	}
@@ -103,7 +103,7 @@ func (b *brick) Destroy() {
 	}
 	for y := startY; y < height; y += 8 {
 		for x := startX; x < width; x += 8 {
-			unrotatedPos := offset.Add(gemath.Vec{X: x, Y: y})
+			unrotatedPos := offset.Add(gmath.Vec{X: x, Y: y})
 			center := b.body.Pos
 			diff := unrotatedPos.Sub(center)
 			rotatedPos := diff.Rotated(b.body.Rotation).Add(center)
