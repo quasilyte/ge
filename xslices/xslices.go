@@ -108,6 +108,10 @@ func Remove[T comparable](slice []T, x T) []T {
 	if i == -1 {
 		return slice
 	}
+	return RemoveAt(slice, i)
+}
+
+func RemoveAt[T any](slice []T, i int) []T {
 	slice[i] = slice[len(slice)-1]
 	slice = slice[:len(slice)-1]
 	return slice
