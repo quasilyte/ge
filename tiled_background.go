@@ -91,6 +91,10 @@ func (bg *TiledBackground) Dispose() {
 }
 
 func (bg *TiledBackground) DrawPartial(screen *ebiten.Image, section gmath.Rect) {
+	bg.DrawPartialWithOffset(screen, section, gmath.Vec{})
+}
+
+func (bg *TiledBackground) DrawPartialWithOffset(screen *ebiten.Image, section gmath.Rect, offset gmath.Vec) {
 	if !bg.Visible {
 		return
 	}
@@ -108,6 +112,7 @@ func (bg *TiledBackground) DrawPartial(screen *ebiten.Image, section gmath.Rect)
 	srcImage := toEbitenImage(unsafeSubImage)
 	var op ebiten.DrawImageOptions
 	op.GeoM.Translate(min.X, min.Y)
+	op.GeoM.Translate(offset.X, offset.Y)
 	screen.DrawImage(srcImage, &op)
 }
 
