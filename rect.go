@@ -120,7 +120,7 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if rect.OutlineColorScale.A == 0 || rect.OutlineWidth < 1 {
 		// Fill-only mode.
 		var drawOptions ebiten.DrawImageOptions
-		drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height)
+		drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height, offset)
 		applyColorScale(rect.FillColorScale, &drawOptions.ColorM)
 		screen.DrawImage(primitives.WhitePixel, &drawOptions)
 		return
@@ -142,20 +142,20 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 		dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
 
 		var drawOptions ebiten.DrawImageOptions
-		drawOptions.GeoM = rect.calculateGeom(1, 1)
+		drawOptions.GeoM = rect.calculateGeom(1, 1, offset)
 		screen.DrawImage(dst, &drawOptions)
 		return
 	}
 
 	// TODO: it doesn't work with a fill color with alpha not equal to 1.
 	var drawOptions ebiten.DrawImageOptions
-	drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height)
+	drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height, offset)
 	applyColorScale(rect.OutlineColorScale, &drawOptions.ColorM)
 	screen.DrawImage(primitives.WhitePixel, &drawOptions)
 	outlineDrawOptions := drawOptions
 	outlineDrawOptions.ColorM.Reset()
 	applyColorScale(rect.FillColorScale, &outlineDrawOptions.ColorM)
-	outlineDrawOptions.GeoM = rect.calculateGeom(rect.Width-rect.OutlineWidth*2, rect.Height-rect.OutlineWidth*2)
+	outlineDrawOptions.GeoM = rect.calculateGeom(rect.Width-rect.OutlineWidth*2, rect.Height-rect.OutlineWidth*2, offset)
 	outlineDrawOptions.GeoM.Translate(rect.OutlineWidth, rect.OutlineWidth)
 	outlineDrawOptions.CompositeMode = ebiten.CompositeModeCopy
 	screen.DrawImage(primitives.WhitePixel, &outlineDrawOptions)
