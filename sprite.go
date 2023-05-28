@@ -246,6 +246,10 @@ func (s *Sprite) Dispose() {
 }
 
 func (s *Sprite) Draw(screen *ebiten.Image) {
+	s.DrawWithOffset(screen, gmath.Vec{})
+}
+
+func (s *Sprite) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if !s.Visible || s.image == nil {
 		return
 	}
@@ -281,6 +285,7 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	} else if !origin.IsZero() {
 		drawOptions.GeoM.Translate(0-origin.X, 0-origin.Y)
 	}
+	drawOptions.GeoM.Translate(offset.X, offset.Y)
 
 	if s.colorsChanged {
 		s.colorsChanged = false

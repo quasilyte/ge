@@ -75,7 +75,7 @@ func (rect *Rect) AnchorPos() Pos {
 	return rect.Pos
 }
 
-func (rect *Rect) calculateGeom(w, h float64) ebiten.GeoM {
+func (rect *Rect) calculateGeom(w, h float64, offset gmath.Vec) ebiten.GeoM {
 	var origin gmath.Vec
 	if rect.Centered {
 		origin = gmath.Vec{X: rect.Width / 2, Y: rect.Height / 2}
@@ -100,22 +100,22 @@ func (rect *Rect) calculateGeom(w, h float64) ebiten.GeoM {
 		geom.Translate(0-origin.X, 0-origin.Y)
 	}
 
+	geom.Translate(offset.X, offset.Y)
+
 	return geom
 }
 
 func (rect *Rect) Draw(screen *ebiten.Image) {
+	rect.DrawWithOffset(screen, gmath.Vec{})
+}
+
+func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if !rect.Visible {
 		return
 	}
 	if rect.OutlineColorScale.A == 0 && rect.FillColorScale.A == 0 {
 		return
 	}
-
-	var origin gmath.Vec
-	if rect.Centered {
-		origin = gmath.Vec{X: rect.Width / 2, Y: rect.Height / 2}
-	}
-	origin = origin.Sub(rect.Pos.Offset)
 
 	if rect.OutlineColorScale.A == 0 || rect.OutlineWidth < 1 {
 		// Fill-only mode.

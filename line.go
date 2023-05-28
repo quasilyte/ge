@@ -58,6 +58,10 @@ func (l *Line) BoundsRect() gmath.Rect {
 }
 
 func (l *Line) Draw(screen *ebiten.Image) {
+	l.DrawWithOffset(screen, gmath.Vec{})
+}
+
+func (l *Line) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if !l.Visible {
 		return
 	}
@@ -67,7 +71,7 @@ func (l *Line) Draw(screen *ebiten.Image) {
 	}
 	pos1 := l.BeginPos.Resolve()
 	pos2 := l.EndPos.Resolve()
-	drawLine(screen, pos1, pos2, l.Width, l.colorM)
+	drawLine(screen, pos1.Add(offset), pos2.Add(offset), l.Width, l.colorM)
 }
 
 func (l *Line) SetColorScaleRGBA(r, g, b, a uint8) {
