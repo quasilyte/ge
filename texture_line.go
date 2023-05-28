@@ -65,6 +65,9 @@ func (l *TextureLine) BoundsRect() gmath.Rect {
 }
 
 func (l *TextureLine) Draw(screen *ebiten.Image) {
+}
+
+func (l *TextureLine) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if !l.Visible {
 		return
 	}
@@ -94,6 +97,7 @@ func (l *TextureLine) Draw(screen *ebiten.Image) {
 	drawOptions.GeoM.Rotate(float64(angle))
 	drawOptions.GeoM.Translate(origin.X, origin.Y)
 	drawOptions.GeoM.Translate(pos1.X, pos1.Y)
+	drawOptions.GeoM.Translate(offset.X, offset.Y)
 	drawOptions.ColorM = l.colorM
 
 	bounds := image.Rectangle{
