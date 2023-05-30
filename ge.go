@@ -21,7 +21,7 @@ func RunGame(ctx *Context, controller SceneController) error {
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
 	
-	if int(ctx.ScreenWidth) == 0 && int(ctx.ScreenHeight) == 0) {
+	if int(ctx.ScreenWidth) == 0 && int(ctx.ScreenHeight) == 0 {
 		ctx.ScreenWidth = ctx.WindowWidth
 		ctx.ScreenHeight = ctx.WindowHeight
 	}
