@@ -20,6 +20,12 @@ func RunGame(ctx *Context, controller SceneController) error {
 	ctx.firstController = controller
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
+	
+	if int(ctx.ScreenWidth) == 0 && int(ctx.ScreenHeight) == 0 {
+		ctx.ScreenWidth = ctx.WindowWidth
+		ctx.ScreenHeight = ctx.WindowHeight
+	}
+	
 	return ebiten.RunGame(g)
 }
 
@@ -55,5 +61,5 @@ func (g *gameRunner) Draw(screen *ebiten.Image) {
 }
 
 func (g *gameRunner) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return int(g.ctx.WindowWidth), int(g.ctx.WindowHeight)
+	return int(g.ctx.ScreenWidth), int(g.ctx.ScreenHeight)
 }
