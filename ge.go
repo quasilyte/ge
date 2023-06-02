@@ -1,6 +1,7 @@
 package ge
 
 import (
+	"runtime/debug"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,6 +30,29 @@ type gameRunner struct {
 }
 
 func (g *gameRunner) Update() error {
+	// A simple case: no panic recovery is enabled.
+	if g.ctx.NewPanicController == nil {
+		g.update()
+		return nil
+	}
+
+	// Need to prepare a recovery point.
+	defer func() {
+		v := recover()
+		if v != nil {
+			c := g.ctx.NewPanicController(&PanicInfo{
+				Controller: g.ctx.CurrentScene.controller,
+				Value:      v,
+				Trace:      string(debug.Stack()),
+			})
+			g.ctx.ChangeScene(c)
+		}
+	}()
+	g.update()
+	return nil
+}
+
+func (g *gameRunner) update() {
 	g.ctx.Input.Update()
 	g.ctx.Audio.Update()
 
@@ -47,7 +71,6 @@ func (g *gameRunner) Update() error {
 	}
 
 	g.ctx.CurrentScene.update(delta)
-	return nil
 }
 
 func (g *gameRunner) Draw(screen *ebiten.Image) {

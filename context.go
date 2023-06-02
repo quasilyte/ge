@@ -26,6 +26,14 @@ type Context struct {
 
 	CurrentScene *RootScene
 
+	// If non-nil, this function is used to create a scene controller that will handle the panic.
+	// The single arguments holds the occurred panic information.
+	// When game panics for whatever reason, instead of crashing, you can assign a
+	// recovery controller constructor here.
+	// You can just show the error to the user and crash or you may want to recover the game somehow
+	// (e.g. run the main menu controller again).
+	NewPanicController func(panicInfo *PanicInfo) SceneController
+
 	OnCriticalError func(err error)
 
 	GameName string
@@ -40,6 +48,17 @@ type Context struct {
 	fixedDelta bool
 
 	imageCache imageCache
+}
+
+type PanicInfo struct {
+	// A controller that was active during the panic.
+	Controller SceneController
+
+	// The error trace.
+	Trace string
+
+	// A value retrieved from recover().
+	Value any
 }
 
 type ContextConfig struct {
