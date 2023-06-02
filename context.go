@@ -42,6 +42,8 @@ type Context struct {
 	WindowTitle  string
 	WindowWidth  float64
 	WindowHeight float64
+	ScreenWidth  float64
+	ScreenHeight float64
 
 	firstController SceneController
 
