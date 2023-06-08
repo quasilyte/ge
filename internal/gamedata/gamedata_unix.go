@@ -3,7 +3,6 @@
 package gamedata
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -46,7 +45,6 @@ func saveData(appName, itemKey string, data []byte) error {
 
 func loadData(appName, itemKey string) ([]byte, error) {
 	itemPath, err := getUnixItemFolder(appName, itemKey)
-	fmt.Println(itemPath)
 	if err != nil {
 		return nil, err
 	}
