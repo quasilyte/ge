@@ -110,6 +110,10 @@ func NewSprite(ctx *Context) *Sprite {
 	return s
 }
 
+func (s *Sprite) GetScale() (width, height float64) {
+	return s.scaleX, s.scaleY
+}
+
 func (s *Sprite) SetScale(width, height float64) {
 	s.scaleX = width
 	s.scaleY = height
