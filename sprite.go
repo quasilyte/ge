@@ -53,7 +53,8 @@ type Sprite struct {
 	hue           gmath.Rad
 	colorM        ebiten.ColorM
 
-	Scale float64
+	scaleX float64
+	scaleY float64
 
 	FlipHorizontal bool
 	FlipVertical   bool
@@ -101,11 +102,17 @@ func NewSprite(ctx *Context) *Sprite {
 	s := &Sprite{
 		Visible:    true,
 		Centered:   true,
-		Scale:      1,
+		scaleX:     1,
+		scaleY:     1,
 		colorScale: defaultColorScale,
 		imageCache: &ctx.imageCache,
 	}
 	return s
+}
+
+func (s *Sprite) SetScale(width, height float64) {
+	s.scaleX = width
+	s.scaleY = height
 }
 
 func (s *Sprite) SetColorScaleRGBA(r, g, b, a uint8) {
@@ -275,8 +282,8 @@ func (s *Sprite) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if s.Rotation != nil {
 		drawOptions.GeoM.Rotate(float64(*s.Rotation))
 	}
-	if s.Scale != 1 {
-		drawOptions.GeoM.Scale(s.Scale, s.Scale)
+	if s.scaleX != 1 || s.scaleY != 1 {
+		drawOptions.GeoM.Scale(s.scaleX, s.scaleY)
 	}
 	drawOptions.GeoM.Translate(origin.X, origin.Y)
 

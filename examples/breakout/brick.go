@@ -52,7 +52,7 @@ func (b *brick) Init(scene *ge.Scene) {
 	}
 	b.sprite.FrameWidth = brickDefaultWidth
 	b.sprite.Pos.Base = &b.body.Pos
-	b.sprite.Scale = b.scale
+	b.sprite.SetScale(b.scale, b.scale)
 	scene.AddGraphics(b.sprite)
 	scene.AddBody(&b.body)
 }
