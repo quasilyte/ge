@@ -180,7 +180,6 @@ func (l *Label) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	}
 
 	var drawOptions ebiten.DrawImageOptions
-	drawOptions.GeoM.Translate(offset.X, offset.Y)
 	applyColorScale(l.ColorScale, &drawOptions.ColorM)
 	if l.Hue != 0 {
 		drawOptions.ColorM.RotateHue(float64(l.Hue))
@@ -189,6 +188,7 @@ func (l *Label) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 
 	if l.AlignHorizontal == AlignHorizontalLeft {
 		drawOptions.GeoM.Translate(math.Round(pos.X), math.Round(pos.Y))
+		drawOptions.GeoM.Translate(offset.X, offset.Y)
 		text.DrawWithOptions(screen, l.Text, l.face, &drawOptions)
 		return
 	}
@@ -213,6 +213,7 @@ func (l *Label) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 		}
 		drawOptions.GeoM.Reset()
 		drawOptions.GeoM.Translate(math.Round(pos.X+offsetX), math.Round(pos.Y+offsetY))
+		drawOptions.GeoM.Translate(offset.X, offset.Y)
 		text.DrawWithOptions(screen, lineText, l.face, &drawOptions)
 		if nextLine == -1 {
 			break
