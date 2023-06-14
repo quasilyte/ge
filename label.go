@@ -91,7 +91,7 @@ func (l *Label) Dispose() {
 	l.face = nil
 }
 
-func (l *Label) Draw(screen *ebiten.Image) {
+func (l *Label) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if !l.Visible || l.Text == "" {
 		return
 	}
@@ -180,6 +180,7 @@ func (l *Label) Draw(screen *ebiten.Image) {
 	}
 
 	var drawOptions ebiten.DrawImageOptions
+	drawOptions.GeoM.Translate(offset.X, offset.Y)
 	applyColorScale(l.ColorScale, &drawOptions.ColorM)
 	if l.Hue != 0 {
 		drawOptions.ColorM.RotateHue(float64(l.Hue))
@@ -218,6 +219,10 @@ func (l *Label) Draw(screen *ebiten.Image) {
 		}
 		offsetY += l.lineHeight
 	}
+}
+
+func (l *Label) Draw(screen *ebiten.Image) {
+	l.DrawWithOffset(screen, gmath.Vec{})
 }
 
 func (l *Label) estimateHeight(numLines int) float64 {
