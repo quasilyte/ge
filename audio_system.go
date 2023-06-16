@@ -47,6 +47,10 @@ func (sys *AudioSystem) init(audioContext *audio.Context, l *resource.Loader) {
 	dummy.Rewind()
 }
 
+func (sys *AudioSystem) GetContext() *audio.Context {
+	return sys.audioContext
+}
+
 func (sys *AudioSystem) Update() {
 	if sys.currentQueueSound.Player == nil {
 		if len(sys.soundQueue) == 0 {
