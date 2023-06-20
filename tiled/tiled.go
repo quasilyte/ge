@@ -110,6 +110,8 @@ type Object struct {
 	GID      int64        `json:"gid"`
 	X        int          `json:"x"`
 	Y        int          `json:"y"`
+	Width    int          `json:"width"`
+	Height   int          `json:"height"`
 	Rotation int          `json:"rotation"`
 	Props    []ObjectProp `json:"properties"`
 	flags    uint8
