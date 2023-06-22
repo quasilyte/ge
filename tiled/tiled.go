@@ -134,6 +134,17 @@ func (o *Object) GetProp(name string) *ObjectProp {
 	return nil
 }
 
+func (o *Object) GetBoolProp(name string, defaultValue bool) bool {
+	p := o.GetProp(name)
+	if p == nil {
+		return defaultValue
+	}
+	if p.Type != "bool" {
+		return defaultValue
+	}
+	return p.Value.(bool)
+}
+
 func (o *Object) GetIntProp(name string, defaultValue int) int {
 	p := o.GetProp(name)
 	if p == nil {
