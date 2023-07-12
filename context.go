@@ -25,6 +25,7 @@ type Context struct {
 	Rand gmath.Rand
 
 	CurrentScene *RootScene
+	nextScene    *RootScene
 
 	// If non-nil, this function is used to create a scene controller that will handle the panic.
 	// The single arguments holds the occurred panic information.
@@ -92,17 +93,14 @@ func NewContext(config ContextConfig) *Context {
 }
 
 func (ctx *Context) ChangeScene(controller SceneController) {
-	ctx.CurrentScene = ctx.NewRootScene(controller)
+	ctx.nextScene = ctx.newRootScene(controller)
+
 }
 
-func (ctx *Context) NewRootScene(controller SceneController) *RootScene {
+func (ctx *Context) newRootScene(controller SceneController) *RootScene {
 	rootScene := newRootScene()
 	rootScene.context = ctx
 	rootScene.controller = controller
-
-	scene0 := &rootScene.subSceneArray[1]
-
-	controller.Init(scene0)
 
 	return rootScene
 }

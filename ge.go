@@ -21,12 +21,12 @@ func RunGame(ctx *Context, controller SceneController) error {
 	ctx.firstController = controller
 	ebiten.SetWindowTitle(ctx.WindowTitle)
 	ebiten.SetWindowSize(int(ctx.WindowWidth), int(ctx.WindowHeight))
-	
+
 	if int(ctx.ScreenWidth) == 0 && int(ctx.ScreenHeight) == 0 {
 		ctx.ScreenWidth = ctx.WindowWidth
 		ctx.ScreenHeight = ctx.WindowHeight
 	}
-	
+
 	return ebiten.RunGame(g)
 }
 
@@ -74,6 +74,13 @@ func (g *gameRunner) update() {
 		now := time.Now()
 		delta = now.Sub(g.prevTime).Seconds()
 		g.prevTime = now
+	}
+
+	if g.ctx.CurrentScene != g.ctx.nextScene {
+		g.ctx.CurrentScene = g.ctx.nextScene
+		g.ctx.nextScene = nil
+		scene0 := &g.ctx.CurrentScene.subSceneArray[1]
+		g.ctx.CurrentScene.controller.Init(scene0)
 	}
 
 	g.ctx.CurrentScene.update(delta)
