@@ -76,7 +76,7 @@ func (g *gameRunner) update() {
 		g.prevTime = now
 	}
 
-	if g.ctx.CurrentScene != g.ctx.nextScene {
+	if g.ctx.nextScene != nil {
 		g.ctx.CurrentScene = g.ctx.nextScene
 		g.ctx.nextScene = nil
 		scene0 := &g.ctx.CurrentScene.subSceneArray[1]
