@@ -9,6 +9,36 @@ import (
 	resource "github.com/quasilyte/ebitengine-resource"
 )
 
+const (
+	soundMapSize  = 64
+	maxSoundMapID = soundMapSize * 8
+)
+
+type soundMap struct {
+	table [soundMapSize]byte
+}
+
+func (m *soundMap) Reset() {
+	m.table = [soundMapSize]byte{}
+}
+
+func (m *soundMap) IsSet(id uint) bool {
+	byteIndex := id / 8
+	if byteIndex < uint(len(m.table)) {
+		bitIndex := id % 8
+		return uint(m.table[byteIndex]&(1>>bitIndex)) != 0
+	}
+	return false
+}
+
+func (m *soundMap) Set(id uint) {
+	byteIndex := id / 8
+	if byteIndex < uint(len(m.table)) {
+		bitIndex := id % 8
+		m.table[byteIndex] = 1 << bitIndex
+	}
+}
+
 type AudioSystem struct {
 	loader *resource.Loader
 
@@ -18,6 +48,12 @@ type AudioSystem struct {
 
 	currentQueueSound resource.Audio
 	soundQueue        []resource.AudioID
+
+	// This small bitset is used to track sounds with id<maxSoundMapID.
+	// These sounds will be "played" only once during a frame.
+	// Therefore, doing multiple PlaySound(id) during a single frame
+	// is more efficient.
+	soundMap soundMap
 
 	groupVolume [4]float64
 
@@ -52,6 +88,8 @@ func (sys *AudioSystem) GetContext() *audio.Context {
 }
 
 func (sys *AudioSystem) Update() {
+	sys.soundMap.Reset()
+
 	if sys.currentQueueSound.Player == nil {
 		if len(sys.soundQueue) == 0 {
 			// Nothing to play in the queue.
@@ -65,6 +103,7 @@ func (sys *AudioSystem) Update() {
 		sys.soundQueue = sys.soundQueue[:len(sys.soundQueue)-1]
 		return
 	}
+
 	if !sys.currentQueueSound.Player.IsPlaying() {
 		// Finished playing the current enqueued sound.
 		sys.currentQueueSound = resource.Audio{}
@@ -152,6 +191,10 @@ func (sys *AudioSystem) PlaySound(id resource.AudioID) {
 	if sys.muted {
 		return
 	}
+	if sys.soundMap.IsSet(uint(id)) {
+		return
+	}
+	sys.soundMap.Set(uint(id))
 	sys.playSound(id)
 }
 
