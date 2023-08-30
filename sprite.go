@@ -48,10 +48,8 @@ type Sprite struct {
 	Pos      Pos
 	Rotation *gmath.Rad
 
-	colorsChanged bool
-	colorScale    ColorScale
-	hue           gmath.Rad
-	colorM        ebiten.ColorM
+	colorScale       ColorScale
+	ebitenColorScale ebiten.ColorScale
 
 	scaleX float64
 	scaleY float64
@@ -84,6 +82,15 @@ type ColorScale struct {
 	A float32
 }
 
+func (c *ColorScale) toEbitenColorScale() ebiten.ColorScale {
+	var ec ebiten.ColorScale
+	ec.SetR(c.R * c.A)
+	ec.SetG(c.G * c.A)
+	ec.SetB(c.B * c.A)
+	ec.SetA(c.A)
+	return ec
+}
+
 func (c *ColorScale) SetColor(rgba color.RGBA) {
 	c.SetRGBA(rgba.R, rgba.G, rgba.B, rgba.A)
 }
@@ -100,12 +107,13 @@ var transparentColor = ColorScale{0, 0, 0, 0}
 
 func NewSprite(ctx *Context) *Sprite {
 	s := &Sprite{
-		Visible:    true,
-		Centered:   true,
-		scaleX:     1,
-		scaleY:     1,
-		colorScale: defaultColorScale,
-		imageCache: &ctx.imageCache,
+		colorScale:       defaultColorScale,
+		ebitenColorScale: defaultColorScale.toEbitenColorScale(),
+		Visible:          true,
+		Centered:         true,
+		scaleX:           1,
+		scaleY:           1,
+		imageCache:       &ctx.imageCache,
 	}
 	return s
 }
@@ -138,7 +146,7 @@ func (s *Sprite) SetAlpha(a float32) {
 		return
 	}
 	s.colorScale.A = a
-	s.colorsChanged = true
+	s.ebitenColorScale = s.colorScale.toEbitenColorScale()
 }
 
 func (s *Sprite) SetColorScale(colorScale ColorScale) {
@@ -146,26 +154,7 @@ func (s *Sprite) SetColorScale(colorScale ColorScale) {
 		return
 	}
 	s.colorScale = colorScale
-	s.colorsChanged = true
-}
-
-func (s *Sprite) SetHue(hue gmath.Rad) {
-	if s.hue == hue {
-		return
-	}
-	s.hue = hue
-	s.colorsChanged = true
-}
-
-func (s *Sprite) recalculateColorM() {
-	var colorM ebiten.ColorM
-	if s.colorScale != defaultColorScale {
-		colorM.Scale(float64(s.colorScale.R), float64(s.colorScale.G), float64(s.colorScale.B), float64(s.colorScale.A))
-	}
-	if s.hue != 0 {
-		colorM.RotateHue(float64(s.hue))
-	}
-	s.colorM = colorM
+	s.ebitenColorScale = s.colorScale.toEbitenColorScale()
 }
 
 func (s *Sprite) ImageID() resource.ImageID {
@@ -266,6 +255,7 @@ func (s *Sprite) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	}
 
 	var drawOptions ebiten.DrawImageOptions
+	drawOptions.ColorScale = s.ebitenColorScale
 
 	var origin gmath.Vec
 	if s.Centered {
@@ -298,12 +288,6 @@ func (s *Sprite) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	}
 	drawOptions.GeoM.Translate(offset.X, offset.Y)
 
-	if s.colorsChanged {
-		s.colorsChanged = false
-		s.recalculateColorM()
-	}
-	drawOptions.ColorM = s.colorM
-
 	var srcImage *ebiten.Image
 	var srcBounds image.Rectangle
 	needSubImage := (s.FrameOffset != gmath.Vec{}) ||
@@ -332,25 +316,16 @@ func (s *Sprite) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	if !shaderEnabled {
 		screen.DrawImage(srcImage, &drawOptions)
 	} else {
-		var drawDest *ebiten.Image
 		var options ebiten.DrawRectShaderOptions
-		usesColor := s.colorScale != defaultColorScale || s.hue != 0
-		if usesColor {
-			drawDest = s.imageCache.NewTempImage(srcBounds.Dx(), srcBounds.Dy())
-		} else {
-			drawDest = screen
-			options.GeoM = drawOptions.GeoM
-		}
+		options.GeoM = drawOptions.GeoM
+		options.ColorScale = drawOptions.ColorScale
 		options.CompositeMode = drawOptions.CompositeMode
 		options.Images[0] = srcImage
 		options.Images[1] = s.Shader.Texture1.Data
 		options.Images[2] = s.Shader.Texture2.Data
 		options.Images[3] = s.Shader.Texture3.Data
 		options.Uniforms = s.Shader.shaderData
-		drawDest.DrawRectShader(srcBounds.Dx(), srcBounds.Dy(), s.Shader.compiled, &options)
-		if usesColor {
-			screen.DrawImage(drawDest, &drawOptions)
-		}
+		screen.DrawRectShader(srcBounds.Dx(), srcBounds.Dy(), s.Shader.compiled, &options)
 	}
 }
 
