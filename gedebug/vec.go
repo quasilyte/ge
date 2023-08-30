@@ -4,13 +4,13 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/ge/gemath"
 	"github.com/quasilyte/ge/internal/primitives"
+	"github.com/quasilyte/gmath"
 )
 
 type VecLine struct {
-	Vec   *gemath.Vec
-	Pos   *gemath.Vec
+	Vec   *gmath.Vec
+	Pos   *gmath.Vec
 	Color color.RGBA
 }
 

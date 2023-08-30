@@ -1,8 +1,8 @@
 package main
 
 import (
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/resource"
 	"github.com/quasilyte/gmath"
 )
 
@@ -32,7 +32,7 @@ func (e *explosion) Init(scene *ge.Scene) {
 	sprite := scene.NewSprite(e.Image)
 	sprite.Pos.Base = &e.pos
 	sprite.SetHue(e.Hue)
-	sprite.Scale = e.Scale
+	sprite.SetScale(e.Scale, e.Scale)
 
 	sprite.Rotation = &e.rotation
 	scene.AddGraphics(sprite)

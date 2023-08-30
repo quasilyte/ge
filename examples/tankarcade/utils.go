@@ -5,9 +5,9 @@ import (
 	"math"
 	"strings"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
-	"github.com/quasilyte/ge/resource"
 	"github.com/quasilyte/gmath"
 )
 
@@ -38,7 +38,7 @@ func formatKeys(keys []string) string {
 }
 
 func getLevelData(scene *ge.Scene, level int) []byte {
-	return scene.LoadRaw(resource.RawID(int(RawLevel0JSON) + level))
+	return scene.LoadRaw(resource.RawID(int(RawLevel0JSON) + level)).Data
 }
 
 func createExplosions(scene *ge.Scene, pos gmath.Vec, min, max int) {

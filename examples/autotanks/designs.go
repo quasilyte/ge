@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/quasilyte/ge/resource"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/gmath"
 )
 

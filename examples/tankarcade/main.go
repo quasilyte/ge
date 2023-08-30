@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
-	"github.com/quasilyte/ge/resource"
 
 	_ "image/png"
 )
@@ -139,7 +139,7 @@ const (
 )
 
 func gameMain() {
-	ctx := ge.NewContext()
+	ctx := ge.NewContext(ge.ContextConfig{})
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.GameName = "retrowave_city"
 	ctx.WindowTitle = "Retrowave City"
@@ -205,7 +205,7 @@ func gameMain() {
 	}
 
 	// Associate other resources.
-	rawResources := map[resource.RawID]resource.Raw{
+	rawResources := map[resource.RawID]resource.RawInfo{
 		RawTilesJSON:          {Path: "tiles.json"},
 		RawMapDateTilesetJSON: {Path: "tankarcade.tsj"},
 		RawLevel0JSON:         {Path: "maps/level0.json"},
@@ -226,7 +226,7 @@ func gameMain() {
 	}
 	for id, res := range rawResources {
 		ctx.Loader.RawRegistry.Set(id, res)
-		ctx.Loader.PreloadRaw(id)
+		ctx.Loader.LoadRaw(id)
 	}
 
 	// Associate shader resources.
@@ -235,11 +235,11 @@ func gameMain() {
 	}
 	for id, res := range shaderResources {
 		ctx.Loader.ShaderRegistry.Set(id, res)
-		ctx.Loader.PreloadShader(id)
+		ctx.Loader.LoadShader(id)
 	}
 
 	// Associate audio resources.
-	audioResources := map[resource.AudioID]resource.Audio{
+	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioLaser1:               {Path: "laser1.wav", Volume: -0.6},
 		AudioLaser2:               {Path: "laser2.wav", Volume: -0.7},
 		AudioLaser3:               {Path: "laser3.wav", Volume: -0.65},
@@ -268,18 +268,18 @@ func gameMain() {
 	}
 	for id, res := range audioResources {
 		ctx.Loader.AudioRegistry.Set(id, res)
-		ctx.Loader.PreloadAudio(id)
+		ctx.Loader.LoadAudio(id)
 	}
 
 	// Associate font resources.
-	fontResources := map[resource.FontID]resource.Font{
+	fontResources := map[resource.FontID]resource.FontInfo{
 		FontSmall:  {Path: "font.otf", Size: 20},
 		FontMedium: {Path: "font.otf", Size: 26},
 		FontBig:    {Path: "font.otf", Size: 48},
 	}
 	for id, res := range fontResources {
 		ctx.Loader.FontRegistry.Set(id, res)
-		ctx.Loader.PreloadFont(id)
+		ctx.Loader.LoadFont(id)
 	}
 
 	state := newGameState()

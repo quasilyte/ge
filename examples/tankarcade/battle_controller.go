@@ -36,7 +36,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 
 	scene.Audio().ContinueMusic(AudioMusic)
 
-	bg := ge.NewTiledBackground()
+	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), 1920, 896, ImageTiles, RawTilesJSON)
 	scene.AddGraphicsBelow(bg, 1)
 
@@ -160,7 +160,7 @@ func (c *battleController) onTrigger(name string) {
 }
 
 func (c *battleController) initLevel(scene *ge.Scene, state *battleState, levelData []byte) {
-	mapdata, err := tiled.UnmarshalTileset(scene.LoadRaw(RawMapDateTilesetJSON))
+	mapdata, err := tiled.UnmarshalTileset(scene.LoadRaw(RawMapDateTilesetJSON).Data)
 	if err != nil {
 		panic(err)
 	}
@@ -183,8 +183,8 @@ func (c *battleController) initLevel(scene *ge.Scene, state *battleState, levelD
 		}
 	}
 	for _, o := range layer.Objects {
-		id := o.GID - ref.FirstGID
-		t := mapdata.TileByID(id)
+		id := o.GID - int64(ref.FirstGID)
+		t := mapdata.TileByID(int(id))
 		pos := gmath.Vec{X: float64(o.X + 32), Y: float64(o.Y - 32)}
 		switch o.Rotation {
 		case 90:
