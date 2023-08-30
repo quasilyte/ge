@@ -150,7 +150,7 @@ func (sys *AudioSystem) ContinueMusic(id resource.AudioID) {
 	if sys.muted {
 		return
 	}
-	sys.continueMusic(sys.loader.LoadAudio(id))
+	sys.continueMusic(sys.loader.LoadOGG(id))
 }
 
 func (sys *AudioSystem) continueMusic(res resource.Audio) {
@@ -199,7 +199,7 @@ func (sys *AudioSystem) PlaySound(id resource.AudioID) {
 }
 
 func (sys *AudioSystem) playSound(id resource.AudioID) resource.Audio {
-	res := sys.loader.LoadAudio(id)
+	res := sys.loader.LoadWAV(id)
 	volume := sys.groupVolume[res.Group]
 	if volume != 0 {
 		res.Player.SetVolume(res.Volume * sys.groupVolume[res.Group])
