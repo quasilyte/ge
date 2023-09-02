@@ -123,7 +123,7 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 		// Fill-only mode.
 		var drawOptions ebiten.DrawImageOptions
 		drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height, offset)
-		applyColorScale(rect.FillColorScale, &drawOptions.ColorM)
+		drawOptions.ColorScale = rect.FillColorScale.toEbitenColorScale()
 		screen.DrawImage(primitives.WhitePixel, &drawOptions)
 		return
 	}
@@ -132,7 +132,7 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 		// Outline-only mode.
 		var tmpDrawOptions ebiten.DrawImageOptions
 		dst := rect.imageCache.NewTempImage(int(rect.Width), int(rect.Height))
-		applyColorScale(rect.OutlineColorScale, &tmpDrawOptions.ColorM)
+		tmpDrawOptions.ColorScale = rect.OutlineColorScale.toEbitenColorScale()
 		tmpDrawOptions.GeoM.Scale(rect.Width, rect.Height)
 		dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
 
@@ -153,12 +153,11 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 		// A simpler outline+fill case (the fill color is opaque).
 		var drawOptions ebiten.DrawImageOptions
 		drawOptions.GeoM = rect.calculateGeom(rect.Width, rect.Height, offset)
-		applyColorScale(rect.OutlineColorScale, &drawOptions.ColorM)
+		drawOptions.ColorScale = rect.OutlineColorScale.toEbitenColorScale()
 		screen.DrawImage(primitives.WhitePixel, &drawOptions)
 
 		fillDrawOptions := drawOptions
-		fillDrawOptions.ColorM.Reset()
-		applyColorScale(rect.FillColorScale, &fillDrawOptions.ColorM)
+		fillDrawOptions.ColorScale = rect.FillColorScale.toEbitenColorScale()
 		fillDrawOptions.GeoM = rect.calculateGeom(rect.Width-rect.OutlineWidth*2, rect.Height-rect.OutlineWidth*2, offset)
 		fillDrawOptions.GeoM.Translate(rect.OutlineWidth, rect.OutlineWidth)
 		fillDrawOptions.CompositeMode = ebiten.CompositeModeCopy
@@ -168,7 +167,7 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 
 	var tmpDrawOptions ebiten.DrawImageOptions
 	dst := rect.imageCache.NewTempImage(int(rect.Width), int(rect.Height))
-	applyColorScale(rect.OutlineColorScale, &tmpDrawOptions.ColorM)
+	tmpDrawOptions.ColorScale = rect.OutlineColorScale.toEbitenColorScale()
 	tmpDrawOptions.GeoM.Scale(rect.Width, rect.Height)
 	dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
 
@@ -179,8 +178,7 @@ func (rect *Rect) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	tmpDrawOptions.CompositeMode = ebiten.CompositeModeClear
 	dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
 
-	tmpDrawOptions.ColorM.Reset()
-	applyColorScale(rect.FillColorScale, &tmpDrawOptions.ColorM)
+	tmpDrawOptions.ColorScale = rect.FillColorScale.toEbitenColorScale()
 	tmpDrawOptions.CompositeMode = ebiten.CompositeModeCopy
 	dst.DrawImage(primitives.WhitePixel, &tmpDrawOptions)
 
