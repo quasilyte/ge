@@ -99,6 +99,8 @@ func (bg *TiledBackground) DrawPartialWithOffset(screen *ebiten.Image, section g
 		return
 	}
 
+	// TODO: handle pos too?
+
 	min := gmath.Vec{X: math.Round(section.Min.X), Y: math.Round(section.Min.Y)}
 	max := gmath.Vec{X: math.Round(section.Max.X), Y: math.Round(section.Max.Y)}
 	unsafeSrc := toUnsafeImage(bg.combined)
@@ -121,7 +123,10 @@ func (bg *TiledBackground) Draw(screen *ebiten.Image) {
 		return
 	}
 
+	pos := bg.Pos.Resolve()
+
 	var op ebiten.DrawImageOptions
+	op.GeoM.Translate(pos.X, pos.Y)
 	screen.DrawImage(bg.combined, &op)
 }
 
