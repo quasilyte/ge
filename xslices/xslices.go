@@ -1,21 +1,16 @@
 package xslices
 
-import (
-	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
-)
+// func Sort[T constraints.Ordered](slice []T) {
+// 	slices.Sort(slice)
+// }
 
-func Sort[T constraints.Ordered](slice []T) {
-	slices.Sort(slice)
-}
+// func SortFunc[T any](slice []T, less func(a, b T) bool) {
+// 	slices.SortFunc(slice, less)
+// }
 
-func SortFunc[T any](slice []T, less func(a, b T) bool) {
-	slices.SortFunc(slice, less)
-}
-
-func SortStableFunc[T any](slice []T, less func(a, b T) bool) {
-	slices.SortStableFunc(slice, less)
-}
+// func SortStableFunc[T any](slice []T, less func(a, b T) bool) {
+// 	slices.SortStableFunc(slice, less)
+// }
 
 func Diff[T comparable](s1, s2 []T) []T {
 	if len(s1) == 0 {
