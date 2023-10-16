@@ -62,6 +62,11 @@ func (h *Handler) CursorPos() Vec {
 	return h.sys.cursorPos
 }
 
+// TouchPos returns the current touch position on the screen.
+func (h *Handler) TouchPos() Vec {
+	return h.sys.touchTapPos
+}
+
 // DefaultInputMask returns the input mask suitable for functions like ActionKeyNames.
 //
 // If gamepad is connected, it returns GamepadInput mask.
