@@ -150,7 +150,7 @@ func (sys *AudioSystem) ContinueMusic(id resource.AudioID) {
 	if sys.muted {
 		return
 	}
-	sys.continueMusic(sys.loader.LoadOGG(id))
+	sys.continueMusic(sys.loader.LoadAudio(id))
 }
 
 func (sys *AudioSystem) continueMusic(res resource.Audio) {
@@ -166,7 +166,7 @@ func (sys *AudioSystem) PlayMusic(id resource.AudioID) {
 	if sys.muted {
 		return
 	}
-	res := sys.loader.LoadOGG(id)
+	res := sys.loader.LoadAudio(id)
 	if sys.currentMusic.Player != nil && res.Player == sys.currentMusic.Player && res.Player.IsPlaying() {
 		return
 	}
