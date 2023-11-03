@@ -30,7 +30,7 @@ func RunGame(ctx *Context, controller SceneController) error {
 		ctx.ScreenHeight = ctx.WindowHeight
 	}
 
-	return ebiten.RunGame(g)
+	return rungame(g)
 }
 
 type gameRunner struct {
