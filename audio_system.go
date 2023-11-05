@@ -2,6 +2,7 @@ package ge
 
 import (
 	"io"
+	"runtime"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
@@ -75,12 +76,14 @@ func (sys *AudioSystem) init(audioContext *audio.Context, l *resource.Loader) {
 		sys.groupVolume[i] = 1.0
 	}
 
-	// Audio player factory has lazy initialization that may lead
-	// to a ~0.2s delay before the first sound can be played.
-	// To avoid that delay, we force that factory to initialize
-	// right now, before the game is started.
-	dummy := sys.audioContext.NewPlayerFromBytes(nil)
-	dummy.Rewind()
+	if runtime.GOOS != "android" {
+		// Audio player factory has lazy initialization that may lead
+		// to a ~0.2s delay before the first sound can be played.
+		// To avoid that delay, we force that factory to initialize
+		// right now, before the game is started.
+		dummy := sys.audioContext.NewPlayerFromBytes(nil)
+		dummy.Rewind()
+	}
 }
 
 func (sys *AudioSystem) GetContext() *audio.Context {

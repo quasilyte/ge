@@ -1,4 +1,4 @@
-//go:build !mobile
+//go:build !android
 
 package ge
 
