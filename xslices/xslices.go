@@ -9,12 +9,22 @@ func Sort[T constraints.Ordered](slice []T) {
 	slices.Sort(slice)
 }
 
-func SortFunc[T any](slice []T, less func(a, b T) bool) {
-	slices.SortFunc(slice, less)
+func SortFunc[S ~[]E, E any](slice S, less func(a, b E) bool) {
+	slices.SortFunc[S, E](slice, func(a, b E) int {
+		if less(a, b) {
+			return -1
+		}
+		return 1
+	})
 }
 
-func SortStableFunc[T any](slice []T, less func(a, b T) bool) {
-	slices.SortStableFunc(slice, less)
+func SortStableFunc[S ~[]E, E any](slice S, less func(a, b E) bool) {
+	slices.SortStableFunc[S, E](slice, func(a, b E) int {
+		if less(a, b) {
+			return -1
+		}
+		return 1
+	})
 }
 
 func Diff[T comparable](s1, s2 []T) []T {
