@@ -14,7 +14,10 @@ func SortFunc[S ~[]E, E any](slice S, less func(a, b E) bool) {
 		if less(a, b) {
 			return -1
 		}
-		return 1
+		if less(b, a) {
+			return 1
+		}
+		return 0
 	})
 }
 
@@ -23,7 +26,10 @@ func SortStableFunc[S ~[]E, E any](slice S, less func(a, b E) bool) {
 		if less(a, b) {
 			return -1
 		}
-		return 1
+		if less(b, a) {
+			return 1
+		}
+		return 0
 	})
 }
 
