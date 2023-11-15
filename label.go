@@ -107,6 +107,12 @@ func (l *Label) SetAlpha(a float32) {
 	l.ebitenColorScale = l.colorScale.toEbitenColorScale()
 }
 
+func (l *Label) SetColorScaleRGBA(r, g, b, a uint8) {
+	var scale ColorScale
+	scale.SetRGBA(r, g, b, a)
+	l.SetColorScale(scale)
+}
+
 func (l *Label) SetColorScale(colorScale ColorScale) {
 	if l.colorScale == colorScale {
 		return
