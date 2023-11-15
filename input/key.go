@@ -16,6 +16,35 @@ type Key struct {
 	name string
 }
 
+func (k Key) String() string {
+	ctrlMod := false
+	shiftMod := false
+	switch k.kind {
+	case keyKeyboardWithCtrlShift:
+		ctrlMod = true
+		shiftMod = true
+	case keyKeyboardWithCtrl:
+		ctrlMod = true
+	case keyKeyboardWithShift:
+		shiftMod = true
+	case keyMouseWithCtrlShift:
+		ctrlMod = true
+		shiftMod = true
+	case keyMouseWithCtrl:
+		ctrlMod = true
+	case keyMouseWithShift:
+		shiftMod = true
+	}
+	name := k.name
+	if shiftMod {
+		name = "shift+" + name
+	}
+	if ctrlMod {
+		name = "ctrl+" + name
+	}
+	return name
+}
+
 type KeyModifier uint8
 
 const (
@@ -39,7 +68,7 @@ func KeyWithModifier(k Key, mod KeyModifier) Key {
 		case ModControlShift:
 			k.kind = keyKeyboardWithCtrlShift
 		default:
-			panic("unexpected key modifier")
+			panic("unexpected keyboard key modifier")
 		}
 	case keyMouse:
 		switch mod {
@@ -50,7 +79,7 @@ func KeyWithModifier(k Key, mod KeyModifier) Key {
 		case ModControlShift:
 			k.kind = keyMouseWithCtrlShift
 		default:
-			panic("unexpected key modifier")
+			panic("unexpected mouse key modifier")
 		}
 	default:
 		panic("only keyboard and mouse keys support modifiers")
@@ -67,9 +96,11 @@ var (
 
 // Mouse keys.
 var (
-	KeyMouseLeft   = Key{code: int(ebiten.MouseButtonLeft), kind: keyMouse, name: "mouse_left_button"}
-	KeyMouseRight  = Key{code: int(ebiten.MouseButtonRight), kind: keyMouse, name: "mouse_right_button"}
-	KeyMouseMiddle = Key{code: int(ebiten.MouseButtonMiddle), kind: keyMouse, name: "mouse_middle_button"}
+	KeyMouseLeft    = Key{code: int(ebiten.MouseButtonLeft), kind: keyMouse, name: "mouse_left_button"}
+	KeyMouseRight   = Key{code: int(ebiten.MouseButtonRight), kind: keyMouse, name: "mouse_right_button"}
+	KeyMouseMiddle  = Key{code: int(ebiten.MouseButtonMiddle), kind: keyMouse, name: "mouse_middle_button"}
+	KeyMouseBack    = Key{code: int(ebiten.MouseButton3), kind: keyMouse, name: "mouse_back_button"}
+	KeyMouseForward = Key{code: int(ebiten.MouseButton4), kind: keyMouse, name: "mouse_forward_button"}
 )
 
 // Touch keys.
@@ -133,6 +164,7 @@ var (
 	KeyN = Key{code: int(ebiten.KeyN), name: "n"}
 	KeyM = Key{code: int(ebiten.KeyM), name: "m"}
 
+	KeyBackslash    = Key{code: int(ebiten.KeyBackslash), name: "backslash"}
 	KeyBackspace    = Key{code: int(ebiten.KeyBackspace), name: "backspace"}
 	KeyBracketLeft  = Key{code: int(ebiten.KeyBracketLeft), name: "bracket_left"}
 	KeyBracketRight = Key{code: int(ebiten.KeyBracketRight), name: "bracket_right"}
@@ -140,6 +172,8 @@ var (
 	KeyComma        = Key{code: int(ebiten.KeyComma), name: "comma"}
 	KeyContextMenu  = Key{code: int(ebiten.KeyContextMenu), name: "context_menu"}
 	KeyAlt          = Key{code: int(ebiten.KeyAlt), name: "alt"}
+	KeyAltLeft      = Key{code: int(ebiten.KeyAltLeft), name: "alt_left"}
+	KeyAltRight     = Key{code: int(ebiten.KeyAltRight), name: "alt_right"}
 	KeyControl      = Key{code: int(ebiten.KeyControl), name: "control"}
 	KeyControlLeft  = Key{code: int(ebiten.KeyControlLeft), name: "control_left"}
 	KeyControlRight = Key{code: int(ebiten.KeyControlRight), name: "control_right"}
@@ -149,6 +183,7 @@ var (
 	KeyEscape       = Key{code: int(ebiten.KeyEscape), name: "escape"}
 	KeyHome         = Key{code: int(ebiten.KeyHome), name: "home"}
 	KeyInsert       = Key{code: int(ebiten.KeyInsert), name: "insert"}
+	KeyNumLock      = Key{code: int(ebiten.KeyNumLock), name: "num_lock"}
 	KeyPageDown     = Key{code: int(ebiten.KeyPageDown), name: "page_down"}
 	KeyPageUp       = Key{code: int(ebiten.KeyPageUp), name: "page_up"}
 	KeyPause        = Key{code: int(ebiten.KeyPause), name: "pause"}

@@ -38,6 +38,11 @@ type Handler struct {
 	GamepadDeadzone float64
 }
 
+// Remap changes the handler keymap while keeping all other settings the same.
+func (h *Handler) Remap(keymap Keymap) {
+	h.keymap = keymap
+}
+
 // GamepadConnected reports whether the gamepad associated with this handler is connected.
 // The gamepad ID is the handler ID used during the handler creation.
 //
@@ -82,6 +87,8 @@ func (h *Handler) DefaultInputMask() DeviceKind {
 //
 // Note: simulated events are only visible after the next System.Update() call.
 //
+// Note: key release events can't be simulated yet (see #35).
+//
 // See SimulatedKeyEvent documentation for more info.
 //
 // Experimental: this is a part of virtual input API, which is not stable yet.
@@ -97,7 +104,9 @@ func (h *Handler) EmitKeyEvent(e SimulatedKeyEvent) {
 // EmitEvent activates the given action for the player.
 // Only the handlers with the same player ID will discover this action.
 //
-// Note: simulated events are only visible after the next System.Update() call.p
+// Note: simulated events are only visible after the next System.Update() call.
+//
+// Note: action release events can't be simulated yet (see #35).
 //
 // See SimulatedAction documentation for more info.
 //
@@ -129,59 +138,122 @@ func (h *Handler) EmitEvent(e SimulatedAction) {
 // Keys with modifiers will have them listed too.
 // Modifiers are separated by "+".
 // A "k" keyboard key with ctrl modifier will have a "ctrl+k" name.
+//
+// Note: this function doesn't check whether some input device is available or not.
+// For example, if mask contains a TouchDevice, but touch actions are not
+// available on a machine, touch-related keys will still be returned.
+// It's up to the caller to specify a correct device mask.
+// Using a AnyDevice mask would return all mapped keys for the action.
 func (h *Handler) ActionKeyNames(action Action, mask DeviceKind) []string {
 	keys, ok := h.keymap[action]
 	if !ok {
 		return nil
 	}
-	gamepadConnected := h.GamepadConnected()
 	result := make([]string, 0, len(keys))
 	for _, k := range keys {
-		enabled := true
-		ctrlMod := false
-		shiftMod := false
-		switch k.kind {
-		case keyKeyboardWithCtrlShift:
-			ctrlMod = true
-			shiftMod = true
-			enabled = mask&KeyboardDevice != 0
-		case keyKeyboardWithCtrl:
-			ctrlMod = true
-			enabled = mask&KeyboardDevice != 0
-		case keyKeyboardWithShift:
-			shiftMod = true
-			enabled = mask&KeyboardDevice != 0
-		case keyKeyboard:
-			enabled = mask&KeyboardDevice != 0
-		case keyMouseWithCtrlShift:
-			ctrlMod = true
-			shiftMod = true
-			enabled = mask&MouseDevice != 0
-		case keyMouseWithCtrl:
-			ctrlMod = true
-			enabled = mask&MouseDevice != 0
-		case keyMouseWithShift:
-			shiftMod = true
-			enabled = mask&MouseDevice != 0
-		case keyMouse:
-			enabled = mask&MouseDevice != 0
-		case keyGamepad, keyGamepadLeftStick, keyGamepadRightStick, keyGamepadStickMotion:
-			enabled = gamepadConnected && (mask&GamepadDevice != 0)
-		case keyTouch, keyTouchDrag:
-			enabled = h.sys.touchEnabled && (mask&TouchDevice != 0)
+		if !h.keyIsEnabled(k, mask) {
+			continue
 		}
-		if enabled {
-			name := k.name
-			if shiftMod {
-				name = "shift+" + name
-			}
-			if ctrlMod {
-				name = "ctrl+" + name
-			}
-			result = append(result, name)
-		}
+		result = append(result, k.String())
 	}
 	return result
+}
+
+func (h *Handler) keyIsEnabled(k Key, mask DeviceKind) bool {
+	switch k.kind {
+	case keyKeyboardWithCtrlShift:
+		return mask&KeyboardDevice != 0
+	case keyKeyboardWithCtrl:
+		return mask&KeyboardDevice != 0
+	case keyKeyboardWithShift:
+		return mask&KeyboardDevice != 0
+	case keyKeyboard:
+		return mask&KeyboardDevice != 0
+	case keyMouseWithCtrlShift:
+		return mask&MouseDevice != 0
+	case keyMouseWithCtrl:
+		return mask&MouseDevice != 0
+	case keyMouseWithShift:
+		return mask&MouseDevice != 0
+	case keyMouse:
+		return mask&MouseDevice != 0
+	case keyGamepad, keyGamepadLeftStick, keyGamepadRightStick, keyGamepadStickMotion:
+		return mask&GamepadDevice != 0
+	case keyTouch, keyTouchDrag:
+		return mask&TouchDevice != 0
+	}
+	return true
+}
+
+// JustReleasedActionInfo is like ActionIsJustReleased, but with more information.
+//
+// This method has the same limitations as ActionIsJustReleased (see its comments).
+//
+// The first return value will hold the extra event info.
+// The second return value is false if given action is not just released.
+//
+// See EventInfo comment to learn more.
+//
+// Note: this action event is never simulated (see #35).
+func (h *Handler) JustReleasedActionInfo(action Action) (EventInfo, bool) {
+	keys, ok := h.keymap[action]
+	if !ok {
+		return EventInfo{}, false
+	}
+	for _, k := range keys {
+		if !h.keyIsJustReleased(k) {
+			continue
+		}
+		// TODO: maybe move this EventInfo initialization code to a function?
+		// It look like it's the same code in every *ActionInfo method.
+		// We don't need the StartPos here yet, because touch events
+		// are not handled in release events, but that's just a minutiae.
+		var info EventInfo
+		info.kind = k.kind
+		info.hasPos = keyHasPos(k.kind)
+		info.Pos = h.getKeyPos(k)
+		info.StartPos = h.getKeyStartPos(k)
+		return info, true
+	}
+	return EventInfo{}, false
+}
+
+// ActionIsJustReleased is like inpututil.IsKeyJustReleased, but operates
+// on the action level and works with any kinds of "keys".
+// It returns true if any of the keys bound to the action was released during this frame.
+//
+// Implementation limitation: for now it doesn't work for some of the key types.
+// It's easier to list the supported list:
+//   - Keyboard events
+//   - Mouse events
+//   - Gamepad normal buttons events (doesn't include joystick D-pad emulation events like KeyGamepadLStickUp)
+//
+// For the keys with modifiers it doesn't require the modifier keys to be released simultaneously with a main key.
+// These modifier keys can be in either "pressed" or "just released" state.
+// This makes the "ctrl+left click just released" event easier to perform on the user's side
+// (try releasing ctrl on the same frame as left click, it's hard!)
+//
+// TODO: implement other "action released" events if feasible.
+// The touch tap events, for example, doesn't sound useful here: a tap is
+// only registered when the gesture was already finished.
+// Therefore, the tap release event would be identical to a tap activation event.
+// We could re-word this event by saying that "released" happens when previous
+// frame ActionIsPressed reported true and the current frame reported false.
+// But that's a more complicated task.
+// Let's wait until users report their use cases.
+//
+// Note: this action event is never simulated (see #35).
+func (h *Handler) ActionIsJustReleased(action Action) bool {
+	keys, ok := h.keymap[action]
+	if !ok {
+		return false
+	}
+	for _, k := range keys {
+		if h.keyIsJustReleased(k) {
+			return true
+		}
+	}
+	return false
 }
 
 // JustPressedActionInfo is like ActionIsJustPressed, but with more information.
@@ -242,12 +314,14 @@ func (h *Handler) PressedActionInfo(action Action) (EventInfo, bool) {
 		info.hasPos = keyHasPos(k.kind)
 		info.Pos = h.getKeyPos(k)
 		info.StartPos = h.getKeyStartPos(k)
+		info.hasDuration = keyHasDuration(k.kind)
+		info.Duration = h.getKeyPressDuration(k)
 		return info, true
 	}
 	return EventInfo{}, false
 }
 
-// ActionIsJustPressed is like ebitenutil.IsKeyJustPressed, but operates
+// ActionIsJustPressed is like inpututil.IsKeyJustPressed, but operates
 // on the action level and works with any kinds of "keys".
 // It returns true if any of the keys bound to the action was pressed during this frame.
 func (h *Handler) ActionIsJustPressed(action Action) bool {
@@ -259,7 +333,7 @@ func (h *Handler) ActionIsJustPressed(action Action) bool {
 		if len(h.sys.simulatedEvents) != 0 {
 			// We want to avoid a situation when simulated input
 			// things that the key is still being pressed and then
-			// receive a real input from the bottom of ebitenutil that
+			// receive a real input from the bottom of inpututil that
 			// this key was actually "just pressed". To avoid that,
 			// we skip checking the real input if simulated input still
 			// holds that button down. This is why we need a bool3 here.
@@ -305,6 +379,45 @@ func (h *Handler) ActionIsPressed(action Action) bool {
 		})
 	}
 	return false
+}
+
+func (h *Handler) keyIsJustReleased(k Key) bool {
+	// Several key kinds are not handled here.
+	// TODO: extend the supported key kinds list?
+	switch k.kind {
+	case keyMouse:
+		return inpututil.IsMouseButtonJustReleased(ebiten.MouseButton(k.code))
+	case keyGamepad:
+		return h.gamepadKeyIsJustReleased(k)
+	case keyMouseWithCtrl:
+		return h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyControl) &&
+			inpututil.IsMouseButtonJustReleased(ebiten.MouseButton(k.code))
+	case keyMouseWithShift:
+		return h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyShift) &&
+			inpututil.IsMouseButtonJustReleased(ebiten.MouseButton(k.code))
+	case keyMouseWithCtrlShift:
+		return h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyControl) &&
+			h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyShift) &&
+			inpututil.IsMouseButtonJustReleased(ebiten.MouseButton(k.code))
+	case keyKeyboardWithCtrl:
+		return h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyControl) &&
+			inpututil.IsKeyJustReleased(ebiten.Key(k.code))
+	case keyKeyboardWithShift:
+		return h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyShift) &&
+			inpututil.IsKeyJustReleased(ebiten.Key(k.code))
+	case keyKeyboardWithCtrlShift:
+		return h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyControl) &&
+			h.ebitenKeyIsPressedOrJustReleased(ebiten.KeyShift) &&
+			inpututil.IsKeyJustReleased(ebiten.Key(k.code))
+	case keyKeyboard:
+		return inpututil.IsKeyJustReleased(ebiten.Key(k.code))
+	default:
+		return false
+	}
+}
+
+func (h *Handler) ebitenKeyIsPressedOrJustReleased(k ebiten.Key) bool {
+	return ebiten.IsKeyPressed(k) || inpututil.IsKeyJustReleased(k)
 }
 
 func (h *Handler) keyIsJustPressed(k Key) bool {
@@ -383,6 +496,27 @@ func (h *Handler) getKeyPos(k Key) Vec {
 	return result
 }
 
+// getKeyPressDuration returns how long the key has been pressed in ticks same as inpututil.KeyPressDuration.
+// When looking at a key press with modifiers it will return the lowest duration of all key presses.
+func (h *Handler) getKeyPressDuration(k Key) int {
+	switch k.kind {
+	case keyKeyboardWithShift:
+		return minOf(inpututil.KeyPressDuration(ebiten.Key(k.code)), inpututil.KeyPressDuration(ebiten.KeyShift))
+	case keyKeyboardWithCtrl:
+		return minOf(inpututil.KeyPressDuration(ebiten.Key(k.code)), inpututil.KeyPressDuration(ebiten.KeyControl))
+	case keyKeyboardWithCtrlShift:
+		return minOf(
+			inpututil.KeyPressDuration(ebiten.Key(k.code)),
+			minOf(
+				inpututil.KeyPressDuration(ebiten.KeyShift),
+				inpututil.KeyPressDuration(ebiten.KeyControl)))
+	case keyKeyboard:
+		return inpututil.KeyPressDuration(ebiten.Key(k.code))
+	}
+
+	return 0
+}
+
 func (h *Handler) keyIsPressed(k Key) bool {
 	switch k.kind {
 	case keyTouch:
@@ -411,11 +545,19 @@ func (h *Handler) keyIsPressed(k Key) bool {
 	case keyMouseWithShift:
 		return ebiten.IsKeyPressed(ebiten.KeyShift) &&
 			ebiten.IsMouseButtonPressed(ebiten.MouseButton(k.code))
+	case keyMouseWithCtrlShift:
+		return ebiten.IsKeyPressed(ebiten.KeyControl) &&
+			ebiten.IsKeyPressed(ebiten.KeyShift) &&
+			ebiten.IsMouseButtonPressed(ebiten.MouseButton(k.code))
 	case keyKeyboardWithCtrl:
 		return ebiten.IsKeyPressed(ebiten.KeyControl) &&
 			ebiten.IsKeyPressed(ebiten.Key(k.code))
 	case keyKeyboardWithShift:
 		return ebiten.IsKeyPressed(ebiten.KeyShift) &&
+			ebiten.IsKeyPressed(ebiten.Key(k.code))
+	case keyKeyboardWithCtrlShift:
+		return ebiten.IsKeyPressed(ebiten.KeyControl) &&
+			ebiten.IsKeyPressed(ebiten.KeyShift) &&
 			ebiten.IsKeyPressed(ebiten.Key(k.code))
 	default:
 		return ebiten.IsKeyPressed(ebiten.Key(k.code))
@@ -487,6 +629,13 @@ func (h *Handler) wheelIsJustPressed(code wheelCode) bool {
 	default:
 		return false
 	}
+}
+
+func (h *Handler) gamepadKeyIsJustReleased(k Key) bool {
+	if h.gamepadInfo().model == gamepadStandard {
+		return inpututil.IsStandardGamepadButtonJustReleased(ebiten.GamepadID(h.id), ebiten.StandardGamepadButton(k.code))
+	}
+	return inpututil.IsGamepadButtonJustReleased(ebiten.GamepadID(h.id), h.mappedGamepadKey(k.code))
 }
 
 func (h *Handler) gamepadKeyIsJustPressed(k Key) bool {
