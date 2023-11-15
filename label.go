@@ -47,9 +47,8 @@ const (
 type Label struct {
 	Text string
 
-	ColorScale ColorScale
-
-	Hue gmath.Rad
+	colorScale       ColorScale
+	ebitenColorScale ebiten.ColorScale
 
 	Pos    Pos
 	Width  float64
@@ -72,13 +71,14 @@ func NewLabel(ff font.Face) *Label {
 	capHeight := math.Abs(float64(m.CapHeight.Floor()))
 	lineHeight := float64(m.Height.Floor())
 	label := &Label{
-		face:            ff,
-		capHeight:       capHeight,
-		lineHeight:      lineHeight,
-		ColorScale:      defaultColorScale,
-		Visible:         true,
-		AlignHorizontal: AlignHorizontalLeft,
-		AlignVertical:   AlignVerticalTop,
+		face:             ff,
+		capHeight:        capHeight,
+		lineHeight:       lineHeight,
+		colorScale:       defaultColorScale,
+		ebitenColorScale: defaultColorScale.toEbitenColorScale(),
+		Visible:          true,
+		AlignHorizontal:  AlignHorizontalLeft,
+		AlignVertical:    AlignVerticalTop,
 	}
 	return label
 }
@@ -89,6 +89,30 @@ func (l *Label) IsDisposed() bool {
 
 func (l *Label) Dispose() {
 	l.face = nil
+}
+
+func (l *Label) GetColorScale() ColorScale {
+	return l.colorScale
+}
+
+func (l *Label) GetAlpha() float32 {
+	return l.colorScale.A
+}
+
+func (l *Label) SetAlpha(a float32) {
+	if l.colorScale.A == a {
+		return
+	}
+	l.colorScale.A = a
+	l.ebitenColorScale = l.colorScale.toEbitenColorScale()
+}
+
+func (l *Label) SetColorScale(colorScale ColorScale) {
+	if l.colorScale == colorScale {
+		return
+	}
+	l.colorScale = colorScale
+	l.ebitenColorScale = l.colorScale.toEbitenColorScale()
 }
 
 func (l *Label) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
@@ -180,10 +204,7 @@ func (l *Label) DrawWithOffset(screen *ebiten.Image, offset gmath.Vec) {
 	}
 
 	var drawOptions ebiten.DrawImageOptions
-	applyColorScale(l.ColorScale, &drawOptions.ColorM)
-	if l.Hue != 0 {
-		drawOptions.ColorM.RotateHue(float64(l.Hue))
-	}
+	drawOptions.ColorScale = l.ebitenColorScale
 	drawOptions.Filter = ebiten.FilterLinear
 
 	if l.AlignHorizontal == AlignHorizontalLeft {
