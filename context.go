@@ -46,6 +46,9 @@ type Context struct {
 	ScreenWidth  float64
 	ScreenHeight float64
 
+	layoutWidth  int
+	layoutHeight int
+
 	firstController SceneController
 
 	fixedDelta bool
@@ -166,4 +169,8 @@ func (ctx *Context) LoadGameData(key string, dst any) error {
 		return nil
 	}
 	return json.Unmarshal(data, dst)
+}
+
+func (ctx *Context) InferDisplayRatio() (int, int) {
+	return inferDisplayRatio(ctx.layoutWidth, ctx.layoutHeight)
 }

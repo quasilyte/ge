@@ -94,5 +94,8 @@ func (g *gameRunner) Draw(screen *ebiten.Image) {
 }
 
 func (g *gameRunner) Layout(outsideWidth, outsideHeight int) (int, int) {
+	g.ctx.layoutWidth = outsideWidth
+	g.ctx.layoutHeight = outsideHeight
+
 	return int(g.ctx.ScreenWidth), int(g.ctx.ScreenHeight)
 }
