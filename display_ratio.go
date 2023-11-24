@@ -33,7 +33,7 @@ func inferDisplayRatio(layoutWidth, layoutHeight int) (int, int) {
 		case [2]int{570, 270}:
 			return 19, 9
 
-		case [2]int{600, 270}:
+		case [2]int{600, 270}, [2]int{831, 383}:
 			return 20, 9
 
 		case [2]int{630, 270}:
