@@ -71,8 +71,8 @@ func (g *gameRunner) update() {
 	}
 
 	var delta float64
-	if g.ctx.fixedDelta {
-		delta = 1.0 / 60.0
+	if fixedDelta := g.ctx.fixedDelta; fixedDelta != 0.0 {
+		delta = g.ctx.fixedDelta
 	} else {
 		now := time.Now()
 		delta = now.Sub(g.prevTime).Seconds()

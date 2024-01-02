@@ -51,7 +51,7 @@ type Context struct {
 
 	firstController SceneController
 
-	fixedDelta bool
+	fixedDelta float64
 
 	imageCache imageCache
 }
@@ -67,15 +67,35 @@ type PanicInfo struct {
 	Value any
 }
 
+type TimeDeltaMode int
+
+const (
+	TimeDeltaComputed60 TimeDeltaMode = iota
+	TimeDeltaComputed120
+	TimeDeltaFixed60
+	TimeDeltaFixed120
+)
+
 type ContextConfig struct {
-	Mute       bool
-	FixedDelta bool
+	Mute bool
+
+	TimeDeltaMode TimeDeltaMode
 }
 
 func NewContext(config ContextConfig) *Context {
 	ctx := &Context{
 		WindowTitle: "GE Game",
-		fixedDelta:  config.FixedDelta,
+	}
+	switch config.TimeDeltaMode {
+	case TimeDeltaComputed60:
+		// Nothing to do.
+	case TimeDeltaComputed120:
+		ebiten.SetTPS(120)
+	case TimeDeltaFixed60:
+		ctx.fixedDelta = 1.0 / 60.0
+	case TimeDeltaFixed120:
+		ctx.fixedDelta = 1.0 / 120.0
+		ebiten.SetTPS(120)
 	}
 	audioContext := audio.NewContext(44100)
 	ctx.Loader = resource.NewLoader(audioContext)
