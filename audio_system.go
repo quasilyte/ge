@@ -99,7 +99,7 @@ func (sys *AudioSystem) Update() {
 			return
 		}
 		// Do a dequeue.
-		sys.currentQueueSound = sys.playSound(sys.soundQueue[0])
+		sys.currentQueueSound = sys.playSound(sys.soundQueue[0], 1)
 		for i, id := range sys.soundQueue[1:] {
 			sys.soundQueue[i] = id
 		}
@@ -191,6 +191,10 @@ func (sys *AudioSystem) EnqueueSound(id resource.AudioID) {
 }
 
 func (sys *AudioSystem) PlaySound(id resource.AudioID) {
+	sys.PlaySoundWithVolume(id, 1.0)
+}
+
+func (sys *AudioSystem) PlaySoundWithVolume(id resource.AudioID, vol float64) {
 	if sys.muted {
 		return
 	}
@@ -198,14 +202,14 @@ func (sys *AudioSystem) PlaySound(id resource.AudioID) {
 		return
 	}
 	sys.soundMap.Set(uint(id))
-	sys.playSound(id)
+	sys.playSound(id, vol)
 }
 
-func (sys *AudioSystem) playSound(id resource.AudioID) resource.Audio {
+func (sys *AudioSystem) playSound(id resource.AudioID, vol float64) resource.Audio {
 	res := sys.loader.LoadWAV(id)
-	volume := sys.groupVolume[res.Group]
-	if volume != 0 {
-		res.Player.SetVolume(res.Volume * sys.groupVolume[res.Group])
+	volumeMultiplier := sys.groupVolume[res.Group] * vol
+	if volumeMultiplier != 0 {
+		res.Player.SetVolume(res.Volume * volumeMultiplier)
 		res.Player.Rewind()
 		res.Player.Play()
 	}
