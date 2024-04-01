@@ -194,3 +194,7 @@ func (ctx *Context) LoadGameData(key string, dst any) error {
 func (ctx *Context) InferDisplayRatio() (int, int) {
 	return inferDisplayRatio(ctx.layoutWidth, ctx.layoutHeight)
 }
+
+func (ctx *Context) LayoutSize() (int, int) {
+	return ctx.layoutWidth, ctx.layoutHeight
+}
