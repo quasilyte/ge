@@ -7,10 +7,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/internal/gamedata"
 	"github.com/quasilyte/ge/langs"
-	"github.com/quasilyte/gmath"
 )
 
 type Context struct {
@@ -35,6 +36,8 @@ type Context struct {
 	// (e.g. run the main menu controller again).
 	NewPanicController func(panicInfo *PanicInfo) SceneController
 
+	// updateFn - user defined function is called in every update cycle if not null
+	updateFn        func(delta float64)
 	OnCriticalError func(err error)
 
 	GameName string
@@ -197,4 +200,9 @@ func (ctx *Context) InferDisplayRatio() (int, int) {
 
 func (ctx *Context) LayoutSize() (int, int) {
 	return ctx.layoutWidth, ctx.layoutHeight
+}
+
+func (ctx *Context) WithUpdateFn(fn func(delta float64)) *Context {
+	ctx.updateFn = fn
+	return ctx
 }
