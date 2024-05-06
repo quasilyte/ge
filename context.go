@@ -82,6 +82,8 @@ const (
 type ContextConfig struct {
 	Mute bool
 
+	// UpdateFn - user defined function is called in every update cycle if not null
+	UpdateFn      func(delta float64)
 	TimeDeltaMode TimeDeltaMode
 }
 
@@ -114,6 +116,7 @@ func NewContext(config ContextConfig) *Context {
 	ctx.OnCriticalError = func(err error) {
 		panic(err)
 	}
+	ctx.updateFn = config.UpdateFn
 	ctx.imageCache.Init()
 	return ctx
 }
@@ -200,9 +203,4 @@ func (ctx *Context) InferDisplayRatio() (int, int) {
 
 func (ctx *Context) LayoutSize() (int, int) {
 	return ctx.layoutWidth, ctx.layoutHeight
-}
-
-func (ctx *Context) WithUpdateFn(fn func(delta float64)) *Context {
-	ctx.updateFn = fn
-	return ctx
 }
