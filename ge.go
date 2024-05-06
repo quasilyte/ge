@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/quasilyte/ge/internal/locales"
 )
 
@@ -87,6 +88,9 @@ func (g *gameRunner) update() {
 	}
 
 	g.ctx.CurrentScene.update(delta)
+	if g.ctx.updateFn != nil {
+		g.ctx.updateFn(delta)
+	}
 }
 
 func (g *gameRunner) Draw(screen *ebiten.Image) {
