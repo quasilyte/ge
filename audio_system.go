@@ -128,6 +128,13 @@ func (sys *AudioSystem) DecodeOGG(r io.Reader) (*vorbis.Stream, error) {
 	return vorbis.Decode(sys.audioContext, r)
 }
 
+func (sys *AudioSystem) MusicIsPlaying() bool {
+	if sys.currentMusic.Player == nil {
+		return false
+	}
+	return sys.currentMusic.Player.IsPlaying()
+}
+
 func (sys *AudioSystem) PauseCurrentMusic() {
 	if sys.muted {
 		return
