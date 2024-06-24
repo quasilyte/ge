@@ -3,8 +3,9 @@ package main
 import (
 	"strconv"
 
-	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type popupBuildTank struct {
@@ -265,11 +266,11 @@ func (popup *popupBuildTank) tankDesign() tankDesign {
 
 func (popup *popupBuildTank) updateCategory() {
 	if popup.selectingTurret {
-		popup.turretName.ColorScale = ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1}
-		popup.hullName.ColorScale = ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1}
+		popup.turretName.SetColorScale(ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1})
+		popup.hullName.SetColorScale(ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1})
 	} else {
-		popup.hullName.ColorScale = ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1}
-		popup.turretName.ColorScale = ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1}
+		popup.hullName.SetColorScale(ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1})
+		popup.turretName.SetColorScale(ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1})
 	}
 }
 

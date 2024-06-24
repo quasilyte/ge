@@ -4,11 +4,10 @@ import (
 	"runtime"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 )
 
 type tutorialController struct {
-	input *input.MultiHandler
+	input *MultiHandler
 
 	scene *ge.Scene
 
@@ -50,7 +49,7 @@ func (c *tutorialController) Init(scene *ge.Scene) {
 	continueLabel.Text = continueText
 	continueLabel.GrowHorizontal = ge.GrowHorizontalBoth
 	continueLabel.AlignHorizontal = ge.AlignHorizontalCenter
-	continueLabel.ColorScale = ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1}
+	continueLabel.SetColorScale(ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1})
 	scene.AddGraphics(continueLabel)
 
 	contorolsText := scene.Dict().Get("tutorial.keymap.keyboard")
@@ -74,7 +73,7 @@ func (c *tutorialController) Init(scene *ge.Scene) {
 		warningLabel.Text = scene.Dict().Get("tutorial.wasm_notice")
 		warningLabel.Pos.Offset.X = 1024
 		warningLabel.Pos.Offset.Y = 256 + 32 + 450
-		warningLabel.ColorScale.SetRGBA(255, 180, 180, 255)
+		warningLabel.SetColorScaleRGBA(255, 180, 180, 255)
 		scene.AddGraphics(warningLabel)
 	}
 }

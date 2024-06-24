@@ -100,7 +100,7 @@ func (b *Button) Init(scene *ge.Scene) {
 	b.label.AlignHorizontal = ge.AlignHorizontalCenter
 	b.label.AlignVertical = ge.AlignVerticalCenter
 	b.label.Pos = b.Pos
-	b.label.ColorScale = b.style.TextColor
+	b.label.SetColorScale(b.style.TextColor)
 	b.label.Visible = b.Visible
 	scene.AddGraphics(b.label)
 }
@@ -121,11 +121,11 @@ func (b *Button) SetDisabled(disabled bool) {
 	b.disabled = disabled
 	if b.disabled {
 		b.SetFocus(false)
-		b.label.ColorScale = b.style.DisabledTextColor
+		b.label.SetColorScale(b.style.DisabledTextColor)
 		b.rect.FillColorScale = b.style.DisabledBackgroundColor
 		b.rect.OutlineColorScale = b.style.DisabledBorderColor
 	} else {
-		b.label.ColorScale = b.style.TextColor
+		b.label.SetColorScale(b.style.TextColor)
 		b.rect.FillColorScale = b.style.BackgroundColor
 		b.rect.OutlineColorScale = b.style.BorderColor
 	}
@@ -133,11 +133,11 @@ func (b *Button) SetDisabled(disabled bool) {
 
 func (b *Button) onFocusChanged(focused bool) {
 	if focused {
-		b.label.ColorScale = b.style.FocusedTextColor
+		b.label.SetColorScale(b.style.FocusedTextColor)
 		b.rect.FillColorScale = b.style.FocusedBackgroundColor
 		b.rect.OutlineColorScale = b.style.FocusedBorderColor
 	} else {
-		b.label.ColorScale = b.style.TextColor
+		b.label.SetColorScale(b.style.TextColor)
 		b.rect.FillColorScale = b.style.BackgroundColor
 		b.rect.OutlineColorScale = b.style.BorderColor
 	}

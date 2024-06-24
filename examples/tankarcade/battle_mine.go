@@ -1,9 +1,10 @@
 package main
 
 import (
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/physics"
-	"github.com/quasilyte/gmath"
 )
 
 type battleMine struct {
@@ -25,7 +26,7 @@ func (b *battleMine) Init(scene *ge.Scene) {
 
 	b.sprite = scene.NewSprite(ImageMine)
 	b.sprite.Pos.Base = &b.body.Pos
-	b.sprite.SetHue(spriteHue(b.alliance))
+	SetHue(b.sprite, spriteHue(b.alliance))
 	scene.AddGraphicsBelow(b.sprite, 1)
 
 	b.body.InitStaticCircle(b, 8)

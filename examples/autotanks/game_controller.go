@@ -3,15 +3,15 @@ package main
 import (
 	"strconv"
 
-	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type gameController struct {
 	scene *ge.Scene
 
-	input *input.MultiHandler
+	input *MultiHandler
 
 	gameState *gameState
 	config    battleConfig

@@ -6,14 +6,13 @@ import (
 	"strconv"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 )
 
 type resultsController struct {
 	scene     *ge.Scene
 	gameState *gameState
 	config    battleConfig
-	input     *input.MultiHandler
+	input     *MultiHandler
 	result    battleResult
 }
 
@@ -87,7 +86,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		l.Pos.Offset.Y = y
 		l.AlignHorizontal = ge.AlignHorizontalCenter
 		l.Width = 256
-		l.ColorScale.SetColor(c)
+		l.SetColorScaleRGBA(c.R, c.G, c.B, c.A)
 		return l
 	}
 

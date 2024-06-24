@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type unitStatsController struct {
 	scene     *ge.Scene
-	input     *input.MultiHandler
+	input     *MultiHandler
 	gameState *gameState
 }
 
@@ -44,7 +44,8 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 			scene.AddGraphics(imageBg)
 
 			image := scene.NewSprite(d.Image)
-			image.Scale = 1.5
+			w, h := image.GetScale()
+			image.SetScale(w*1.5, h*1.5)
 			image.Pos.SetBase(pos.Sub(gmath.Vec{X: 8}))
 			scene.AddGraphics(image)
 
@@ -87,7 +88,8 @@ func (c *unitStatsController) Init(scene *ge.Scene) {
 			scene.AddGraphics(imageBg)
 
 			image := scene.NewSprite(d.Image)
-			image.Scale = 1.5
+			w, h := image.GetScale()
+			image.SetScale(w*1.5, h*1.5)
 			image.Pos.SetBase(pos.Sub(gmath.Vec{X: 4}))
 			scene.AddGraphics(image)
 

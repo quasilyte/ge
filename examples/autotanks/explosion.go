@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type explosion struct {
@@ -25,7 +26,7 @@ func (e *explosion) Init(scene *ge.Scene) {
 	sprite := scene.NewSprite(ImageExplosion)
 	sprite.Pos.Base = &e.pos
 	sprite.FrameWidth = 64
-	sprite.Scale = e.Scale
+	sprite.SetScale(e.Scale, e.Scale)
 	scene.AddGraphics(sprite)
 
 	e.anim = ge.NewAnimation(sprite, -1)

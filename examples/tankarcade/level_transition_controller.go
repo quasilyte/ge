@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type levelTransitionController struct {
@@ -35,7 +36,12 @@ func (c *levelTransitionController) Init(scene *ge.Scene) {
 		}
 	}
 	title.Pos.Offset = scene.Context().WindowRect().Center().Add(gmath.Vec{X: -480, Y: -80})
-	title.ColorScale.SetColor(ge.RGB(0xe42cca))
+	title.SetColorScaleRGBA(
+		ge.RGB(0xe42cca).R,
+		ge.RGB(0xe42cca).G,
+		ge.RGB(0xe42cca).B,
+		ge.RGB(0xe42cca).A,
+	)
 	title.Width = 960
 	title.AlignHorizontal = ge.AlignHorizontalCenter
 	scene.AddGraphics(title)
@@ -47,7 +53,12 @@ func (c *levelTransitionController) Init(scene *ge.Scene) {
 		action1.Text = "Press " + formattedActionString(h, ActionConfirm) + " To Continue"
 	}
 	action1.Pos.Offset = scene.Context().WindowRect().Center().Add(gmath.Vec{X: -320})
-	action1.ColorScale.SetColor(ge.RGB(0xe42cca))
+	action1.SetColorScaleRGBA(
+		ge.RGB(0xe42cca).R,
+		ge.RGB(0xe42cca).G,
+		ge.RGB(0xe42cca).B,
+		ge.RGB(0xe42cca).A,
+	)
 	action1.Width = 640
 	action1.AlignHorizontal = ge.AlignHorizontalCenter
 	scene.AddGraphics(action1)
@@ -56,7 +67,12 @@ func (c *levelTransitionController) Init(scene *ge.Scene) {
 		action2 := scene.NewLabel(FontSmall)
 		action2.Text = "Press " + formattedActionString(h, ActionEscape) + " To Exit"
 		action2.Pos.Offset = scene.Context().WindowRect().Center().Add(gmath.Vec{X: -320, Y: 40})
-		action2.ColorScale.SetColor(ge.RGB(0xe42cca))
+		action2.SetColorScaleRGBA(
+			ge.RGB(0xe42cca).R,
+			ge.RGB(0xe42cca).G,
+			ge.RGB(0xe42cca).B,
+			ge.RGB(0xe42cca).A,
+		)
 		action2.Width = 640
 		action2.AlignHorizontal = ge.AlignHorizontalCenter
 		scene.AddGraphics(action2)

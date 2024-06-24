@@ -4,10 +4,11 @@ import (
 	"math"
 
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
-	"github.com/quasilyte/gmath"
 )
 
 var facingAngles = []gmath.Rad{
@@ -110,7 +111,7 @@ func (u *battleUnit) Init(scene *ge.Scene) {
 	scene.AddBody(&u.Body)
 
 	u.sprite = scene.NewSprite(u.config.image)
-	u.sprite.SetHue(spriteHue(u.config.alliance))
+	SetHue(u.sprite, spriteHue(u.config.alliance))
 	u.sprite.Pos.Base = &u.Body.Pos
 	u.sprite.Rotation = &u.Body.Rotation
 	scene.AddGraphics(u.sprite)
