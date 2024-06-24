@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 const harvestDelaySeconds = 5.0
@@ -89,7 +89,7 @@ var battleRules = []string{
 }
 
 type battleController struct {
-	input *input.MultiHandler
+	input *MultiHandler
 
 	config battleConfig
 
@@ -124,7 +124,7 @@ func (c *battleController) Init(scene *ge.Scene) {
 	c.battleState.HQDefeat = c.config.rules["mode.hq_siege"]
 	c.battleState.UnfairBots = c.config.rules["mode.unfair_bots"]
 
-	bg := ge.NewTiledBackground()
+	bg := ge.NewTiledBackground(scene.Context())
 	if c.battleState.MudTerrain {
 		bg.Hue = gmath.DegToRad(160)
 	}

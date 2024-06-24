@@ -3,13 +3,13 @@ package main
 import (
 	"os"
 
-	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type menuController struct {
-	input     *input.MultiHandler
+	input     *MultiHandler
 	scene     *ge.Scene
 	gameState *gameState
 

@@ -2,8 +2,9 @@ package main
 
 import (
 	resource "github.com/quasilyte/ebitengine-resource"
-	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 type explosion struct {
@@ -31,7 +32,7 @@ func (e *explosion) Init(scene *ge.Scene) {
 	e.rotation = scene.Rand().Rad()
 	sprite := scene.NewSprite(e.Image)
 	sprite.Pos.Base = &e.pos
-	sprite.SetHue(e.Hue)
+	SetHue(sprite, e.Hue)
 	sprite.SetScale(e.Scale, e.Scale)
 
 	sprite.Rotation = &e.rotation

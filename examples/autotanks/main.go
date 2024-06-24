@@ -2,15 +2,15 @@ package main
 
 import (
 	"embed"
+	_ "image/png"
 	"io"
 	"time"
 
 	resource "github.com/quasilyte/ebitengine-resource"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/langs"
-
-	_ "image/png"
 )
 
 //go:embed assets/*
@@ -106,7 +106,7 @@ const (
 )
 
 func main() {
-	ctx := ge.NewContext()
+	ctx := ge.NewContext(ge.ContextConfig{})
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.WindowTitle = "Tanks"
 	ctx.WindowWidth = 1920
@@ -162,12 +162,12 @@ func main() {
 	state.Player3gamepad = ctx.Input.NewHandler(2, gamepadKeymap)
 	state.Player4gamepad = ctx.Input.NewHandler(3, gamepadKeymap)
 
-	state.MenuInput = ctx.Input.NewMultiHandler()
+	state.MenuInput = &MultiHandler{}
 	state.MenuInput.AddHandler(state.Player1gamepad)
 	state.MenuInput.AddHandler(state.Player1keyboard)
 
 	// Associate audio resources.
-	audioResources := map[resource.AudioID]resource.Audio{
+	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioGatlingGun:               {Path: "sounds/gatling_gun.wav", Volume: -0.5},
 		AudioLightCannon:              {Path: "sounds/light_cannon.wav", Volume: -0.4},
 		AudioDualCannon:               {Path: "sounds/dual_cannon.wav", Volume: -0.3},
@@ -182,12 +182,16 @@ func main() {
 		AudioCueProductionCompleted:   {Path: "sounds/production_completed.wav", Volume: +0.1},
 		AudioCueConstructionCompleted: {Path: "sounds/construction_completed.wav"},
 		AudioCueScreenReset:           {Path: "sounds/screen_reset.wav"},
-		AudioMusic:                    {Path: "sounds/music.ogg"},
 	}
+
 	for id, res := range audioResources {
 		ctx.Loader.AudioRegistry.Set(id, res)
-		ctx.Loader.PreloadAudio(id)
+		// preload audio, first call here decodes, all further calls return cached result
+		_ = ctx.Loader.LoadWAV(id)
 	}
+
+	ctx.Loader.AudioRegistry.Set(AudioMusic, resource.AudioInfo{Path: "sounds/music.ogg"})
+	_ = ctx.Loader.LoadOGG(AudioMusic)
 
 	// Associate image resources.
 	imageResources := map[resource.ImageID]resource.ImageInfo{
@@ -233,29 +237,32 @@ func main() {
 	}
 	for id, res := range imageResources {
 		ctx.Loader.ImageRegistry.Set(id, res)
-		ctx.Loader.PreloadImage(id)
+		// preload image, first call here decodes, all further calls return cached result
+		_ = ctx.Loader.LoadImage(id)
 	}
 
 	// Associate font resources.
-	fontResources := map[resource.FontID]resource.Font{
+	fontResources := map[resource.FontID]resource.FontInfo{
 		FontSmall:       {Path: "DejavuSansMono.ttf", Size: 12},
 		FontDescription: {Path: "DejavuSansMono.ttf", Size: 14, LineSpacing: 1.15},
 		FontBig:         {Path: "DejavuSansMono.ttf", Size: 20},
 	}
 	for id, res := range fontResources {
 		ctx.Loader.FontRegistry.Set(id, res)
-		ctx.Loader.PreloadFont(id)
+		// preload font, first call here decodes, all further calls return cached result
+		_ = ctx.Loader.LoadFont(id)
 	}
 
 	// Associate other resources.
-	rawResources := map[resource.RawID]resource.Raw{
+	rawResources := map[resource.RawID]resource.RawInfo{
 		RawTilesJSON: {Path: "tiles.json"},
 		RawDictEng:   {Path: "langs/eng.txt"},
 		RawDictRus:   {Path: "langs/rus.txt"},
 	}
 	for id, res := range rawResources {
 		ctx.Loader.RawRegistry.Set(id, res)
-		ctx.Loader.PreloadRaw(id)
+		// ... you know the drill
+		_ = ctx.Loader.LoadRaw(id)
 	}
 
 	languages := ge.InferLanguages()
@@ -268,7 +275,7 @@ func main() {
 			break
 		}
 	}
-	dict, err := langs.ParseDictionary(selectedLang, ctx.Loader.LoadRaw(preferredDict))
+	dict, err := langs.ParseDictionary(selectedLang, 4, ctx.Loader.LoadRaw(preferredDict).Data)
 	if err != nil {
 		panic(err)
 	}
@@ -280,7 +287,7 @@ func main() {
 }
 
 type gameState struct {
-	MenuInput       *input.MultiHandler
+	MenuInput       *MultiHandler
 	Player1keyboard *input.Handler
 	Player1gamepad  *input.Handler
 	Player2gamepad  *input.Handler

@@ -3,8 +3,9 @@ package main
 import (
 	"image/color"
 
-	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+
+	"github.com/quasilyte/ge"
 )
 
 func unitLayerMask(alliance int) uint16 {
@@ -31,10 +32,10 @@ func getPlayerTextColor(playerID int) color.RGBA {
 func applyPlayerColor(playerID int, s *ge.Sprite) {
 	switch playerID {
 	case 1:
-		s.SetHue(gmath.DegToRad(50))
+		SetHue(s, gmath.DegToRad(50))
 	case 2:
-		s.SetHue(-gmath.DegToRad(180))
+		SetHue(s, gmath.DegToRad(180))
 	case 3:
-		s.SetHue(gmath.DegToRad(135))
+		SetHue(s, gmath.DegToRad(135))
 	}
 }

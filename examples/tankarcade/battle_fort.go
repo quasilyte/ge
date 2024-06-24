@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
-	"github.com/quasilyte/gmath"
 )
 
 type battleFort struct {
@@ -52,7 +53,7 @@ func (b *battleFort) Init(scene *ge.Scene) {
 	scene.AddBody(&b.Body)
 
 	b.sprite = scene.NewSprite(ImageWall)
-	b.sprite.SetHue(spriteHue(b.alliance))
+	SetHue(b.sprite, spriteHue(b.alliance))
 	b.sprite.Pos.Base = &b.Body.Pos
 	scene.AddGraphics(b.sprite)
 
@@ -61,7 +62,7 @@ func (b *battleFort) Init(scene *ge.Scene) {
 		turretImage = ImageTurret2
 	}
 	b.turretSprite = scene.NewSprite(turretImage)
-	b.turretSprite.SetHue(spriteHue(b.alliance))
+	SetHue(b.turretSprite, spriteHue(b.alliance))
 	b.turretSprite.Pos.Base = &b.Body.Pos
 	b.turretSprite.Rotation = &b.Body.Rotation
 	b.turretSprite.Shader = scene.NewShader(ShaderBuildingDamage)

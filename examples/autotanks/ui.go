@@ -3,9 +3,10 @@ package main
 import (
 	"strconv"
 
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
-	"github.com/quasilyte/gmath"
 )
 
 type focusToggler interface {
@@ -95,9 +96,9 @@ func (b *checkboxButton) Update(delta float64) {
 
 func (b *checkboxButton) updateColor() {
 	if b.Focused {
-		b.label.ColorScale = ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1}
+		b.label.SetColorScale(ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1})
 	} else {
-		b.label.ColorScale = ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1}
+		b.label.SetColorScale(ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1})
 	}
 }
 
@@ -153,9 +154,9 @@ func (b *selectButton) Update(delta float64) {
 
 func (b *selectButton) updateColor() {
 	if b.Focused {
-		b.label.ColorScale = ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1}
+		b.label.SetColorScale(ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1})
 	} else {
-		b.label.ColorScale = ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1}
+		b.label.SetColorScale(ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1})
 	}
 }
 
@@ -219,9 +220,9 @@ func (b *button) Update(delta float64) {
 
 func (b *button) updateColor() {
 	if b.Focused {
-		b.label.ColorScale = ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1}
+		b.label.SetColorScale(ge.ColorScale{R: 0.8, G: 1, B: 0.8, A: 1})
 	} else {
-		b.label.ColorScale = ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1}
+		b.label.SetColorScale(ge.ColorScale{R: 0.6, G: 0.6, B: 0.6, A: 1})
 	}
 }
 
@@ -295,8 +296,8 @@ func (d *priceDisplay) SetAvailable(iron, gold, oil bool) {
 
 func (d *priceDisplay) setAvailable(l *ge.Label, available bool) {
 	if available {
-		l.ColorScale.SetRGBA(255, 255, 255, 255)
+		l.SetColorScaleRGBA(255, 255, 255, 255)
 	} else {
-		l.ColorScale.SetRGBA(255, 180, 180, 255)
+		l.SetColorScaleRGBA(255, 180, 180, 255)
 	}
 }

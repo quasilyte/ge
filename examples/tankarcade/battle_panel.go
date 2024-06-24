@@ -38,14 +38,24 @@ func (p *battlePanel) Init(scene *ge.Scene) {
 			}
 			l := scene.NewLabel(FontSmall)
 			l.Text = fmt.Sprintf("Player %d |", i+1)
-			l.ColorScale.SetColor(ge.RGB(0xe42cca))
+			l.SetColorScaleRGBA(
+				ge.RGB(0xe42cca).R,
+				ge.RGB(0xe42cca).G,
+				ge.RGB(0xe42cca).B,
+				ge.RGB(0xe42cca).A,
+			)
 			l.Pos.Offset.Y = 896 + 32 + offset
 			l.Pos.Offset.X = 64
 			scene.AddGraphicsAbove(l, 1)
 
 			value := scene.NewLabel(FontSmall)
 			value.Text = "HP: ?"
-			value.ColorScale.SetColor(ge.RGB(0xe42cca))
+			value.SetColorScaleRGBA(
+				ge.RGB(0xe42cca).R,
+				ge.RGB(0xe42cca).G,
+				ge.RGB(0xe42cca).B,
+				ge.RGB(0xe42cca).A,
+			)
 			value.Pos.Offset.Y = 896 + 32 + offset
 			value.Pos.Offset.X = 64 + 288
 			scene.AddGraphicsAbove(value, 1)
@@ -53,7 +63,12 @@ func (p *battlePanel) Init(scene *ge.Scene) {
 
 			specialLabel := scene.NewLabel(FontSmall)
 			specialLabel.Text = "Special: ?"
-			specialLabel.ColorScale.SetColor(ge.RGB(0xe42cca))
+			specialLabel.SetColorScaleRGBA(
+				ge.RGB(0xe42cca).R,
+				ge.RGB(0xe42cca).G,
+				ge.RGB(0xe42cca).B,
+				ge.RGB(0xe42cca).A,
+			)
 			specialLabel.Pos.Offset.Y = 896 + 32 + offset
 			specialLabel.Pos.Offset.X = 64 + 288 + 224
 			scene.AddGraphicsAbove(specialLabel, 1)

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
-	"github.com/quasilyte/gmath"
 )
 
 type battleBonusGenerator struct {
@@ -50,7 +51,7 @@ func (b *battleBonusGenerator) Init(scene *ge.Scene) {
 	scene.AddBody(&b.Body)
 
 	b.sprite = scene.NewSprite(ImageBonusGenerator)
-	b.sprite.SetHue(spriteHue(b.alliance))
+	SetHue(b.sprite, spriteHue(b.alliance))
 	b.sprite.Pos.Base = &b.Body.Pos
 	b.sprite.Rotation = &b.Body.Rotation
 	b.sprite.Shader = scene.NewShader(ShaderBuildingDamage)

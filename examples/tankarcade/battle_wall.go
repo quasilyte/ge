@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/ge/physics"
-	"github.com/quasilyte/gmath"
 )
 
 type battleWall struct {
@@ -41,7 +42,7 @@ func (b *battleWall) Init(scene *ge.Scene) {
 	scene.AddBody(&b.Body)
 
 	b.sprite = scene.NewSprite(ImageWall)
-	b.sprite.SetHue(spriteHue(b.alliance))
+	SetHue(b.sprite, spriteHue(b.alliance))
 	b.sprite.Pos.Base = &b.Body.Pos
 	b.sprite.Shader = scene.NewShader(ShaderBuildingDamage)
 	b.sprite.Shader.SetFloatValue("HP", 1.0)
