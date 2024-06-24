@@ -89,7 +89,7 @@ func (l *ValueLabel[T]) Init(scene *ge.Scene) {
 	l.label.AlignHorizontal = ge.AlignHorizontalCenter
 	l.label.AlignVertical = ge.AlignVerticalCenter
 	l.label.Pos = l.Pos
-	l.label.ColorScale = l.style.TextColor
+	l.label.SetColorScale(l.style.TextColor)
 	scene.AddGraphics(l.label)
 
 	if l.value != nil {
